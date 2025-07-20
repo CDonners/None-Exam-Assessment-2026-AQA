@@ -33,8 +33,3 @@ class deckHandling():
                 deck.append([value, suit])
         deck = deck*noOfDecks # Combines multiple decks together
         return deck # Returns finalised deck
-        
-testing = deckHandling(4)
-print(testing.deck)
-testing.shuffle()
-print(testing.deck)
