@@ -1,11 +1,10 @@
 from os import urandom
     
 class deckHandling():
-    def __init__(self, noOfDecks):
-        self.deck = self.generateDeck(noOfDecks)
+    def __init__(self, noOfDecks: int):
+        self.deck = self.generateDeck(noOfDecks) 
     
     def genRandInt(self, numberOfBits: int):
-        """"""
         # Ensure numberOfBits is greater than 0
         if numberOfBits < 0:
             raise ValueError("Error: Cannot have less than 0 bits")
@@ -23,9 +22,9 @@ class deckHandling():
                 newPos = self.genRandInt(bitLength) # Creates a new position
             self.deck[pos], self.deck[newPos] = self.deck[newPos], self.deck[pos] # Flips position values
     
-    def generateDeck(self, noOfDecks):
-        suits = ["h","d","c","s"] # Represents the Suits of a playing card deck
-        values = ["1","2","3","4","5","6","7","8","9","10","11","12","13"] # Represents all the values of a card in playing deck in number form
+    def generateDeck(self, noOfDecks: int):
+        suits = ["h","d","c","s"] 
+        values = ["1","2","3","4","5","6","7","8","9","10","11","12","13"] # Numerical representation of card values
         deck = []
         # Create every card in the standard 52 playing card deck
         for suit in suits:
