@@ -71,13 +71,16 @@ class playCards(deckHandling):
         self.cardsInPlay.insert(0, card)
     
     def burnCard(self):
-        card = self.deck.pop(0)
-        self.discardPile.insert(0, card)
+        card = self.deck.pop(0) # Remove card from deck
+        self.discardPile.insert(0, card) # Add to the discard pile
         
     def clearTable(self):
         for card in self.cardsInPlay:
             self.discardPile.insert(0, card)
         self.cardsInPlay = []
+    
+class cardCountingAlgorithm():
+    pass
     
 p = playCards(4)
 p.shuffle()
