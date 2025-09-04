@@ -1,9 +1,10 @@
 from os import urandom
 
 class cards():
-    def __init__(self, value: str, suit: str, cardWeight: int):
+    def __init__(self, value: str, suit: str, score: int, cardWeight: int):
         self.value = value
         self.suit = suit
+        self.cardScore = score
         self.cardWeight = cardWeight
         self.visible = False
         self.discarded = False
@@ -41,12 +42,16 @@ class deckHandling():
     def generateDeck(self, noOfDecks: int):
         # Card Values and Suits
         suits = ["h","d","s","c"]
-        values = [["A", -1],["2", 1],["3", 1],["4", 2],["5", 2],["6", 2],["7", 1],["8", 0],["9", 0],["10", -2],["J", -2],["Q", -3],["K", -2]] 
+        values = [["A", -1, 11],["2", 1, 2],["3", 1, 3],["4", 2, 4],["5", 2, 5],["6", 2, 6],["7", 1, 7],["8", 0, 8],["9", 0, 9],["10", -2, 10],["J", -2, 10],["Q", -3, 10],["K", -2, 10]] 
         deck = [] # Empty list to append generated cards to
         # Create every card in the standard 52 playing card deck
         for suit in suits:
             for value in values:
-                deck.append(cards(value[0], suit, value[1])) # Create object for the individual card
+                # No magic numbers
+                cardValue = value[0]
+                cardWeight = value[1]
+                cardScore = value[2]
+                deck.append(cards(cardValue, suit, cardWeight, cardScore)) # Create object for the individual card
         deck = deck*noOfDecks # Combines multiple decks together
         return deck # Returns finalised deck
     
