@@ -1,5 +1,15 @@
 from os import urandom
-    
+
+class cards:
+    def __init__(self, value: str, suit: str, cardWeight: int):
+        self.value = value
+        self.suit = suit
+        self.cardWeight = cardWeight
+        self.visible = False
+
+    def setVisible():
+        self.visible = True
+
 class deckHandling():
     def __init__(self, noOfDecks: int):
         self.deck = self.generateDeck(noOfDecks) 
@@ -30,5 +40,14 @@ class deckHandling():
         for suit in suits:
             for value in values:
                 deck.append([value, suit])
+        deck = deck*noOfDecks # Combines multiple decks together
+        return deck # Returns finalised deck
+
+    def generateDeck(self, noOfDecks: int):
+        values = [["A", -1],["2", 1],["3", 1],["4", 2],["5", 2],["6", 2],["7", 1],["8", 0],["9", 0],["10", -2],["J", -2],["Q", -3],["K", -2]] # Card Values
+        deck = []
+        # Create every card in the standard 52 playing card deck
+        for value in values:
+            deck.append(cards(value[0], "h", value[1]))
         deck = deck*noOfDecks # Combines multiple decks together
         return deck # Returns finalised deck
