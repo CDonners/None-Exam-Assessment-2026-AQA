@@ -49,5 +49,8 @@ class deckHandling():
         # Create every card in the standard 52 playing card deck
         for value in values:
             deck.append(cards(value[0], "h", value[1]))
+            deck.append(cards(value[0], "d", value[1]))
+            deck.append(cards(value[0], "c", value[1]))
+            deck.append(cards(value[0], "s", value[1]))
         deck = deck*noOfDecks # Combines multiple decks together
         return deck # Returns finalised deck
