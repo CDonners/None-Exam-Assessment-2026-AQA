@@ -1,5 +1,5 @@
 class nonePlayableCharacters():
-    def __init__(self, name: str, personality: str, prosperity: int, judgement: int, confidence: int, experience: int):
+    def __init__(self, name: str, personality: str, prosperity: int, judgement: int, confidence: int, experience: int, startingBux: int):
         # Asthetic Attributes
         self.name = name
         self.personality = personality # Affects voice lines 
@@ -10,3 +10,13 @@ class nonePlayableCharacters():
         self.experience = experience # Their card counting ability (Affects how well they can use the card count to their advantage)
         # Gameplay Variables
         self.hand = []
+        self.bustbux = startingBux
+        self.isBusted = False
+
+class player():
+    def __init__(self, name: str, startingBux: int):
+        self.name = name
+        self.bustbux = startingBux
+
+        self.hand = []
+        self.isBusted = False
