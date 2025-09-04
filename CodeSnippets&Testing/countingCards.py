@@ -3,7 +3,7 @@ class countingCards():
         self.runningCount = 0
         self.trueCount = 0
     
-    def decisionMaking(self, hand: list):
+    def handQuality(self, hand: list):
         handValue = 0
         for card in hand:
             handValue += card.score
