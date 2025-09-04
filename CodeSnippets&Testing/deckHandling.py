@@ -74,7 +74,7 @@ class playCards(deckHandling):
         card = self.deck.pop(0) # Remove card from deck
         self.discardPile.insert(0, card) # Add to the discard pile
         
-    def clearTable(self):
+    def clearTable(self): # Move all cards in play to the discard pile
         for card in self.cardsInPlay:
             self.discardPile.insert(0, card)
         self.cardsInPlay = []
