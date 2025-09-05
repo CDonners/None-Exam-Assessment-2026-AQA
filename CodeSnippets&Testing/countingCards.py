@@ -5,6 +5,7 @@ class countingCards():
     
     def handQuality(self, hand: list):
         handValue = 0
+        nextCard = "" # High, Low, Unknown
         for card in hand:
             handValue += card.score
         # Target is 21, 20, 19
@@ -15,3 +16,9 @@ class countingCards():
         # Higher the count, the more high cards there are, JQK are high, 789 are mid, 456 are lowish, 23 are low A, is low and high
         # After running some simulations, I can determine that an "extremely low" running count is about -10 or bellow 
         # while a high count is mainly just above 0, around 5 or so 
+        if self.runningCount < 0:
+            nextCard = "Low"
+        elif self.runningCount > 0:
+            nextCard = "High"
+        else:
+            nextCard = "Unknown"
