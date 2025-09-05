@@ -1,11 +1,11 @@
 from os import urandom
 
 class cards():
-    def __init__(self, value: str, suit: str, score: int, cardWeight: int):
+    def __init__(self, value: str, suit: str, cardWeight: int, score: int):
         self.value = value
         self.suit = suit
-        self.cardScore = score
         self.cardWeight = cardWeight
+        self.cardScore = score
         self.visible = False
         self.discarded = False
 
