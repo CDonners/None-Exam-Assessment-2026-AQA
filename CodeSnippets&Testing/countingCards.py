@@ -13,4 +13,5 @@ class countingCards():
         # Find cards needed:
         valuesNeeded = [i-handValue for i in range(21, 18, -1)]
         # Higher the count, the more high cards there are, JQK are high, 789 are mid, 456 are lowish, 23 are low A, is low and high
-        
+        # After running some simulations, I can determine that an "extremely low" running count is about -10 or bellow 
+        # while a high count is mainly just above 0, around 5 or so 
