@@ -1,7 +1,7 @@
 from os import urandom
 
 class cards():
-    def __init__(self, value: str, suit: str, score: int, cardWeight: int):
+    def __init__(self, value: str, suit: str, cardWeight: int, score: int):
         self.value = value
         self.suit = suit
         self.cardScore = score
@@ -49,9 +49,9 @@ class deckHandling():
             for value in values:
                 # No magic numbers
                 cardValue = value[0]
-                cardWeight = value[1]
-                cardScore = value[2]
-                deck.append(cards(cardValue, suit, cardWeight, cardScore)) # Create object for the individual card
+                cardScore = value[1]
+                cardWeight = value[2]
+                deck.append(cards(cardValue, suit, cardScore, cardWeight)) # Create object for the individual card
         deck = deck*noOfDecks # Combines multiple decks together
         return deck # Returns finalised deck
     
@@ -82,9 +82,16 @@ class countingCards():
         # Higher the count, the more high cards there are, JQK are high, 789 are mid, 456 are lowish, 23 are low A, is low and high
 
 p = playCards(4)
-for i in range(int(input("How many hands to simulate"))):
-  for i in range(12):
-    p.dealCard()
-score = 0
+p.shuffle()
+for i in range(int(input("How many rounds to simulate: "))):
+    for i in range(18):
+        p.dealCard()
+        score = 0
 for i in p.cardsInPlay:
-  score += i.weight
+    score += i.cardWeight
+playedCards1 = [i.value for i in p.cardsInPlay]
+playedCards = {i:playedCards1.count(i) for i in list(set(playedCards1))}
+print(score/4,"\n",playedCards)
+p.dealCard()
+input()
+print(p.cardsInPlay[0].value)
