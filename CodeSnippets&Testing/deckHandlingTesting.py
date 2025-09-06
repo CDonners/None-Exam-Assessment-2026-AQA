@@ -79,9 +79,6 @@ class playCards(deckHandling):
             self.discardPile.insert(0, card)
         self.cardsInPlay = []
     
-class cardCountingAlgorithm():
-    pass
-    
 p = playCards(4)
 p.shuffle()
 
