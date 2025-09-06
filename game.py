@@ -1,3 +1,7 @@
-from deckLogic import cards, deckHandling
+from cardLogic import cards, playCards
 
-print(deckHandling)
+playCards = playCards(4)
+playCards.shuffle()
+
+for i in playCards.deck:
+    print(i.value)
