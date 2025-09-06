@@ -21,4 +21,6 @@ class nonePlayableCharacters(player):
         self.confidence = confidence # Affects how likely they are to place a risky bet (Affected by the card count and their hand)
         self.experience = experience # Their card counting ability (Affects how well they can use the card count to their advantage)
         
-    
+p = player("steve", 1000)
+p.dealCard()
+print(p.hand)
