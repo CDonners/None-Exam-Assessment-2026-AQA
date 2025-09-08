@@ -86,12 +86,12 @@ p.shuffle()
 for i in range(int(input("How many rounds to simulate: "))):
     for i in range(18):
         p.dealCard()
-        score = 0
+score = 0
 for i in p.cardsInPlay:
     score += i.cardWeight
 playedCards1 = [i.value for i in p.cardsInPlay]
 playedCards = {i:playedCards1.count(i) for i in list(set(playedCards1))}
-print(score/4,"\n",playedCards)
+print(score,"\n",playedCards)
 p.dealCard()
 input()
 print(p.cardsInPlay[0].value)

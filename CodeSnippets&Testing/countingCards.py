@@ -1,11 +1,35 @@
 class countingCards():
     def __init__(self):
+        # Constants
+        self.CARDDEFS  = {"veryHigh":["K","J","Q","10"], "high":["7","8", "9"], "low":["4","5","6"], "veryLow":["A","2","3"]}
+        # Variables
         self.runningCount = 0
         self.trueCount = 0
+        self.nextCard = self.findNextCard()
+    
+    def findNextCard(self):
+        nextCard = "" # Very High, High, Low, Very Low, Unknown
+        if self.runningCount < 0:
+            nextCard = "low"
+            if self.runningCount < -10:
+                nextCard = "veryLow"
+        elif self.runningCount > 0:
+            nextCard = "high"
+            if self.runningCount > 10:
+                nextCard = "veryHigh"
+        else:
+            nextCard = "Unknown"
+        return nextCard
+    
+    def determineCardsNeeded(self, valuesNeeded):
+        cardDefsNeeded = [] # Can be atmost 2 values
+        for category in self.CARDDEFS:
+            cardDef = self.CARDDEFS[category]
+            if any(i in cardDef for i in valuesNeeded):
+                cardDefsNeeded.append(cardDef)
     
     def handQuality(self, hand: list):
         handValue = 0
-        nextCard = "" # High, Low, Unknown
         for card in hand:
             handValue += card.score
         # Target is 21, 20, 19
@@ -13,12 +37,7 @@ class countingCards():
             return "Stand"
         # Find cards needed:
         valuesNeeded = [i-handValue for i in range(21, 18, -1)]
-        # Higher the count, the more high cards there are, JQK are high, 789 are mid, 456 are lowish, 23 are low A, is low and high
-        # After running some simulations, I can determine that an "extremely low" running count is about -10 or bellow 
-        # while a high count is mainly just above 0, around 5 or so 
-        if self.runningCount < 0:
-            nextCard = "Low"
-        elif self.runningCount > 0:
-            nextCard = "High"
-        else:
-            nextCard = "Unknown"
+        # Get the base value for the hand
+        if any(i > 10 for i in valuesNeeded): # Cannot bust at all
+            handQual = 1
+        
