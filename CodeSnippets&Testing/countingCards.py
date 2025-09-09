@@ -1,3 +1,5 @@
+from deckHandlingTesting import playCards
+
 class countingCards():
     def __init__(self):
         # Constants
@@ -20,13 +22,14 @@ class countingCards():
                 nextCards = "veryHigh"
         return nextCards
     
-    def determineCardsNeeded(self, valuesNeeded):
+    def determineCardsNeeded(self, facesNeeded):
         cardGroupsNeeded = [] # Can be atmost 2 values
+        facesNeededStr = [str(i) for i in facesNeeded]
         for category in self.CARDGROUPS:
             cardGroup = self.CARDGROUPS[category][0]
-            if any(i in cardGroup for i in valuesNeeded):
+            if any(i in cardGroup for i in facesNeededStr):
                 cardsInGroup = 0
-                for card in valuesNeeded:
+                for card in facesNeededStr:
                     if card in cardGroup:
                         cardsInGroup += 1
                 cardGroupsNeeded.append([category, cardsInGroup])
@@ -36,18 +39,19 @@ class countingCards():
         handValue = 0
         handQual = None
         for card in hand: # Sum of card score
-            handValue += card.score
+            handValue += card.value
         # Target is 21, 20, 19
         if handValue in [21, 20, 19]:
             return "Stand"
         # Find cards needed:
-        valuesNeeded = [i-handValue for i in range(21, 18, -1)]
+        facesNeeded = [i-handValue for i in range(21, 18, -1)]
         # Get the base value for the hand
-        if any(i >= 10 for i in valuesNeeded): # Cannot bust at all
+        if any(i >= 10 for i in facesNeeded): # Cannot bust at all
             handQual = 1.0
-        cardsNeeded = self.determineCardsNeeded(valuesNeeded)
+        cardsNeeded = self.determineCardsNeeded(facesNeeded)
         if len(cardsNeeded) == 2:
             pass
+            print("Haven't done this yet")
         else:
             cardsNeeded = cardsNeeded[0][0] # We know the 3 cards match up and there's only one category so we can ignore the rest
             if self.CARDGROUPS[cardsNeeded][0] == self.CARDGROUPS[self.nextCards][0]:
@@ -61,3 +65,11 @@ class countingCards():
                 else:
                     handQual = 0.25
         return handQual
+    
+hq = countingCards()
+playCards = playCards(4)
+playCards.shuffle()
+playCards.dealCard()
+playCards.dealCard()
+print([i.face for i in playCards.cardsInPlay])
+print(hq.handQuality(playCards.cardsInPlay))

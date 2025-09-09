@@ -1,8 +1,10 @@
 from os import urandom
 
 class cards():
-    def __init__(self, value: str, suit: str, cardWeight: int):
-        self.value = value
+    def __init__(self, face: str, suit: str, cardWeight: int):
+        self.faceConversion = {"A":11, "K":10, "Q":10, "J":10}
+        self.face = face
+        self.value = int(face) if face.isnumeric() else self.faceConversion[face]
         self.suit = suit
         self.cardWeight = cardWeight
         self.visible = False
