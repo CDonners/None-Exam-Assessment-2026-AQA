@@ -71,6 +71,7 @@ class playCards(deckHandling):
         card = self.deck.pop(0)
         card.setVisible()
         self.cardsInPlay.insert(0, card)
+        return card
     
     def burnCard(self):
         card = self.deck.pop(0) # Remove card from deck
