@@ -14,3 +14,5 @@ class button:
     def draw(self):
         self.surface.blit(self.image, self.rect)
         
+    def checkHover(self, mousePos):
+        return self.rect.collidepoint(mousePos)
