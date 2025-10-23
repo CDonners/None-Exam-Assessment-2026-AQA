@@ -1,4 +1,4 @@
-from os import urandom
+from pygameUtils.rand import shuffleList
 
 class cards():
     def __init__(self, face: str, suit: str, cardWeight: int):
@@ -21,24 +21,6 @@ class deckHandling():
         self.deck = self.generateDeck(noOfDecks)
         self.cardsInPlay = []
         self.discardPile = []
-    
-    def genRandInt(self, numberOfBits: int):
-        # Ensure numberOfBits is greater than 0
-        if numberOfBits < 0:
-            raise ValueError("Error: Cannot have less than 0 bits")
-        byteStringLen = (numberOfBits+8)//8 # Converts n into bytes rounding up
-        byteString = urandom(byteStringLen) # Generates a random string of bytes from within the machine with specified length
-        byteStringValue = int.from_bytes(byteString) # Converts byte string back to an integer
-        return byteStringValue
-    
-    def shuffle(self):
-        for pos in range(len(self.deck)-1,-1,-1):
-            # Get the new position
-            bitLength = pos.bit_length() # Gets how many bits is in the index
-            newPos = self.genRandInt(bitLength) # Create Position
-            while newPos >= len(self.deck)-1: # If the position is out of range gen again
-                newPos = self.genRandInt(bitLength) # Creates a new position
-            self.deck[pos], self.deck[newPos] = self.deck[newPos], self.deck[pos] # Flips position values
 
     def generateDeck(self, noOfDecks: int):
         # Card Values and Suits
@@ -51,6 +33,9 @@ class deckHandling():
                 deck.append(cards(value[0], suit, value[1])) # Create object for the individual card
         deck = deck*noOfDecks # Combines multiple decks together
         return deck # Returns finalised deck
+    
+    def shuffle(self):
+        self.deck = shuffleList(self.deck)
     
     def getCard(self):
         return self.deck.pop(0) # Returns top card
