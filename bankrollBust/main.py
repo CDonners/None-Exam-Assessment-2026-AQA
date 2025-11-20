@@ -16,7 +16,14 @@ playButton = button(screen, (700,400), "button")
 settingsButton = button(screen,(700,500), "button")
 quitButton = button(screen, (700,600), "button")
 
-def play():
+def newGameSettings():
+    miniWindowImage = pygame.image.load("bankrollBust/images/miniWindow.png")
+    
+    started = False
+    while not started:
+        
+
+def newGame(noOfDecks, difficulty, startingBux, noOfPlayers):
     global gameRunning
     while gameRunning:
         for event in pygame.event.get(): #Checking for events
