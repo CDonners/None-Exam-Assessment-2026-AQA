@@ -1,0 +1,3 @@
+Plans
+Do New Game Button
+ - Opens onto a new "mini window" within the game so that player can select: Number of NPCs, starting bux
