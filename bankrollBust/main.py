@@ -20,15 +20,15 @@ quitButton = button(screen, (700,600), "button")
 
 def newGameSettings():
     # Mini Window Setup
-    miniWindowImage = pygame.image.load("bankrollBust/images/miniWindow.png")
-    miniWindowRect = miniWindowImage.get_rect(centre=(initX/2, initY/2))
+    miniWindowImage = pygame.image.load("bankrollBust/images/MiniMenu.png")
+    miniWindowRect = miniWindowImage.get_rect(center=(initX/2, initY/2))
     # Interaction Setup
     noOfDecksSlider = None
     difficultySlider = None
     noOfPlayersSliders = None
     startingBuxInput = None
-    startButton = None
-    cancelButton = None
+    startButton = button(screen, (miniWindowRect.width//2, miniWindowRect.height//2), "button")
+    #cancelButton = button(screen, (), "button")
     # Keeping Window Open
     started = False
     while not started:
@@ -36,7 +36,10 @@ def newGameSettings():
             if event.type == pygame.QUIT: # If the user presses the X button, quit game
                 quit()
         if startButton.updateImage():
-            pass # return settings
+            pass
+            #return [1,2,3,4]
+        #if quitButton.updateImage():
+            #return None
         screen.blit(miniWindowImage, miniWindowRect)
         pygame.display.flip()
 
@@ -58,8 +61,12 @@ while gameRunning: # Main Menu Loop
     screen.blit(bg, (0,0)) # Set the screen as my background
     # Draw the buttons, also detects whether pressed or 
     if newGameButton.updateImage():
+        gameSettings = newGameSettings()
         if newGameSettings is not None: # If it is none they cancelled new game
-            pass
+            noOfDecks = gameSettings[0]
+            difficulty = gameSettings[1]
+            startingBux = gameSettings[2]
+            noOfPlayers = gameSettings[3]
     settingsButton.updateImage()
     if quitButton.updateImage():
         gameRunning = False
