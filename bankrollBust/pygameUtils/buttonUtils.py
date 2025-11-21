@@ -9,22 +9,24 @@ class button:
         self.bid = BIFD + buttonName
         self.centre = centre
         self.image = pygame.image.load(self.bid+".png")
-        self.rect = self.image.get_rect(center = centre)
+        self.interactableObj = self.image.get_rect(center = centre)
         self.surface = surface
-        self.hovered = True
     
     def draw(self):
         self.surface.blit(self.image, self.rect)
         
-    def checkHover(self, mousePos):
-        self.hovered =  self.rect.collidepoint(mousePos)
+    def checkHover(self, obj):
+        mousePos = pygame.mouse.get_pos()
+        return obj.collidepoint(mousePos)
+
+    def checkPressed(self, obj):
+        if pygame.mouse.get_perssed()[0]:
+            return True
         
     def updateImage(self):
         pressed = False
-        mousePos = pygame.mouse.get_pos() # Gets the mouse position
-        self.checkHover(mousePos)
-        if self.hovered: # Check if the mouse is over the button
-            if pygame.mouse.get_pressed()[0]: # Button is Pressed
+        if self.checkHover(self.interactableObj): # Check if the mouse is over the button
+            if self.checkPressed(interactableObj): # Button is Pressed
                 self.image = pygame.image.load(self.bid+"_pressed"+".png")
                 pressed = True
             else: # Buttons isn't pressed
@@ -34,13 +36,14 @@ class button:
         self.draw() # Draw the updated image
         return pressed
         
-class discreteSlider(button):
+class discreteSlider():
     def __init__(self, surface, centre, values):
         self.surface = surface
         self.centre = centre
         self.values = values
         self.guideImage = pygame.image.load(BIFD + "sliderGuide")
         self.guideRect = self.guideImage.get_rect(center = centre)
-        self.thumbImage = pygame.image.load(BIFD + "sliderThumb")
-        
-        self.thumbRect = self.thumbImage.get_rect(centre = (self.guideRect.left, (self.guideRect.top-self.guideRect.bottom)/2))
+        self.thumbBounds = (self.guideRect.left, self.guideRect.right)
+        self.interactableObj = pygame.draw.circle(screen, (0, 0, 0), centre = (self.thumbBounds[0], (self.guideRect.top - self.guideRect.bottom)/2), 25)
+
+    
