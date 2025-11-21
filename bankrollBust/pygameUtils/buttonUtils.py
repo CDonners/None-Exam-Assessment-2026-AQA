@@ -15,18 +15,18 @@ class button:
     def draw(self):
         self.surface.blit(self.image, self.rect)
         
-    def checkHover(self, obj):
+    def checkHover(self):
         mousePos = pygame.mouse.get_pos()
-        return obj.collidepoint(mousePos)
+        return self.interactableObj.collidepoint(mousePos)
 
-    def checkPressed(self, obj):
+    def checkPressed(self):
         if pygame.mouse.get_perssed()[0]:
             return True
         
     def updateImage(self):
         pressed = False
-        if self.checkHover(self.interactableObj): # Check if the mouse is over the button
-            if self.checkPressed(interactableObj): # Button is Pressed
+        if self.checkHover(): # Check if the mouse is over the button
+            if self.checkPressed(): # Button is Pressed
                 self.image = pygame.image.load(self.bid+"_pressed"+".png")
                 pressed = True
             else: # Buttons isn't pressed
@@ -43,7 +43,20 @@ class discreteSlider():
         self.values = values
         self.guideImage = pygame.image.load(BIFD + "sliderGuide")
         self.guideRect = self.guideImage.get_rect(center = centre)
-        self.thumbBounds = (self.guideRect.left, self.guideRect.right)
+        self.thumbLBound = self.guideRect.left
+        self.thumbUBound = self.guideRect.right
         self.interactableObj = pygame.draw.circle(screen, (0, 0, 0), centre = (self.thumbBounds[0], (self.guideRect.top - self.guideRect.bottom)/2), 25)
+        self.pressed = False
 
-    
+    def moveThumb(self):
+        mousePos = pygame.mouse.get_pos()
+        if self.pressed = False:
+            if self.checkHover():
+                if self.checkPressed():
+                    offsetX = mousePos[0] - self.interactableObj.centerX
+                    self.Pressed = True
+        if self.pressed:
+            if mousePos[0] > self.thumbLBound and mousePos[0] < self.thumbUBound
+                self.interactableObj.centerX = mousePos[0]-offsetX
+            if not self.checkPressed():
+                pass # Release mouse
