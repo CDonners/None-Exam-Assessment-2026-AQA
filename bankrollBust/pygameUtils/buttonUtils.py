@@ -33,3 +33,14 @@ class button:
             self.image = pygame.image.load(self.bid+".png")
         self.draw() # Draw the updated image
         return pressed
+        
+class discreteSlider(button):
+    def __init__(self, surface, centre, values):
+        self.surface = surface
+        self.centre = centre
+        self.values = values
+        self.guideImage = pygame.image.load(BIFD + "sliderGuide")
+        self.guideRect = self.guideImage.get_rect(center = centre)
+        self.thumbImage = pygame.image.load(BIFD + "sliderThumb")
+        
+        self.thumbRect = self.thumbImage.get_rect(centre = (self.guideRect.left, (self.guideRect.top-self.guideRect.bottom)/2))
