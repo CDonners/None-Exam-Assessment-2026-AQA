@@ -86,9 +86,12 @@ class discreteSlider(button):
         offsetX = 0
         if self.pressed == False:
             if self.checkHover():
+                self.interactableImage = pygame.image.load(BIFD + "thumbHovered.png")
                 if self.checkPressed():
                     offsetX = mousePos[0] - self.interactableObj.centerx
                     self.pressed = True
+            else:
+                self.interactableImage = pygame.image.load(BIFD + "thumb.png")
         if self.pressed == True:
             if mousePos[0] > self.thumbLBound and mousePos[0] < self.thumbUBound:
                 self.interactableObj.centerx = mousePos[0]-offsetX
@@ -98,5 +101,5 @@ class discreteSlider(button):
                 self.interactableObj.centerx = snapPos
         self.surface.blit(self.guideImage, self.guideRect)
         self.surface.blit(self.interactableImage, self.interactableObj)
-        for i in list(self.valuePoints.keys()):
-            pygame.draw.circle(self.surface, (0,255,0), (i,self.guideRect.centery), 5)
+        # for i in list(self.valuePoints.keys()):
+        #     pygame.draw.circle(self.surface, (0,255,0), (i,self.guideRect.centery), 5)
