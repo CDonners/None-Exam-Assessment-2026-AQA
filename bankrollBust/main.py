@@ -1,6 +1,6 @@
 import pygame
 from deckLogic import deckHandling
-from pygameUtils.buttonUtils import button
+from pygameUtils.buttonUtils import button, discreteSlider
 
 deckInstance = deckHandling(4) # Deck handling instance ready
 
@@ -14,7 +14,8 @@ BGIMAGE = pygame.image.load("bankrollBust/images/table.png") # Load the backgrou
 bg = pygame.transform.scale(BGIMAGE, INITIALSIZE) # Set the size of the background image to the size of the screen
 
 # Button Setup
-newGameButton = button(screen, (700,400), "button")
+newGameButton = button(screen, (700,300), "button")
+continueButton = button(screen, (700,400), "button")
 settingsButton = button(screen,(700,500), "button")
 quitButton = button(screen, (700,600), "button")
 
@@ -22,12 +23,13 @@ def newGameSettings():
     # Mini Window Setup
     miniWindowImage = pygame.image.load("bankrollBust/images/MiniMenu.png")
     miniWindowRect = miniWindowImage.get_rect(center=(initX/2, initY/2))
+    
     # Interaction Setup
-    noOfDecksSlider = None
+    noOfDecksSlider = discreteSlider(screen, (miniWindowRect.centerx, miniWindowRect.centery), [1,2,3,4,5])
     difficultySlider = None
     noOfPlayersSliders = None
     startingBuxInput = None
-    startButton = button(screen, (miniWindowRect.width//2, miniWindowRect.height//2), "button")
+    #startButton = button(screen, (miniWindowRect.centerx, miniWindowRect.centery), "button")
     #cancelButton = button(screen, (), "button")
     # Keeping Window Open
     started = False
@@ -35,13 +37,13 @@ def newGameSettings():
         for event in pygame.event.get(): #Checking for events
             if event.type == pygame.QUIT: # If the user presses the X button, quit game
                 quit()
-        if startButton.updateImage():
+        pygame.display.flip()
+        screen.blit(miniWindowImage, miniWindowRect)
+        if noOfDecksSlider.moveThumb():
             pass
             #return [1,2,3,4]
         #if quitButton.updateImage():
             #return None
-        screen.blit(miniWindowImage, miniWindowRect)
-        pygame.display.flip()
 
 def newGame(noOfDecks, difficulty, startingBux, noOfPlayers):
     global gameRunning
@@ -67,6 +69,7 @@ while gameRunning: # Main Menu Loop
             difficulty = gameSettings[1]
             startingBux = gameSettings[2]
             noOfPlayers = gameSettings[3]
+    continueButton.updateImage()
     settingsButton.updateImage()
     if quitButton.updateImage():
         gameRunning = False
