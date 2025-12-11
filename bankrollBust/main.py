@@ -16,7 +16,7 @@ bg = pygame.transform.scale(BGIMAGE, INITIALSIZE) # Set the size of the backgrou
 # Button Setup
 centreX = INITX//2 # Dynamically centering X
 # Dymanically centering Y with the formula (Distance from top initially)/(Initial Y) * CurrentY this will make the buttons be in the same place no matter the screensize
-newGameButton = button(screen, (centreX, 600), "New Game")
+newGameButton = button(screen, (centreX, 300), "New Game")
 continueButton = button(screen, (centreX,400), "Continue")
 settingsButton = button(screen,(centreX,500), "Settings")
 quitButton = button(screen, (centreX,600), "Quit")
