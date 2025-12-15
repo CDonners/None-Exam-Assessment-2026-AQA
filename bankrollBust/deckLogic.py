@@ -13,7 +13,7 @@ class cards():
     def setVisible(self):
         self.visible = True
         
-    def setDiscarded(self):
+    def discard(self):
         self.discarded = True
 
 class deckHandling():

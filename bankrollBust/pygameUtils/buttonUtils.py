@@ -5,13 +5,13 @@ CWD = os.getcwd() # Get the current working directory
 BIFD = CWD + "\\bankrollBust\\images\\buttons\\" # Button Images Folder Directory
 
 class button:
-    def __init__(self, surface: pygame.Surface, centre: tuple, name: str, scale = 1.0):
+    def __init__(self, surface: pygame.Surface, centre: tuple, name: str, scale = 1.0, interactable = True):
         # Variables
         self.bid = BIFD + "button" # BID: Button Image Directory
         self.centre = centre # Centre of the button
         self.surface = surface # Defining the surface
         self.scale = scale # Defining the scale
-        self.interactable = True
+        self.interactable = interactable
         # Creating the interactable button
         self.interactableImage = pygame.transform.scale_by(pygame.image.load(self.bid+".png"), scale) # Loading the image and adjusting it to the specified scale
         self.interactableObj = self.interactableImage.get_rect(center = centre) # Turn the image into a rect with the specified centre
@@ -33,31 +33,38 @@ class button:
         if event.type == pygame.MOUSEBUTTONDOWN: # Checking if the button press is a mouse press
             if event.button == 1: # Checks if the button pressed is the left mouse button
                 return True
+            
+    def changeInteractability(self):
+        self.interactable = True if not self.interactable else False
         
     def updateImage(self, event): # Updates the image depending on how the button is being interacted with
         pressed = False # Button isn't pressed by default
-        if self.checkHover(): # Check if the mouse is over the button
-            if self.pressed(event): # Button is Pressed
-                # Set the button to the pressed image
-                self.interactableImage = pygame.transform.scale_by(pygame.image.load(self.bid+"_pressed"+".png"),self.scale)
-                pressed = True # Telling us the button is pressed
-            else: # Buttons isn't pressed
-                # Set button to the hovered image
-                self.interactableImage = pygame.transform.scale_by(pygame.image.load(self.bid+"_hovered"+".png"), self.scale)
-        else: # Button isn't being interacted with
-            # Set the button image to the regular image as it's not being interacted with
-            self.interactableImage = pygame.transform.scale_by(pygame.image.load(self.bid+".png"), self.scale)
+        if self.interactable: # Button can be interacted with
+            if self.checkHover(): # Check if the mouse is over the button
+                if self.pressed(event): # Button is Pressed
+                    # Set the button to the pressed image
+                    self.interactableImage = pygame.transform.scale_by(pygame.image.load(self.bid+"_pressed"+".png"),self.scale)
+                    pressed = True # Telling us the button is pressed
+                else: # Buttons isn't pressed
+                    # Set button to the hovered image
+                    self.interactableImage = pygame.transform.scale_by(pygame.image.load(self.bid+"_hovered"+".png"), self.scale)
+            else: # Button isn't being interacted with
+                # Set the button image to the regular image as it's not being interacted with
+                self.interactableImage = pygame.transform.scale_by(pygame.image.load(self.bid+".png"), self.scale)
+        else:
+            self.interactableImage = pygame.transform.scale_by(pygame.image.load(self.bid+"_inactive"+".png"),self.scale)
         self.draw() # Draw the updated image
         return pressed # Returns whether button is pressed
         
 class discreteSlider(button):
-    def __init__(self, surface: pygame.Surface, name: str, centre: tuple, values: list, scale = 1.0):
+    def __init__(self, surface: pygame.Surface, name: str, centre: tuple, values: list, scale = 1.0, interactable = True):
         # Variables
         self.surface = surface
         self.name = name
         self.centre = centre
         self.values = values
         self.scale = scale
+        self.interactable = interactable
         self.value = values[0] # Sets the default value to be the first one, which will be on the very left
         # Creating Slider Guide
         self.guideImage = pygame.transform.scale_by(pygame.image.load(BIFD + "sliderGuide.png"), self.scale)
@@ -154,25 +161,33 @@ class discreteSlider(button):
                 self.mouseHeld = False # Sets held to false
                 
 class inputBox(button):
-    def __init__(self, surface: pygame.Surface, centre: tuple, name: str, inputType, scale=1.0):
+    def __init__(self, surface: pygame.Surface, centre: tuple, name: str, inputType: str , defaultValue:str, scale=1.0, interactable = True, minMax = ()):
         # Variables
         self.surface = surface
         self.centre = centre
         self.name = name
-        self.inputType = inputType
+        self.inputType = inputType # What input the box takes can be any from: ["alpha", "num", "alphanum"]
+        self.defaultValue = defaultValue
         self.scale = scale
+        self.interactable = interactable
         self.selected = False
-        self.value = "1000" # Setting to a default value
+        self.value = defaultValue # Setting to a default value
+        self.minMax = minMax
         # Creating the input box
         self.interactableImage = pygame.transform.scale_by(pygame.image.load(BIFD + "button.png"), self.scale)
         self.interactableObj = self.interactableImage.get_rect(center = centre)
         # Creating the text for the slider title
         self.title_font = pygame.font.SysFont("", 22) # Sets the font of the text to the default pygame font and the size to 22
         self.title_text_surface = self.title_font.render(f"{self.name}", True, (255, 255, 255)) # Creates the text surface with black colour
-        self.title_text_rect = self.title_text_surface.get_rect(center=(self.centre[0], self.centre[1]-45)) # Creates the rect with an offset to appear above the input box
+        self.title_text_rect = self.title_text_surface.get_rect(center=(self.centre[0], self.centre[1]-50*self.scale)) # Creates the rect with an offset to appear above the input box
     
     def draw(self):
-        # Draw thumb and guide
+        # Check if it's interactable
+        if self.interactable:
+            self.interactableImage = pygame.transform.scale_by(pygame.image.load(BIFD + "button.png"), self.scale)
+        else:
+            self.interactableImage = pygame.transform.scale_by(pygame.image.load(BIFD + "button_inactive.png"), self.scale)
+        # Button
         self.surface.blit(self.interactableImage, self.interactableObj)
         # Create the text object for value
         self.input_font = pygame.font.SysFont("", 22) # Sets the font to pygame default with size 22
@@ -189,8 +204,27 @@ class inputBox(button):
                 self.value = "" # Value is blank
             else: # Otherwise
                 self.selected = False # Selected is now false
-                if self.selected == "": # If no value was set when it was pressed then the default value is set bac
-                    self.selected = "1000"
+                if self.value == "": # If no value was set when it was pressed then the default value is set bac
+                    self.value = self.defaultValue
+                elif self.minMax != (): # There is a minimum and maximum value meaning value is an int or float
+                    if float(self.value) < self.minMax[0]:
+                        self.value = str(self.minMax[0]) # If it's smaller than allowed set to min value
+                    elif float(self.value) > self.minMax[1]:
+                        self.value = str(self.minMax[1]) # If it's greater than allowed set to max value
+                    
+    def checkAllowed(self, strToCheck):
+        # Checks if the input is accepted, returns boolean
+        if self.interactable:
+            if self.inputType == "num":
+                if strToCheck == "0" and self.value == "": # Checks to make sure the player isn't putting 0s before the number, makes display cleaner
+                    return False
+                return strToCheck.isnumeric()
+            elif self.inputType == "alpha":
+                return strToCheck.isalpha()
+            elif self.inputType == "alphanum":
+                return strToCheck.isalnum()
+        else:
+            return False
     
     def getInput(self, event):
         self.draw() # Draws the rects
@@ -198,6 +232,12 @@ class inputBox(button):
         if self.selected: # if it was selected
             if event.type == pygame.KEYDOWN: # Checks for keyboard presses
                 key_pressed = pygame.key.name(event.key) # Gets the key pressed
-                if key_pressed.isnumeric(): # Only accets numeric inputs
+                if pygame.key.key_code(key_pressed) == 8: # Key Code 8 is backspace
+                    if len(self.value) > 1: # Checks if string is longer than one
+                        self.value = self.value[0:len(self.value)-1] # Removes the last character in the string
+                    else: # If value is only one character or is empty, avoids implosion
+                        self.value = "" # Sets value to 0
+                elif self.checkAllowed(key_pressed): # Only accepts numeric inputs
                     self.value = self.value + key_pressed # Adds the input to the value string
+            
         return self.value # returns the value string
