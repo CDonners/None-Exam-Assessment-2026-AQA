@@ -12,9 +12,7 @@ class player():
         self.isBusted = True
 
     def dealCard(self):
-        print("herrrr")
         card = deckInstance.getCard()
-        print(card,"poo")
         self.hand.append(card)
         
     def newRound(self):
