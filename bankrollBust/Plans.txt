@@ -1,9 +1,6 @@
-Plans
-Do New Game Button
- - Opens onto a new "mini window" within the game so that player can select: Number of NPCs, starting bux
-
-Input Boxes
-- When mouse click over box input mode activated
-- When mouse click not over box, input mode deactivated
-- Detect key presses, only accept specified character types
-- Display the inputted characters within the box, handle overflow
+Make the player class in players.py
+Make the game work
+ - Deal Cards
+ - Then Hit and Stand
+ - Then split and insurance
+ - Work in NPCs

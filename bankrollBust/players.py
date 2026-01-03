@@ -1,8 +1,7 @@
-from main import deckInstance
+from gameLogic import deckInstance
 
 class player():
-    def __init__(self, name: str, 
-                 bustBux: int):
+    def __init__(self, name: str, bustBux: int):
         self.name = name
         self.hand = []
         self.bustBux = bustBux
@@ -12,9 +11,7 @@ class player():
         self.isBusted = True
 
     def dealCard(self):
-        print("herrrr")
         card = deckInstance.getCard()
-        print(card,"poo")
         self.hand.append(card)
         
     def newRound(self):
@@ -23,7 +20,7 @@ class player():
 
 class NPC(player):
     def __init__(self, name: str, 
-                 bustBux: int, 
+                 bustBux: int,
                  personality: str, 
                  prosperity: float,
                  confidence: float, 

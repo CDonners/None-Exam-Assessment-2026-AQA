@@ -1,26 +1,17 @@
-from main import deckInstance
+from deckLogic import deckHandling
 from players import player, NPC
+
+deckInstance = None
 
 NPCNAMES = []
 NPCPERSONALITIES = []
 
 class playGame():
-    def __init__(self, noOfNPCs: int, startingBux: int):
+    def __init__(self, noOfDecks: int, difficulty: str, noOfNPCs:int, startingBux: int):
+        global deckInstance
         self.user = None
         self.NPCs = []
+        deckInstance = deckHandling(noOfDecks) # Deck handling instance ready
         if noOfNPCs != 0: # Create NPCs
             for _ in range(noOfNPCs):
                 pass
-            
-    def createPlayerObject(self, name: str, 
-                 bustBux: int, 
-                 personality: str, 
-                 prosperity: float,
-                 confidence: float, 
-                 judgement: float,
-                 experience: float):
-        if personality is None: # Player Object is not an NPC so treat as such
-            self.user = player(name, bustBux)
-        else: # Create an NPC
-            playerObject = NPC(name, bustBux, personality, prosperity, confidence, judgement, experience)
-            return playerObject

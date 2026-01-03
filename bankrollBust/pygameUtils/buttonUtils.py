@@ -198,33 +198,32 @@ class inputBox(button):
         self.surface.blit(self.input_text_surface, self.input_text_rect)
     
     def checkSelected(self, event):
-        if self.pressed(event): # Checks if the mouse was pressed
-            if self.checkHover(): # Checks if the mouse was hovering over the box when it was pressed
-                self.selected = True # If it was then selected is true
-                self.value = "" # Value is blank
-            else: # Otherwise
-                self.selected = False # Selected is now false
-                if self.value == "": # If no value was set when it was pressed then the default value is set bac
-                    self.value = self.defaultValue
-                elif self.minMax != (): # There is a minimum and maximum value meaning value is an int or float
-                    if float(self.value) < self.minMax[0]:
-                        self.value = str(self.minMax[0]) # If it's smaller than allowed set to min value
-                    elif float(self.value) > self.minMax[1]:
-                        self.value = str(self.minMax[1]) # If it's greater than allowed set to max value
+        if self.interactable: # Only do something if the box can be used
+            if self.pressed(event): # Checks if the mouse was pressed
+                if self.checkHover(): # Checks if the mouse was hovering over the box when it was pressed
+                    self.selected = True # If it was then selected is true
+                    self.value = "" # Value is blank
+                else: # Otherwise
+                    self.selected = False # Selected is now false
+                    if self.value == "": # If no value was set when it was pressed then the default value is set bac
+                        self.value = self.defaultValue
+                    elif self.minMax != (): # There is a minimum and maximum value meaning value is an int or float
+                        if float(self.value) < self.minMax[0]:
+                            self.value = str(self.minMax[0]) # If it's smaller than allowed set to min value
+                        elif float(self.value) > self.minMax[1]:
+                            self.value = str(self.minMax[1]) # If it's greater than allowed set to max value
                     
     def checkAllowed(self, strToCheck):
         # Checks if the input is accepted, returns boolean
-        if self.interactable:
-            if self.inputType == "num":
-                if strToCheck == "0" and self.value == "": # Checks to make sure the player isn't putting 0s before the number, makes display cleaner
-                    return False
-                return strToCheck.isnumeric()
-            elif self.inputType == "alpha":
-                return strToCheck.isalpha()
-            elif self.inputType == "alphanum":
-                return strToCheck.isalnum()
-        else:
-            return False
+        if self.inputType == "num":
+            if strToCheck == "0" and self.value == "": # Checks to make sure the player isn't putting 0s before the number, makes display cleaner
+                return False
+            return strToCheck.isnumeric()
+        elif self.inputType == "alpha":
+            return strToCheck.isalpha()
+        elif self.inputType == "alphanum":
+            return strToCheck.isalnum()
+#
     
     def getInput(self, event):
         self.draw() # Draws the rects

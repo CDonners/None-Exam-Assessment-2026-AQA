@@ -1,8 +1,5 @@
 import pygame
-from deckLogic import deckHandling
 from pygameUtils.buttonUtils import button, discreteSlider, inputBox
-
-deckInstance = deckHandling(4) # Deck handling instance ready
 
 # Pygame Setup
 pygame.init() # Initialise Pygame
@@ -19,14 +16,12 @@ newGameButton = button(screen, (centreX, 300), "New Game")
 continueButton = button(screen, (centreX,400), "Continue")
 settingsButton = button(screen,(centreX,500), "Settings")
 quitButton = button(screen, (centreX,600), "Quit")
-
 # Game Button Setup
-hitButton = button(screen, (centreX, 300), "Hit", interactable=True)
-standButton = button(screen, (centreX, 400), "Stand", interactable=False)
-splitButton = button(screen, (centreX, 500), "Split", interactable=True)
-insuranceButton = button(screen, (centreX, 600), "Insurance", interactable=False)
-betAmountInputBox = inputBox(screen, (centreX, 700), "Bet Amount", "num", "", interactable=False)
-
+hitButton = button(screen, (centreX+375, 770), "Hit", interactable=True)
+standButton = button(screen, (centreX-375, 770), "Stand", interactable=True)
+splitButton = button(screen, (centreX-375, 850), "Split", interactable=True)
+insuranceButton = button(screen, (centreX+375, 850), "Insurance", interactable=True)
+    
 def newGameSettings():
     # Mini Window Setup
     miniWindowImage = pygame.image.load("bankrollBust/images/MiniMenu.png") # Loading the mini window image
@@ -59,6 +54,9 @@ def newGameSettings():
             pygame.display.flip() # Updates the screen with all the rects 
 
 def newGame(noOfDecks, difficulty, noOfNPCs, startingBux):
+    # Button setup that requires vairables: Bet Amount
+    minBet = round((int(startingBux)/100)/5)*5 # Rounds the minimum bet to the nearest 5, so the minimum bet will always be 1% of the starting bux to the nearest 5
+    betAmountInputBox = inputBox(screen, (centreX, 810), "Bet Amount", "num", f"{minBet}", interactable=False)
     while gameRunning:
         screen.blit(bg, (0,0)) # Set the screen as my background
         for event in pygame.event.get(): #Checking for events
