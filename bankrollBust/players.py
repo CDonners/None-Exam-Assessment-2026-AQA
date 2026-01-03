@@ -1,8 +1,8 @@
 from gameLogic import deckInstance
 
 class player():
-    def __init__(self, name: str, bustBux: int):
-        self.name = name
+    def __init__(self, bustBux: int):
+        self.name = "Player"
         self.hand = []
         self.bustBux = bustBux
         self.isBusted = False
@@ -26,7 +26,8 @@ class NPC(player):
                  confidence: float, 
                  judgement: float,
                  experience: float):
-        super().__init__(name, bustBux)
+        super().__init__(bustBux)
+        self.name = name
         self.personality = personality
         self.prosperity = prosperity
         self.confidence= confidence
