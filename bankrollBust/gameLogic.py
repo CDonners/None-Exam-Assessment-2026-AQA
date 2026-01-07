@@ -22,4 +22,9 @@ class playGame():
     def initialDeal(self):
         for _ in range(2): # Deal 2 cards to players from left to right
             for player in self.players:
-                player.dealCard()
+                player.dealCard(deckInstance)
+        self.roundStarted = True
+        
+    def updateImage(self):
+        for i in self.players:
+            print(i.hand)

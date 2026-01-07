@@ -1,4 +1,4 @@
-from gameLogic import deckInstance
+from typing import Any
 
 class player():
     def __init__(self, bustBux: int):
@@ -10,8 +10,8 @@ class player():
     def bust(self):
         self.isBusted = True
 
-    def dealCard(self):
-        card = deckInstance.getCard()
+    def dealCard(self, deck: Any):
+        card = deck.getCard()
         self.hand.append(card)
         
     def newRound(self):

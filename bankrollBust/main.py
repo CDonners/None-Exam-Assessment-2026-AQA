@@ -1,5 +1,6 @@
 import pygame
 from pygameUtils.buttonUtils import button, discreteSlider, inputBox
+from gameLogic import playGame
 
 # Pygame Setup
 pygame.init() # Initialise Pygame
@@ -57,6 +58,7 @@ def newGame(noOfDecks, difficulty, noOfNPCs, startingBux):
     # Button setup that requires vairables: Bet Amount
     minBet = round((int(startingBux)/100)/5)*5 # Rounds the minimum bet to the nearest 5, so the minimum bet will always be 1% of the starting bux to the nearest 5
     betAmountInputBox = inputBox(screen, (centreX, 810), "Bet Amount", "num", f"{minBet}", interactable=False)
+    game = playGame(noOfDecks, difficulty, noOfNPCs, startingBux)
     while gameRunning:
         screen.blit(bg, (0,0)) # Set the screen as my background
         for event in pygame.event.get(): #Checking for events
@@ -68,6 +70,9 @@ def newGame(noOfDecks, difficulty, noOfNPCs, startingBux):
             insuranceButton.updateImage(event)
             betAmount = betAmountInputBox.getInput(event)
             pygame.display.flip()
+        if game.roundStarted == False:
+            game.initialDeal()
+        game.updateImage()
 
 # Main Game Loop
 gameRunning = True
