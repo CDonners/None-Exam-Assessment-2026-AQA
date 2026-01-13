@@ -1,0 +1,121 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36 Edg/143.0.0.0" version="29.3.0">
+  <diagram name="Page-1" id="JMhR0h8NNOA_kYihY0oE">
+    <mxGraphModel dx="938" dy="606" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="O6l4pouq4OXCTKqOzcCV-1" edge="1" parent="1" source="O6l4pouq4OXCTKqOzcCV-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="O6l4pouq4OXCTKqOzcCV-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="O6l4pouq4OXCTKqOzcCV-2" connectable="0" parent="O6l4pouq4OXCTKqOzcCV-1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="Yes" vertex="1">
+          <mxGeometry relative="1" x="-0.2" y="4" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="O6l4pouq4OXCTKqOzcCV-3" edge="1" parent="1" source="O6l4pouq4OXCTKqOzcCV-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="O6l4pouq4OXCTKqOzcCV-10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="O6l4pouq4OXCTKqOzcCV-4" connectable="0" parent="O6l4pouq4OXCTKqOzcCV-3" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="No" vertex="1">
+          <mxGeometry relative="1" y="2" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="O6l4pouq4OXCTKqOzcCV-5" parent="1" style="rhombus;whiteSpace=wrap;html=1;" value="Has the player stood?" vertex="1">
+          <mxGeometry height="140" width="140" x="64" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="O6l4pouq4OXCTKqOzcCV-6" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Neither Options Available" vertex="1">
+          <mxGeometry height="60" width="120" x="294" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="O6l4pouq4OXCTKqOzcCV-7" edge="1" parent="1" source="O6l4pouq4OXCTKqOzcCV-10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="O6l4pouq4OXCTKqOzcCV-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="O6l4pouq4OXCTKqOzcCV-8" connectable="0" parent="O6l4pouq4OXCTKqOzcCV-7" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="Yes" vertex="1">
+          <mxGeometry relative="1" x="-0.5867" y="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="O6l4pouq4OXCTKqOzcCV-9" edge="1" parent="1" source="O6l4pouq4OXCTKqOzcCV-10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="O6l4pouq4OXCTKqOzcCV-15">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="O6l4pouq4OXCTKqOzcCV-10" parent="1" style="rhombus;whiteSpace=wrap;html=1;" value="Has the player got&lt;div&gt;&amp;nbsp;more than 2 cards?&lt;/div&gt;" vertex="1">
+          <mxGeometry height="140" width="140" x="64" y="190" as="geometry" />
+        </mxCell>
+        <mxCell id="O6l4pouq4OXCTKqOzcCV-11" edge="1" parent="1" source="O6l4pouq4OXCTKqOzcCV-15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="O6l4pouq4OXCTKqOzcCV-17">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="O6l4pouq4OXCTKqOzcCV-12" connectable="0" parent="O6l4pouq4OXCTKqOzcCV-11" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="Yes" vertex="1">
+          <mxGeometry relative="1" x="-0.1111" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="O6l4pouq4OXCTKqOzcCV-13" edge="1" parent="1" source="O6l4pouq4OXCTKqOzcCV-15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="O6l4pouq4OXCTKqOzcCV-22">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="O6l4pouq4OXCTKqOzcCV-14" connectable="0" parent="O6l4pouq4OXCTKqOzcCV-13" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="No" vertex="1">
+          <mxGeometry relative="1" x="-0.0435" y="-1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="O6l4pouq4OXCTKqOzcCV-15" parent="1" style="rhombus;whiteSpace=wrap;html=1;" value="Has the player&amp;nbsp;&lt;div&gt;got 2 cards of&amp;nbsp;&lt;/div&gt;&lt;div&gt;the same&amp;nbsp;&lt;div&gt;value?&lt;/div&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="140" width="140" x="64" y="370" as="geometry" />
+        </mxCell>
+        <mxCell id="O6l4pouq4OXCTKqOzcCV-16" edge="1" parent="1" source="O6l4pouq4OXCTKqOzcCV-17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="O6l4pouq4OXCTKqOzcCV-20">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="O6l4pouq4OXCTKqOzcCV-17" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Split Action Available" vertex="1">
+          <mxGeometry height="60" width="120" x="74" y="555" as="geometry" />
+        </mxCell>
+        <mxCell id="O6l4pouq4OXCTKqOzcCV-18" edge="1" parent="1" source="O6l4pouq4OXCTKqOzcCV-20" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="O6l4pouq4OXCTKqOzcCV-31">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="O6l4pouq4OXCTKqOzcCV-19" connectable="0" parent="O6l4pouq4OXCTKqOzcCV-18" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="No" vertex="1">
+          <mxGeometry relative="1" x="-0.4369" y="3" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="O6l4pouq4OXCTKqOzcCV-20" parent="1" style="rhombus;whiteSpace=wrap;html=1;" value="Has the dealer&amp;nbsp;&lt;div&gt;got an Ace as their up card?&lt;/div&gt;" vertex="1">
+          <mxGeometry height="140" width="140" x="414" y="370" as="geometry" />
+        </mxCell>
+        <mxCell id="O6l4pouq4OXCTKqOzcCV-21" edge="1" parent="1" source="O6l4pouq4OXCTKqOzcCV-22" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="O6l4pouq4OXCTKqOzcCV-20">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="O6l4pouq4OXCTKqOzcCV-22" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Split Action Unavailable" vertex="1">
+          <mxGeometry height="60" width="120" x="250" y="410" as="geometry" />
+        </mxCell>
+        <mxCell id="O6l4pouq4OXCTKqOzcCV-23" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Insurance Action Available" vertex="1">
+          <mxGeometry height="60" width="120" x="424" y="116" as="geometry" />
+        </mxCell>
+        <mxCell id="O6l4pouq4OXCTKqOzcCV-24" edge="1" parent="1" source="O6l4pouq4OXCTKqOzcCV-30" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="O6l4pouq4OXCTKqOzcCV-23">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="O6l4pouq4OXCTKqOzcCV-25" connectable="0" parent="O6l4pouq4OXCTKqOzcCV-24" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="No" vertex="1">
+          <mxGeometry relative="1" x="0.32" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="O6l4pouq4OXCTKqOzcCV-26" edge="1" parent="1" source="O6l4pouq4OXCTKqOzcCV-20" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" target="O6l4pouq4OXCTKqOzcCV-30">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="O6l4pouq4OXCTKqOzcCV-27" connectable="0" parent="O6l4pouq4OXCTKqOzcCV-26" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="Yes" vertex="1">
+          <mxGeometry relative="1" x="0.7" y="1" as="geometry">
+            <mxPoint y="8" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="O6l4pouq4OXCTKqOzcCV-28" edge="1" parent="1" source="O6l4pouq4OXCTKqOzcCV-30" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="O6l4pouq4OXCTKqOzcCV-31">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="O6l4pouq4OXCTKqOzcCV-29" connectable="0" parent="O6l4pouq4OXCTKqOzcCV-28" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="Yes" vertex="1">
+          <mxGeometry relative="1" x="-0.3441" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="O6l4pouq4OXCTKqOzcCV-30" parent="1" style="rhombus;whiteSpace=wrap;html=1;" value="Has the Insurance&amp;nbsp;&lt;div&gt;action already been used?&lt;/div&gt;" vertex="1">
+          <mxGeometry height="140" width="140" x="414" y="205" as="geometry" />
+        </mxCell>
+        <mxCell id="O6l4pouq4OXCTKqOzcCV-31" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Insurance Action unavailable" vertex="1">
+          <mxGeometry height="60" width="120" x="640" y="320" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
