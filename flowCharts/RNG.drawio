@@ -1,0 +1,50 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0" version="29.3.0">
+  <diagram name="Page-1" id="JsI45mDcB-tDKxO0Iqn5">
+    <mxGraphModel dx="938" dy="606" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="rR0KQDzJbnJMJVhxOi7J-3" edge="1" parent="1" source="rR0KQDzJbnJMJVhxOi7J-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="rR0KQDzJbnJMJVhxOi7J-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rR0KQDzJbnJMJVhxOi7J-1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Fetch a random byte from the computer" vertex="1">
+          <mxGeometry height="60" width="120" x="160" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="rR0KQDzJbnJMJVhxOi7J-5" edge="1" parent="1" source="rR0KQDzJbnJMJVhxOi7J-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="rR0KQDzJbnJMJVhxOi7J-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rR0KQDzJbnJMJVhxOi7J-2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Convert the byte into an integer" vertex="1">
+          <mxGeometry height="60" width="120" x="160" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="rR0KQDzJbnJMJVhxOi7J-7" edge="1" parent="1" source="rR0KQDzJbnJMJVhxOi7J-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="rR0KQDzJbnJMJVhxOi7J-1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="340" y="320" />
+              <mxPoint x="340" y="100" />
+            </Array>
+            <mxPoint x="330" y="100" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rR0KQDzJbnJMJVhxOi7J-9" connectable="0" parent="rR0KQDzJbnJMJVhxOi7J-7" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="No" vertex="1">
+          <mxGeometry relative="1" x="0.0176" y="-3" as="geometry">
+            <mxPoint x="-3" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rR0KQDzJbnJMJVhxOi7J-11" edge="1" parent="1" source="rR0KQDzJbnJMJVhxOi7J-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="rR0KQDzJbnJMJVhxOi7J-10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rR0KQDzJbnJMJVhxOi7J-12" connectable="0" parent="rR0KQDzJbnJMJVhxOi7J-11" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="Yes" vertex="1">
+          <mxGeometry relative="1" x="-0.2" y="-4" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rR0KQDzJbnJMJVhxOi7J-4" parent="1" style="rhombus;whiteSpace=wrap;html=1;" value="Is the number&lt;div&gt;&amp;nbsp;within the&amp;nbsp;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;specified&amp;nbsp;&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;range?&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="120" width="120" x="160" y="260" as="geometry" />
+        </mxCell>
+        <mxCell id="rR0KQDzJbnJMJVhxOi7J-10" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Return the generated number" vertex="1">
+          <mxGeometry height="60" width="120" x="160" y="440" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
