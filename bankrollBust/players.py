@@ -36,3 +36,6 @@ class NPC(player):
         
     def decideNextMove(self):
         pass # Do when I feel like it
+
+    def calculateBet(self):
+        pass # min bet + (min-bet * prosperity) and current count something or other
