@@ -1,4 +1,5 @@
 from pygameUtils.rand import shuffleList
+import pygame
 
 class cards():
     def __init__(self, face: str, suit: str, cardWeight: int):
@@ -15,6 +16,9 @@ class cards():
         
     def discard(self):
         self.discarded = True
+        
+    def createCardImage(self):
+        pass
 
 class deckHandling():
     def __init__(self, noOfDecks: int):

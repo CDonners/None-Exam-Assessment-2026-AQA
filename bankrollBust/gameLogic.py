@@ -27,4 +27,4 @@ class playGame():
         
     def updateImage(self):
         for i in self.players:
-            print(i.hand)
+            pass
