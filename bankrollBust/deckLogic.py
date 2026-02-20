@@ -10,7 +10,7 @@ class cards():
         self.cardWeight = cardWeight
         self.visible = False
         self.discarded = False
-
+        
     def setVisible(self):
         self.visible = True
         
