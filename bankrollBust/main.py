@@ -32,7 +32,7 @@ def newGameSettings():
     currentY = miniWindowRect.centery
     noOfDecksSlider = discreteSlider(screen, "Number Of Decks", (currentX, currentY-150), [1,2,4,6,8,10], scale=1.3)
     difficultySlider = discreteSlider(screen, "Difficulty", (currentX, currentY-100), ["Full-Assist", "Semi-Assist", "There-When-Needed","No-Help"], scale=1.3)
-    noOfNPCsSlider = discreteSlider(screen, "Number of NPCs", (currentX, currentY-50), [0,1,2,3,4,5,6,7], scale=1.3)
+    noOfNPCsSlider = discreteSlider(screen, "Number of NPCs", (currentX, currentY-50), [0,1,2,3,4,5,6], scale=1.3)
     startingBuxInput = inputBox(screen, (currentX, currentY+25), "Starting Bux", "num", "1000",  scale=0.8, minMax=(1000, 100000))
     startButton = button(screen, (currentX+135, currentY+125), "Start Game", scale=0.7)
     cancelButton = button(screen, (currentX-135, currentY+125), "Cancel", scale=0.7)
