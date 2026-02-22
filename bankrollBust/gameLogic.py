@@ -85,7 +85,7 @@ class playGame():
 
     def getPlayerSeats(self):
         # Assigns players their seating positions
-        seatingPositions = [(), (), (), (), (), (), ()]
+        seatingPositions = [(), (), (), (), (), (), ()] # TODO Find good seating positions, will be the position of the text of the player's name
         playerPos = 0 # Position of the player in the list
         # Get the position of the user in the players list
         for i in self.players:
