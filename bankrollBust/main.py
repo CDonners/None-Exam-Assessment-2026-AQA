@@ -22,7 +22,35 @@ hitButton = button(screen, (centreX+375, 770), "Hit", interactable=True)
 standButton = button(screen, (centreX-375, 770), "Stand", interactable=True)
 splitButton = button(screen, (centreX-375, 850), "Split", interactable=True)
 insuranceButton = button(screen, (centreX+375, 850), "Insurance", interactable=True)
-    
+
+def playingGame(game):
+    minBet = round((int(startingBux)/100)/5)*5 # Rounds the minimum bet to the nearest 5, so the minimum bet will always be 1% of the starting bux to the nearest 5
+    betAmountInputBox = inputBox(screen, (centreX, 810), "Bet Amount", "num", f"{minBet}", interactable=False)
+    while gameRunning:
+        screen.blit(bg, (0,0)) # Set the screen as my background
+        for event in pygame.event.get(): #Checking for events
+            if event.type == pygame.QUIT: # If the user presses the X button, quit game
+                quit()
+            for player in game.players:
+                # For some reason this while loop crashes the bombaclat game
+                # Fuck my stupid chungus game
+                if player.name != "Player":
+                        betAmountInputBox.makeUninteractable
+                else:
+                    # Current go is player
+                    betAmountInputBox.makeInteractable() # Allow player to bet
+                while player.isBusted == False:
+                    hitButton.updateImage(event)
+                    standButton.updateImage(event)
+                    splitButton.updateImage(event)
+                    insuranceButton.updateImage(event)
+                    betAmount = betAmountInputBox.getInput(event)
+                    pygame.display.flip()
+                        
+        if game.roundStarted == False:
+            game.initialDeal()
+        game.updateImage()
+
 def newGameSettings():
     # Mini Window Setup
     miniWindowImage = pygame.image.load("bankrollBust/images/MiniMenu.png") # Loading the mini window image
@@ -56,23 +84,9 @@ def newGameSettings():
 
 def newGame(noOfDecks, difficulty, noOfNPCs, startingBux):
     # Button setup that requires vairables: Bet Amount
-    minBet = round((int(startingBux)/100)/5)*5 # Rounds the minimum bet to the nearest 5, so the minimum bet will always be 1% of the starting bux to the nearest 5
-    betAmountInputBox = inputBox(screen, (centreX, 810), "Bet Amount", "num", f"{minBet}", interactable=False)
     game = playGame(noOfDecks, difficulty, noOfNPCs, startingBux)
-    while gameRunning:
-        screen.blit(bg, (0,0)) # Set the screen as my background
-        for event in pygame.event.get(): #Checking for events
-            if event.type == pygame.QUIT: # If the user presses the X button, quit game
-                quit()
-            hitButton.updateImage(event)
-            standButton.updateImage(event)
-            splitButton.updateImage(event)
-            insuranceButton.updateImage(event)
-            betAmount = betAmountInputBox.getInput(event)
-            pygame.display.flip()
-        if game.roundStarted == False:
-            game.initialDeal()
-        game.updateImage()
+    playingGame(game)
+    
 
 # Main Game Loop
 gameRunning = True

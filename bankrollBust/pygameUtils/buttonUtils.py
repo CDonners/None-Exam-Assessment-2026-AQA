@@ -34,8 +34,11 @@ class button:
             if event.button == 1: # Checks if the button pressed is the left mouse button
                 return True
             
-    def changeInteractability(self):
-        self.interactable = True if not self.interactable else False
+    def makeInteractable(self):
+        self.interactable = True
+    
+    def makeUninteractable(self):
+        self.interactable = False
         
     def updateImage(self, event): # Updates the image depending on how the button is being interacted with
         pressed = False # Button isn't pressed by default

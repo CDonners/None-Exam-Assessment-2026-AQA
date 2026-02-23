@@ -6,9 +6,13 @@ class player():
         self.hand = []
         self.bustBux = bustBux
         self.isBusted = False
+        self.isStood = False
         
     def bust(self):
         self.isBusted = True
+    
+    def stand(self):
+        self.isStood = True
 
     def dealCard(self, deck: Any):
         card = deck.getCard()

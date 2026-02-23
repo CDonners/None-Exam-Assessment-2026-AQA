@@ -10,8 +10,6 @@ NPCPERSONALITIES = []
 class setupGame():
     def __init__(self, startingBux: int):
         self.startingBux = startingBux
-        self.pickedNames = []
-
 
     def createNPC(self):
         name = self.pickName()
@@ -23,20 +21,17 @@ class setupGame():
     
     def pickName(self):
         # Picks am unused name from the NPC Names list
+        pickedName = ""
         indexCorrect = False 
         while not indexCorrect: # Looping until a correct index is generated
             generatedIndex = genRandInt(8) # Generate an integer for the index
             if generatedIndex < len(NPCNAMES): # If the index is greater or equal to length of the names list, regenerate it.
                 pickedName = NPCNAMES[generatedIndex] # Get the item at the index
-                if pickedName not in self.pickedNames: # Check if the item has already been used
-                    indexCorrect = True # Breaking the loop
-
-        self.pickedNames.append(pickedName) # Add the 
         return pickedName
 
     def generateFloat(self, lowerBound: int, upperBound: int):
         integerGenerated = genRandInt(8) # Generate an integer
-        while integerGenerated > 150 or integerGenerated < 50: # While it is between the bounds
+        while integerGenerated > upperBound or integerGenerated < lowerBound: # While it is between the bounds
             integerGenerated = genRandInt(8) # Regenerate integer
         generatedFloat = integerGenerated/100
         return generatedFloat
@@ -102,4 +97,3 @@ class playGame():
     def updateImage(self):
         for i in self.players:
             pass
-
