@@ -2,8 +2,6 @@ from deckLogic import deckHandling
 from players import player, NPC, dealer
 from pygameUtils.rand import genRandInt
 
-deckInstance = None
-
 NPCNAMES = ["Paul","Noel","Aniyah","Dalton","Mariah","Zeke","Jolie","Kristian","Brynlee","Dilan","Charlotte","Cory","Camila","Sonny","Martha","Quincy","Elliot","Blaze","Paola","Cain","Anya","Raylan","Emily","Jax","Lucy"]
 NPCPERSONALITIES = []
 
@@ -58,14 +56,14 @@ class setupGame():
 
 class playGame():
     def __init__(self, noOfDecks: int, difficulty: str, noOfNPCs:int, startingBux: int):
-        global deckInstance
         self.startingBux = startingBux
         self.user = player(startingBux) # Creating the player object
         self.NPCs = [] # Preparing to make the NPCs
         self.roundStarted = False
         self.playerSeats = {}
         self.gameSetup = setupGame(startingBux)
-        deckInstance = deckHandling(noOfDecks) # Deck handling instance ready
+        self.deckInstance = deckHandling(noOfDecks) # Deck handling instance ready
+        self.deckInstance.shuffle()
         if noOfNPCs != 0: # Create NPCs
             for _ in range(noOfNPCs):
                 self.NPCs.append(self.gameSetup.createNPC())
@@ -73,12 +71,29 @@ class playGame():
         self.players.insert((len(self.NPCs))//2, self.user) # Insert the User object into the middle of the list with a left bias
         self.getPlayerSeats()
         self.players.append(dealer())
+        self.stoodHands = {}
         
     def initialDeal(self):
-        for _ in range(2): # Deal 2 cards to players from left to right
+        for i in range(2): # Deal 2 cards to players from left to right
             for player in self.players:
-                player.dealCard(deckInstance)
+                if i == 1 and player.name == "Dealer":
+                    player.dealCard(self.deckInstance, visible=False)
+                else:
+                    player.dealCard(self.deckInstance)
         self.roundStarted = True
+
+    def getHandValue(self, playerToCheck):
+        totalSum = 0
+        for card in playerToCheck.hand:
+            totalSum += card.value
+        if totalSum > 21:
+            if 11 in playerToCheck.hand:
+                aceIndex = playerToCheck.hand.index(11)
+                playerToCheck.hand[aceIndex].value = 1
+                totalSum -= 10
+            else:
+                playerToCheck.bust()
+        playerToCheck.handValue = totalSum
 
     def getPlayerSeats(self):
         # Assigns players their seating positions
