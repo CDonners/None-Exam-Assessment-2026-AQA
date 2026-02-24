@@ -1,7 +1,7 @@
 import pygame
 from pygameUtils.buttonUtils import button, discreteSlider, inputBox
 from gameLogic import playGame
-
+# TODO Add delays so you can comprehend what is going on!!! Add actual visual cards so you know what is going on!!!
 # Pygame Setup
 pygame.init() # Initialise Pygame
 INITX = 1400
