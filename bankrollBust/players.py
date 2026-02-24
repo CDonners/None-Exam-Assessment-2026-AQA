@@ -4,6 +4,7 @@ class player():
     def __init__(self, bustBux: int):
         self.name = "Player"
         self.hand = []
+        self.handValue = 0
         self.bustBux = bustBux
         self.isBusted = False
         self.isStood = False
@@ -14,14 +15,20 @@ class player():
     
     def stand(self):
         self.isStood = True
+        print("I'm standing it")
 
-    def dealCard(self, deck: Any):
+    def dealCard(self, deck: Any, visible = True):
         card = deck.getCard()
+        if visible:
+            card.setVisible()
         self.hand.append(card)
         
     def newRound(self):
-        self.isBusted = False
         self.hand = []
+        self.handValue = 0
+        self.isBusted = False
+        self.isStood = False
+        self.bet = 0
     
 class dealer(player):
     def __init__(self):
