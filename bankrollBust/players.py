@@ -7,6 +7,7 @@ class player():
         self.bustBux = bustBux
         self.isBusted = False
         self.isStood = False
+        self.bet = 0
         
     def bust(self):
         self.isBusted = True
@@ -21,15 +22,20 @@ class player():
     def newRound(self):
         self.isBusted = False
         self.hand = []
+    
+class dealer(player):
+    def __init__(self):
+        super().__init__(-1)
+        self.name = "Dealer"
+        self.hand = []
+        self.isBusted = False
+        self.isStood = False
+
+    def decideNextMove(self):
+        pass # Do when I feel like it
 
 class NPC(player):
-    def __init__(self, name: str, 
-                 bustBux: int,
-                 personality: str, 
-                 prosperity: float,
-                 confidence: float, 
-                 judgement: float,
-                 experience: float):
+    def __init__(self, name: str, bustBux: int, personality: str,  prosperity: float, confidence: float, judgement: float, experience: float):
         super().__init__(bustBux)
         self.name = name
         self.personality = personality

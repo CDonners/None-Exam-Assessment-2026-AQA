@@ -1,5 +1,5 @@
 from deckLogic import deckHandling
-from players import player, NPC
+from players import player, NPC, dealer
 from pygameUtils.rand import genRandInt
 
 deckInstance = None
@@ -72,6 +72,7 @@ class playGame():
         self.players = self.NPCs[:] # A list for all the players, cloning the NPCs list
         self.players.insert((len(self.NPCs))//2, self.user) # Insert the User object into the middle of the list with a left bias
         self.getPlayerSeats()
+        self.players.append(dealer())
         
     def initialDeal(self):
         for _ in range(2): # Deal 2 cards to players from left to right
