@@ -22,7 +22,7 @@ hitButton = button(screen, (centreX+375, 770), "Hit", interactable=False)
 standButton = button(screen, (centreX-375, 770), "Stand", interactable=False)
 splitButton = button(screen, (centreX-375, 850), "Split", interactable=False)
 insuranceButton = button(screen, (centreX+375, 850), "Insurance", interactable=False)
-ConfirmBetButton = button(screen, (centreX, 850), "Confirm Bet", interactable=False)
+confirmBetButton = button(screen, (centreX, 850), "Confirm Bet", interactable=False)
 
 def playingGame(game):
     # Creating the bet amount input box
@@ -32,99 +32,62 @@ def playingGame(game):
     # Game Status variables
     gamePlayRunning = True
     bettingPhase = True
+    currentPlayerIndex = 0
     # Gameplay loop
     while gamePlayRunning:
         screen.blit(bg, (0,0)) # Set the screen as my background
         for event in pygame.event.get(): # Checking for events
             if event.type == pygame.QUIT: # If the user presses the X button, quit game
                 quit()
-            if bettingPhase:
-                print("Betting Phase")
-                hitButton.makeUninteractable()
-                standButton.makeUninteractable()
-                splitButton.makeUninteractable()
-                insuranceButton.makeUninteractable()
-                for player in game.players:
-                    print("Going through players for bet")
-                    if player.name == "Player":
-                        print("Player Found")
-                        # Betting Phase - Collect bet from player
-                        # Make betting buttons interactable
-                        print("Making buttons interactable")
-                        ConfirmBetButton.makeInteractable()
-                        betAmountInputBox.makeInteractable()
-                        # Draw the image for the rest of the buttons
-                        print("Drawing buttons")
-                        hitButton.updateImage(event)
-                        standButton.updateImage(event)
-                        splitButton.updateImage(event)
-                        insuranceButton.updateImage(event)
-                        # Have input box waiting for input
-                        print("Bet amount waiting for input")
-                        betAmount = betAmountInputBox.getInput(event)
-                        # Set max bet
-                        print("Setting max bet")
-                        betAmountInputBox.setMax(int(player.bustBux))
-                        # Detect if bet is confirmed
-                        print("Waiting for bet confirmation")
-                        if ConfirmBetButton.updateImage(event): 
-                            print("Bet confirmed")
-                            bettingPhase = False  # Move to playing phase
-                    else:
-                        pass # NPC Decide bet
-            else:
-                # Playing Phase - Game is active
-                ConfirmBetButton.makeUninteractable()
-                betAmountInputBox.makeUninteractable()  
-                ConfirmBetButton.updateImage(event)  
-                print("Game round starting")
-                game.roundStarted = True
-                
-            if game.roundStarted == True:
-                print("123 Game round started")
-                for player in game.players:
-                    print("Looping through player for action")
-                    if not player.isStood and not player.isBusted:
-                        print("Player not stood")
-                        if player.name == "Player": # Players turn
-                            print("Found player turn")
-                            # These will always be available for the player
-                            hitButton.makeInteractable()
-                            standButton.makeInteractable()
-                            # Checking if the condition for the special cases are met
-                            if len(player.hand) == 2:
-                                if player.hand[0].face == player.hand[1].face:
-                                    splitButton.makeInteractable()
-                                # Got to figure out how to handle dealer to check condition for insurance 
-                            else:
-                                splitButton.makeUninteractable
-                                insuranceButton.makeUninteractable
-                            if hitButton.updateImage(event):
-                                print("Hit that thang")
-                                player.dealCard()
-                            if standButton.updateImage(event):
-                                player.stand()
-                            splitButton.updateImage(event)
-                            insuranceButton.updateImage(event)
-                    else:
-                        pass # NPC's turn
-        # Drawing all the buttons    
-        hitButton.draw()
-        standButton.draw()
-        splitButton.draw()
-        insuranceButton.draw()
-        ConfirmBetButton.draw()
-        betAmountInputBox.draw()
-        
+            # Draw buttons
+            hitButton.updateImage(event)
+            standButton.updateImage(event)
+            splitButton.updateImage(event)
+            insuranceButton.updateImage(event)
+            confirmBetButton.draw()
+            betAmountInputBox.draw()
+            # State Machine for gameplay
+            currentPlayer = game.players[currentPlayerIndex]
+            if bettingPhase: # If betting phase is active
+                if currentPlayer.name == "Player": # Checks if current player is the human player
+                    # Make the relevant interactables be interactable
+                    confirmBetButton.makeInteractable()
+                    betAmountInputBox.makeInteractable()
+                    playerBet = betAmountInputBox.getInput(event)
+                    if confirmBetButton.updateImage(event): # Bet confirmed
+                        currentPlayer.bet = playerBet
+                        currentPlayerIndex += 1 # Increment player index
+                        # Make buttons uninteractable
+                        confirmBetButton.makeUninteractable()
+                        betAmountInputBox.makeUninteractable()
+                        confirmBetButton.updateImage(event) # Updating the image of the button properly
+                        print(currentPlayer.bet)
+                elif currentPlayer.name == "Dealer": # Checks if the current player is the dealer - Signals end of betting phase
+                    currentPlayerIndex = 0
+                    bettingPhase = False
+                else: # Current player is an NPC
+                    playerBet = game.players[currentPlayerIndex].calculateBet()
+                    currentPlayer.bet = playerBet
+                    currentPlayerIndex += 1
+            if game.roundStarted:
+                if currentPlayer.name == "Player": # Is the Player's turn
+                    if currentPlayer.isStood or currentPlayer.isBusted:
+                        currentPlayerIndex += 1
+                elif currentPlayer.name == "Dealer": # Is the dealer's turn
+                    if currentPlayer.isStood or currentPlayer.isBusted:
+                        currentPlayerIndex = 0
+                else: # Is NPC's turn
+                    if currentPlayer.isStood or currentPlayer.isBusted:
+                        currentPlayerIndex += 1
+            game.updateImage()
+            pygame.display.flip()
         # Initial deal happens once, after betting
         if bettingPhase == False and game.roundStarted == False:
             print("Dealing")
             game.initialDeal()
-        game.updateImage()
-        pygame.display.flip()
+        
 
 def newGameSettings():
-    
     # Mini Window Setup
     miniWindowImage = pygame.image.load("bankrollBust/images/MiniMenu.png") # Loading the mini window image
     miniWindowRect = miniWindowImage.get_rect(center=(INITX/2, INITY/2)) # Dynamically centering the window
