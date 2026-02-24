@@ -48,7 +48,7 @@ class button:
                     # Set the button to the pressed image
                     self.interactableImage = pygame.transform.scale_by(pygame.image.load(self.bid+"_pressed"+".png"),self.scale)
                     pressed = True # Telling us the button is pressed
-                else: # Buttons isn't pressed
+                else: # Buttons isn't pressed6
                     # Set button to the hovered image
                     self.interactableImage = pygame.transform.scale_by(pygame.image.load(self.bid+"_hovered"+".png"), self.scale)
             else: # Button isn't being interacted with
