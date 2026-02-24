@@ -101,27 +101,35 @@ def playingGame(game):
                         game.getHandValue(currentPlayer)
 
                 elif currentPlayer.name == "Dealer": # Is the dealer's turn
-                    if currentPlayer.isStood: # Once dealer has stood
-                        for hand in list(game.stoodHands.keys()):
-                            stoodPlayer = game.stoodHands[hand]
-                            if currentPlayer.handValue == hand:
-                                stoodPlayer.bustBux += stoodPlayer.bet
-                                # TODO handle end of round
-                            elif currentPlayer.handValue < hand:
+                    # Handling the end of the game
+                    if currentPlayer.isStood or currentPlayer.isBusted: # Dealer has either stood or busted
+                        if currentPlayer.isStood: # Once dealer has stood
+                            for hand in list(game.stoodHands.keys()):
+                                stoodPlayer = game.stoodHands[hand]
+                                if currentPlayer.handValue == hand:
+                                    stoodPlayer.bustBux += stoodPlayer.bet
+                                    # TODO handle end of round
+                                elif currentPlayer.handValue < hand:
+                                    stoodPlayer.bustBux += 2*stoodPlayer.bet
+                                    # TODO handle end of round
+                                # If player doesn't enter either of these, player has lost
+                        # Dealer has bust so every stood player wins
+                        elif currentPlayer.isBusted:
+                            for hand in list(game.stoodHands.keys()):
+                                stoodPlayer = game.stoodHands[hand]
                                 stoodPlayer.bustBux += 2*stoodPlayer.bet
                                 # TODO handle end of round
-                            # If player doesn't enter either of these, player has lost
-                                
-                    elif currentPlayer.isBusted:
-                        for hand in list(game.stoodHands.keys()):
-                            stoodPlayer = game.stoodHands[hand]
-                            stoodPlayer.bustBux += 2*stoodPlayer.bet
-                    # Reset game
-                    currentPlayerIndex = 0
-                    game.roundStarted = False
-                    bettingPhase = False
-                    for player in game.players:
-                        player.newRound()
+                        # Reset game
+                        currentPlayerIndex = 0
+                        game.roundStarted = False
+                        bettingPhase = False
+                        for player in game.players:
+                            player.newRound()
+                    if currentPlayer.handValue < 17:
+                        currentPlayer.dealCard()
+                        game.getHandValue(currentPlayer)
+                    else:
+                        currentPlayer.stand()
 
                 else: # Is NPC's turn
                     if currentPlayer.isStood or currentPlayer.isBusted:
