@@ -164,7 +164,7 @@ class discreteSlider(button):
                 self.mouseHeld = False # Sets held to false
                 
 class inputBox(button):
-    def __init__(self, surface: pygame.Surface, centre: tuple, name: str, inputType: str , defaultValue:str, scale=1.0, interactable = True, minMax = ()):
+    def __init__(self, surface: pygame.Surface, centre: tuple, name: str, inputType: str , defaultValue:str, scale=1.0, interactable = True, minMax = []):
         # Variables
         self.surface = surface
         self.centre = centre
@@ -226,8 +226,10 @@ class inputBox(button):
             return strToCheck.isalpha()
         elif self.inputType == "alphanum":
             return strToCheck.isalnum()
-#
-    
+
+    def setMax(self, maxBet):
+        self.minMax[1] = maxBet
+
     def getInput(self, event):
         self.draw() # Draws the rects
         self.checkSelected(event) # Checks if the box was selected

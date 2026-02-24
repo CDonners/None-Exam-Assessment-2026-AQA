@@ -59,6 +59,7 @@ class setupGame():
 class playGame():
     def __init__(self, noOfDecks: int, difficulty: str, noOfNPCs:int, startingBux: int):
         global deckInstance
+        self.startingBux = startingBux
         self.user = player(startingBux) # Creating the player object
         self.NPCs = [] # Preparing to make the NPCs
         self.roundStarted = False
