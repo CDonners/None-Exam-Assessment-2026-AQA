@@ -28,9 +28,10 @@ class cards():
         # Center suit symbol
         center_text = self.FONT_VALUE.render(self.face, True, colour)
         text_rect = center_text.get_rect(center=self.cardRect.center)
-        # Drawing texts
-        surface.blit(text, (self.cardRect.x + 5, self.cardRect.y + 5))
-        surface.blit(center_text, text_rect)
+        # Drawing texts if card is visible
+        if self.visible:
+            surface.blit(text, (self.cardRect.x + 5, self.cardRect.y + 5))
+            surface.blit(center_text, text_rect)
         
     def setVisible(self):
         self.visible = True

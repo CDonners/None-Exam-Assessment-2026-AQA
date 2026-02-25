@@ -139,7 +139,7 @@ class playGame():
         # Cards inbetween is last card position plus 30
         for i, card in enumerate(hand):
             x = startX + i * (cardWidth + spacing)  # no overlap
-            y = self.playerSeats[player][1] + 30 + cardHeight//2
+            y = self.playerSeats[player][1] - 30 - cardHeight//2
             card.drawCard(self.screen, (x, y))
         
     def updateImage(self):

@@ -14,6 +14,7 @@ INITIALSIZE = (INITX, INITY) # Set my initial window size
 screen = pygame.display.set_mode(INITIALSIZE) # Create my screen
 BGIMAGE = pygame.image.load("bankrollBust/images/table.png") # Load the background image
 bg = pygame.transform.scale(BGIMAGE, INITIALSIZE) # Set the size of the background image to the size of the screen
+clock = pygame.time.Clock() # To limit FPS
 
 # Menu Button Setup
 centreX = INITX//2 # X is always centre no matter the initial size
@@ -146,6 +147,8 @@ def playingGame(game):
             game.initialDeal()
             game.stoodHands = {} # Reset stood hand
         
+        clock.tick(60) # Limiting clock to 60
+        
 
 def newGameSettings():
     # Mini Window Setup
@@ -208,6 +211,7 @@ while gameRunning: # Main Menu Loop
         elif quitButton.updateImage(event):
             gameRunning = False
         pygame.display.flip() # Update the screen
+    clock.tick(60) # Limiting clock to 60
     
     
     
