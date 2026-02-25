@@ -3,7 +3,6 @@ from pygameUtils.buttonUtils import button, discreteSlider, inputBox
 from gameLogic import playGame
 
 # TODO Add delays so you can comprehend what is going on!!! 
-# TODO Add actual visual cards so you know what is going on!!!
 # TODO Handle if player ges 21 or if player gets blackjack
 
 # Pygame Setup
@@ -101,12 +100,26 @@ def playingGame(game):
                     if standButton.updateImage(event):
                         currentPlayer.stand()
                         game.stoodHands[currentPlayer.handValue] = currentPlayer # Adding the stood hand to the dictionary
+                        pygame.time.delay(1000)
                     if hitButton.updateImage(event):
                         currentPlayer.dealCard(game.deckInstance)
                         game.getHandValue(currentPlayer)
+                        if currentPlayer.handValue == 21:
+                            currentPlayer.stand()
+                            if len(currentPlayer.hand) == 2: # player got blackjack
+                                currentPlayer.bustBux += 0.5 * currentPlayer.bet
+                        pygame.time.delay(1000)
 
                 elif currentPlayer.name == "Dealer": # Is the dealer's turn
                     # Handling the end of the game
+                    currentPlayer.hand[1].setVisible
+                    if currentPlayer.handValue < 17:
+                        currentPlayer.dealCard(game.deckInstance)
+                        game.getHandValue(currentPlayer)
+                        pygame.time.delay(1000)
+                    else:
+                        currentPlayer.stand()
+                        
                     if currentPlayer.isStood or currentPlayer.isBusted: # Dealer has either stood or busted
                         if currentPlayer.isStood: # Once dealer has stood
                             for hand in list(game.stoodHands.keys()):
@@ -124,21 +137,19 @@ def playingGame(game):
                                 stoodPlayer = game.stoodHands[hand]
                                 stoodPlayer.bustBux += 2*stoodPlayer.bet
                                 # TODO handle end of round
+                        pygame.time.delay(2500)
                         # Reset game
                         currentPlayerIndex = 0
                         game.roundStarted = False
                         bettingPhase = False
                         for player in game.players:
                             player.newRound()
-                    if currentPlayer.handValue < 17:
-                        currentPlayer.dealCard(game.deckInstance)
-                        game.getHandValue(currentPlayer)
-                    else:
-                        currentPlayer.stand()
-
+                            print(f"New round for {player.name}")
+                            print(f"Dealer's hand after reset: {dealer.hand}")
                 else: # Is NPC's turn
                     if currentPlayer.isStood or currentPlayer.isBusted:
                         currentPlayerIndex += 1
+                        pygame.time.delay(1000)
             game.updateImage()
             pygame.display.flip()
     
@@ -146,6 +157,11 @@ def playingGame(game):
         if bettingPhase == False and game.roundStarted == False:
             game.initialDeal()
             game.stoodHands = {} # Reset stood hand
+            game.drawPlayerTexts()  # Draw player names
+            for player in game.players:
+                game.drawHands(player)  # Draw each player's hand
+            pygame.display.update()  # Update the screen immediately
+            game.roundStarted = True  # Mark the round as started
         
         clock.tick(60) # Limiting clock to 60
         
