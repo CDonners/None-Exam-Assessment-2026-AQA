@@ -1,5 +1,6 @@
 from deckLogic import deckHandling
 from players import player, NPC, dealer
+import pygame
 from pygameUtils.rand import genRandInt
 
 NPCNAMES = ["Paul","Noel","Aniyah","Dalton","Mariah","Zeke","Jolie","Kristian","Brynlee","Dilan","Charlotte","Cory","Camila","Sonny","Martha","Quincy","Elliot","Blaze","Paola","Cain","Anya","Raylan","Emily","Jax","Lucy"]
@@ -55,8 +56,9 @@ class setupGame():
         return generatedConfidence
 
 class playGame():
-    def __init__(self, noOfDecks: int, difficulty: str, noOfNPCs:int, startingBux: int):
+    def __init__(self, noOfDecks: int, difficulty: str, noOfNPCs:int, startingBux: int, screen):
         self.startingBux = startingBux
+        self.screen = screen
         self.user = player(startingBux) # Creating the player object
         self.NPCs = [] # Preparing to make the NPCs
         self.roundStarted = False
@@ -71,7 +73,10 @@ class playGame():
         self.players.insert((len(self.NPCs))//2, self.user) # Insert the User object into the middle of the list with a left bias
         self.getPlayerSeats()
         self.players.append(dealer())
+        self.playerSeats[self.players[len(self.players)-1]] = (700, 200)
         self.stoodHands = {}
+        self.playerTexts = []
+        self.createPlayerTexts()
         
     def initialDeal(self):
         for i in range(2): # Deal 2 cards to players from left to right
@@ -97,7 +102,7 @@ class playGame():
 
     def getPlayerSeats(self):
         # Assigns players their seating positions
-        seatingPositions = [(), (), (), (), (), (), ()] # TODO Find good seating positions, will be the position of the text of the player's name
+        seatingPositions = [(), (), (), (700, 650), (), (), ()] # TODO Find good seating positions, will be the position of the text of the player's name
         playerPos = 0 # Position of the player in the list
         # Get the position of the user in the players list
         for i in self.players:
@@ -110,7 +115,34 @@ class playGame():
             # seatingPositions[i] is the aligned seating position
             self.playerSeats[self.players[i - startingPos]] = seatingPositions[i]
         
+    def createPlayerTexts(self):
+        player_font = pygame.font.SysFont("", 32) # Sets the font to pygame default with size 22
+        for player in self.players:
+            # Creating the text for the player
+            player_text_surface = player_font.render(f"{player.name}", True, (255, 255, 255)) # Creates text surface with colour black
+            player_text_rect = player_text_surface.get_rect(center=self.playerSeats[player])
+            self.playerTexts.append([player_text_surface, player_text_rect])
+        
+    def drawPlayerTexts(self):
+        for text in self.playerTexts:
+            player_surface, player_rect = text[0], text[1]
+            self.screen.blit(player_surface, player_rect)
+            
+    def drawHands(self, player):
+        hand = player.hand
+        cardWidth = 80
+        cardHeight = 120
+        spacing = 30
+        totalWidth = len(hand)*80 + (len(hand)-1) * 30
+        startX = self.playerSeats[player][0] - totalWidth // 2
+        # The right card is self.playerSeats[player][0] + totalWidth // 2
+        # Cards inbetween is last card position plus 30
+        for i, card in enumerate(hand):
+            x = startX + i * (cardWidth + spacing)  # no overlap
+            y = self.playerSeats[player][1] + 30 + cardHeight//2
+            card.drawCard(self.screen, (x, y))
         
     def updateImage(self):
-        for i in self.players:
-            pass
+        self.drawPlayerTexts()
+        for player in self.players:
+            self.drawHands(player)

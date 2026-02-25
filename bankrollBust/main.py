@@ -1,7 +1,11 @@
 import pygame
 from pygameUtils.buttonUtils import button, discreteSlider, inputBox
 from gameLogic import playGame
-# TODO Add delays so you can comprehend what is going on!!! Add actual visual cards so you know what is going on!!!
+
+# TODO Add delays so you can comprehend what is going on!!! 
+# TODO Add actual visual cards so you know what is going on!!!
+# TODO Handle if player ges 21 or if player gets blackjack
+
 # Pygame Setup
 pygame.init() # Initialise Pygame
 INITX = 1400
@@ -126,7 +130,7 @@ def playingGame(game):
                         for player in game.players:
                             player.newRound()
                     if currentPlayer.handValue < 17:
-                        currentPlayer.dealCard()
+                        currentPlayer.dealCard(game.deckInstance)
                         game.getHandValue(currentPlayer)
                     else:
                         currentPlayer.stand()
@@ -176,7 +180,7 @@ def newGameSettings():
 
 def newGame(noOfDecks, difficulty, noOfNPCs, startingBux):
     # Button setup that requires vairables: Bet Amount
-    game = playGame(noOfDecks, difficulty, noOfNPCs, startingBux)
+    game = playGame(noOfDecks, difficulty, noOfNPCs, startingBux, screen)
     playingGame(game)
     
 
