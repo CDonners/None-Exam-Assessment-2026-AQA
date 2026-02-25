@@ -119,7 +119,7 @@ def playingGame(game):
                         pygame.time.delay(1000)
                     else:
                         currentPlayer.stand()
-                        
+
                     if currentPlayer.isStood or currentPlayer.isBusted: # Dealer has either stood or busted
                         if currentPlayer.isStood: # Once dealer has stood
                             for hand in list(game.stoodHands.keys()):
@@ -137,7 +137,7 @@ def playingGame(game):
                                 stoodPlayer = game.stoodHands[hand]
                                 stoodPlayer.bustBux += 2*stoodPlayer.bet
                                 # TODO handle end of round
-                        pygame.time.delay(2500)
+                        pygame.time.delay(5000)
                         # Reset game
                         currentPlayerIndex = 0
                         game.roundStarted = False
