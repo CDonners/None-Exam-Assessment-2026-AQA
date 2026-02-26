@@ -7,6 +7,7 @@ from gameLogic import playGame
 # TODO Handle deck running out of cards somehow
 # TODO Handle player running out of bustBux
 # TODO Fix infinite money glitch - use a set of owed players each element [playerObj, "Won"/"Draw"]
+# TODO See if I can make it so the screen can update the cards n such without needing an event??? Probs alot of rewriting
 
 # Pygame Setup
 pygame.init() # Initialise Pygame
@@ -90,9 +91,6 @@ def playingGame(game):
     while gamePlayRunning:
         for event in pygame.event.get(): # Checking for events
             screen.blit(bg, (0,0)) # Set the screen as my background
-            # game.drawPlayerTexts()
-            # game.drawBalance()
-            # game.drawPlayerBets()
             game.updateImage()
             if event.type == pygame.QUIT: # If the user presses the X button, quit game
                 quit()
