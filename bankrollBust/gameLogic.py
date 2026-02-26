@@ -58,37 +58,45 @@ class setupGame():
 class playGame():
     def __init__(self, noOfDecks: int, difficulty: str, noOfNPCs:int, startingBux: int, screen):
         self.startingBux = startingBux
+        # Game setup variables
         self.screen = screen
-        self.user = player(startingBux) # Creating the player object
-        self.NPCs = [] # Preparing to make the NPCs
-        self.roundStarted = False
-        self.playerSeats = {}
         self.gameSetup = setupGame(startingBux)
-        self.deckInstance = deckHandling(noOfDecks) # Deck handling instance ready
-        self.deckInstance.shuffle()
-        if noOfNPCs != 0: # Create NPCs
-            for _ in range(noOfNPCs):
-                self.NPCs.append(self.gameSetup.createNPC())
+        # User object
+        self.user = player(startingBux) # Creating the player object
+        # Create NPCs
+        self.NPCs = [] # Preparing to make the NPCs
+        if noOfNPCs != 0: 
+            for _ in range(noOfNPCs): # Repeats for how many NPCs there are
+                self.NPCs.append(self.gameSetup.createNPC()) # Create the NPC
         self.players = self.NPCs[:] # A list for all the players, cloning the NPCs list
-        self.userIndex = (len(self.NPCs))//2
+        self.userIndex = (len(self.NPCs))//2 # Get the index where the user will be
         self.players.insert(self.userIndex, self.user) # Insert the User object into the middle of the list with a left bias
-        self.getPlayerSeats()
-        self.players.append(dealer())
-        self.playerSeats[self.players[len(self.players)-1]] = (700, 200)
-        self.stoodHands = {}
-        self.bustPlayers = 0
+        self.players.append(dealer()) # Adds the dealer to the end of the player list
+        # Sort out player seating positions
+        self.playerSeats = {} # Empty dictionary of player seats Player:SeatPosition
+        self.getPlayerSeats() # Gets every player's seat
+        self.playerSeats[self.players[len(self.players)-1]] = (700, 200) # Adds the dealer's seating position
+        # Texts for UI
         self.playerTexts = []
         self.betTexts = []
         self.createPlayerTexts()
+        # Handle deck
+        self.deckInstance = deckHandling(noOfDecks) # Deck handling instance ready
+        self.deckInstance.shuffle() # Shuffle the deck
+        # Gameplay Attributes
+        self.roundStarted = False
+        self.stoodHands = {} # Dictionary of stood hands as HandValue:PlayerObject
+        self.bustPlayers = 0 # Integer to count how many players went bust
+        self.winners = set() # Empty set of winners
         
     def initialDeal(self):
         for i in range(2): # Deal 2 cards to players from left to right
             for player in self.players:
-                if i == 1 and player.name == "Dealer":
-                    player.dealCard(self.deckInstance, visible=False)
-                else:
+                if i == 1 and player.name == "Dealer": # If the dealer is dealt their second card
+                    player.dealCard(self.deckInstance, visible=False) # Deal the card face down
+                else: # Deal the card to the player
                     player.dealCard(self.deckInstance)
-        self.roundStarted = True        
+        self.roundStarted = True # Start the round
 
     def getPlayerSeats(self):
         # Assigns players their seating positions
