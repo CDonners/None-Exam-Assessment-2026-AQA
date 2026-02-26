@@ -2,8 +2,8 @@ import pygame
 from pygameUtils.buttonUtils import button, discreteSlider, inputBox
 from gameLogic import playGame
 
-# TODO Add delays so you can comprehend what is going on!!! 
-# TODO Handle if player ges 21 or if player gets blackjack
+# TODO Handle if player ges 21 or if player gets blackjack - Semi Done
+# TODO Handle deck running out of cards somehow
 
 # Pygame Setup
 pygame.init() # Initialise Pygame
@@ -17,6 +17,7 @@ clock = pygame.time.Clock() # To limit FPS
 
 # Menu Button Setup
 centreX = INITX//2 # X is always centre no matter the initial size
+centreY = INITY//2
 newGameButton = button(screen, (centreX, 300), "New Game")
 continueButton = button(screen, (centreX,400), "Continue")
 settingsButton = button(screen,(centreX,500), "Settings")
@@ -27,9 +28,12 @@ standButton = button(screen, (centreX-375, 770), "Stand", interactable=False)
 splitButton = button(screen, (centreX-375, 850), "Split", interactable=False)
 insuranceButton = button(screen, (centreX+375, 850), "Insurance", interactable=False)
 confirmBetButton = button(screen, (centreX, 850), "Confirm Bet", interactable=False)
+doubleDownButton = button(screen, (centreX, centreY), "Double Down")
+nextRoundButton = button(screen, (centreX, centreY), "Next Round")
 
 def playingGame(game):
     # Creating the bet amount input box
+    global currentPlayerIndex
     minBet = round((int(game.startingBux)/100)/5)*5 # Rounds the minimum bet to the nearest 5, so the minimum bet will always be 1% of the starting bux to the nearest 5
     betAmountInputBox = inputBox(screen, (centreX, 770), "Bet Amount", "num", f"{minBet}", interactable=False, minMax=[float(minBet), 1000*float(minBet)])
     betAmount = None
@@ -38,10 +42,38 @@ def playingGame(game):
     bettingPhase = True
     currentPlayerIndex = 0
     dealer = game.players[len(game.players) -1] # Dealer is always this index
+    
+    def endPlayerTurn():
+        global currentPlayerIndex
+        currentPlayerIndex += 1 # Moves to next player
+        # Make all buttons uninteractable
+        hitButton.makeUninteractable()
+        standButton.makeUninteractable()
+        splitButton.makeUninteractable()
+        insuranceButton.makeUninteractable()
+        
+    def startPlayerTurn(currentPlayer):
+        # Check if player has natural blackjack
+        if game.checkBlackjack(currentPlayer):
+            currentPlayer.bustBux += 2.5*currentPlayer.bet
+            endPlayerTurn()
+        # Making actions available
+        if len(currentPlayer.hand) > 2: # Special cases not available
+            splitButton.makeUninteractable()
+            insuranceButton.makeUninteractable()
+        else: # Need to check if special cases are available
+            if currentPlayer.hand[0].face == currentPlayer.hand[1].face: # If player's cards are equal
+                splitButton.makeInteractable()
+            if dealer.hand[0].face == "A": # If the dealer has a visible Ace
+                insuranceButton.makeInteractable()
+        hitButton.makeInteractable()
+        standButton.makeInteractable()     
+    
     # Gameplay loop
     while gamePlayRunning:
-        screen.blit(bg, (0,0)) # Set the screen as my background
         for event in pygame.event.get(): # Checking for events
+            screen.blit(bg, (0,0)) # Set the screen as my background
+            game.drawPlayerTexts()
             if event.type == pygame.QUIT: # If the user presses the X button, quit game
                 quit()
             # Draw buttons
@@ -77,50 +109,23 @@ def playingGame(game):
             # Starting action phase
             if game.roundStarted:
                 if currentPlayer.name == "Player": # Is the Player's turn
-                    # Making actions available
-                    if len(currentPlayer.hand) > 2: # Special cases not available
-                        splitButton.makeUninteractable()
-                        insuranceButton.makeUninteractable()
-                    else: # Need to check if special cases are available
-                        if currentPlayer.hand[0].face == currentPlayer.hand[1].face: # If player's cards are equal
-                            splitButton.makeInteractable()
-                        if dealer.hand[0].face == "A": # If the dealer has a visible Ace
-                            insuranceButton.makeInteractable()
-                    hitButton.makeInteractable()
-                    standButton.makeInteractable()
-                    # Checks if player's round is over 
-                    if currentPlayer.isStood or currentPlayer.isBusted:
-                        currentPlayerIndex += 1 # Moves to next player
-                        # Make all buttons uninteractable
-                        hitButton.makeUninteractable()
-                        standButton.makeUninteractable()
-                        splitButton.makeUninteractable()
-                        insuranceButton.makeUninteractable()
+                    startPlayerTurn(currentPlayer)                
                     # Waiting for interactions
                     if standButton.updateImage(event):
-                        currentPlayer.stand()
-                        game.stoodHands[currentPlayer.handValue] = currentPlayer # Adding the stood hand to the dictionary
-                        pygame.time.delay(1000)
+                        currentPlayer.stand(game)
+                        endPlayerTurn()
                     if hitButton.updateImage(event):
                         currentPlayer.dealCard(game.deckInstance)
-                        game.getHandValue(currentPlayer)
-                        if currentPlayer.handValue == 21:
-                            currentPlayer.stand()
-                            if len(currentPlayer.hand) == 2: # player got blackjack
-                                currentPlayer.bustBux += 0.5 * currentPlayer.bet
-                        pygame.time.delay(1000)
+                        if game.checkBusted(currentPlayer):
+                            endPlayerTurn()
+                            currentPlayer.bust(game)
+                        elif game.checkBlackjack(currentPlayer):
+                            currentPlayer.stand(game)
 
                 elif currentPlayer.name == "Dealer": # Is the dealer's turn
                     # Handling the end of the game
-                    currentPlayer.hand[1].setVisible
-                    if currentPlayer.handValue < 17:
-                        currentPlayer.dealCard(game.deckInstance)
-                        game.getHandValue(currentPlayer)
-                        pygame.time.delay(1000)
-                    else:
-                        currentPlayer.stand()
-
-                    if currentPlayer.isStood or currentPlayer.isBusted: # Dealer has either stood or busted
+                    currentPlayer.hand[1].setVisible()
+                    if currentPlayer.isStood or game.checkBusted(currentPlayer): # Dealer has either stood or busted
                         if currentPlayer.isStood: # Once dealer has stood
                             for hand in list(game.stoodHands.keys()):
                                 stoodPlayer = game.stoodHands[hand]
@@ -131,37 +136,41 @@ def playingGame(game):
                                     stoodPlayer.bustBux += 2*stoodPlayer.bet
                                     # TODO handle end of round
                                 # If player doesn't enter either of these, player has lost
+                                else:
+                                    pass
                         # Dealer has bust so every stood player wins
                         elif currentPlayer.isBusted:
                             for hand in list(game.stoodHands.keys()):
                                 stoodPlayer = game.stoodHands[hand]
                                 stoodPlayer.bustBux += 2*stoodPlayer.bet
                                 # TODO handle end of round
-                        pygame.time.delay(5000)
-                        # Reset game
-                        currentPlayerIndex = 0
-                        game.roundStarted = False
-                        bettingPhase = False
-                        for player in game.players:
-                            player.newRound()
-                            print(f"New round for {player.name}")
-                            print(f"Dealer's hand after reset: {dealer.hand}")
+                        if nextRoundButton.updateImage(event):
+                            # Reset game
+                            currentPlayerIndex = 0
+                            game.bustPlayers = 0
+                            game.stoodHands = {}
+                            game.roundStarted = False
+                            bettingPhase = True
+                            for player in game.players:
+                                player.newRound()
+                    elif currentPlayer.handValue < 17 and len(game.players)-1 != game.bustPlayers and len(game.stoodHands) != 0: # If dealer's hand is below 17 must hit, do not hit if all players are bust
+                        currentPlayer.dealCard(game.deckInstance)
+                    else:
+                        currentPlayer.stand(game)
+                        
                 else: # Is NPC's turn
                     if currentPlayer.isStood or currentPlayer.isBusted:
                         currentPlayerIndex += 1
-                        pygame.time.delay(1000)
-            game.updateImage()
-            pygame.display.flip()
-    
         # Initial deal happens once, after betting
-        if bettingPhase == False and game.roundStarted == False:
-            game.initialDeal()
-            game.stoodHands = {} # Reset stood hand
-            game.drawPlayerTexts()  # Draw player names
-            for player in game.players:
-                game.drawHands(player)  # Draw each player's hand
-            pygame.display.update()  # Update the screen immediately
-            game.roundStarted = True  # Mark the round as started
+        if bettingPhase == False:
+            if game.roundStarted == False:
+                game.initialDeal()
+                game.stoodHands = {} # Reset stood hand
+                game.drawPlayerTexts()  # Draw player names
+                game.roundStarted = True  # Mark the round as started
+            game.updateImage()
+        pygame.display.update()
+        
         
         clock.tick(60) # Limiting clock to 60
         
