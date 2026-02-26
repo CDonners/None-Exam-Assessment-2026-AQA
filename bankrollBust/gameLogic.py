@@ -75,6 +75,7 @@ class playGame():
         self.players.append(dealer())
         self.playerSeats[self.players[len(self.players)-1]] = (700, 200)
         self.stoodHands = {}
+        self.bustPlayers = 0
         self.playerTexts = []
         self.createPlayerTexts()
         
@@ -85,20 +86,7 @@ class playGame():
                     player.dealCard(self.deckInstance, visible=False)
                 else:
                     player.dealCard(self.deckInstance)
-        self.roundStarted = True
-
-    def getHandValue(self, playerToCheck):
-        totalSum = 0
-        for card in playerToCheck.hand:
-            totalSum += card.value
-        if totalSum > 21:
-            if 11 in playerToCheck.hand:
-                aceIndex = playerToCheck.hand.index(11)
-                playerToCheck.hand[aceIndex].value = 1
-                totalSum -= 10
-            else:
-                playerToCheck.bust()
-        playerToCheck.handValue = totalSum
+        self.roundStarted = True        
 
     def getPlayerSeats(self):
         # Assigns players their seating positions
@@ -128,21 +116,49 @@ class playGame():
             player_surface, player_rect = text[0], text[1]
             self.screen.blit(player_surface, player_rect)
             
-    def drawHands(self, player):
-        hand = player.hand
+    def drawHands(self, playerObj):
+        hand = playerObj.hand
         cardWidth = 80
         cardHeight = 120
         spacing = 30
         totalWidth = len(hand)*80 + (len(hand)-1) * 30
-        startX = self.playerSeats[player][0] - totalWidth // 2
+        startX = self.playerSeats[playerObj][0] - totalWidth // 2
         # The right card is self.playerSeats[player][0] + totalWidth // 2
         # Cards inbetween is last card position plus 30
         for i, card in enumerate(hand):
             x = startX + i * (cardWidth + spacing)  # no overlap
-            y = self.playerSeats[player][1] - 30 - cardHeight//2
+            y = self.playerSeats[playerObj][1] - 30 - cardHeight//2
             card.drawCard(self.screen, (x, y))
         
+    def getHandValue(self, playerObj):
+        # Get the value of the player's hand
+        totalSum = 0 # Creating variable for value
+        cardValues = [card.value for card in playerObj.hand] # List of all values in the player's hand
+        for value in cardValues: # Loop through the card values
+            totalSum += value # Add them all together
+        playerObj.handValue = totalSum # Making the handValue of the player object be the gathered value    
+        
+    def checkBusted(self, playerToCheck):
+        self.getHandValue(playerToCheck)
+        cardValues = [card.value for card in playerToCheck.hand] # List of all values in the player's hand
+        # Check if the player has busted
+        if playerToCheck.handValue > 21: # Player might be bust
+            if 11 in cardValues: # See if the player has the ace
+                aceIndex = cardValues.index(11) # Get the location of the ace
+                playerToCheck.hand[aceIndex].value = 1 # Set the ace's value to 1
+                playerToCheck.handValue -= 10 # Correct the player's hand value
+                return False # Player hasn't bust
+            else: # Player has no ace and has bust
+                return True 
+        else:
+            return False # Player hasn't bust
+        
+    def checkBlackjack(self, playerObj):
+        self.getHandValue(playerObj)
+        if playerObj.handValue == 21:
+            print("Player has blackjack")
+            return True
+        
     def updateImage(self):
-        self.drawPlayerTexts()
         for player in self.players:
             self.drawHands(player)
