@@ -244,5 +244,7 @@ class inputBox(button):
                 elif self.checkAllowed(key_pressed): # Only accepts numeric inputs
                     self.value = self.value + key_pressed # Adds the input to the value string
         if self.inputType == "num":
-            return int(self.value) # Returns the value as a integer
+            print(self.value, type(self.value))
+            # Returns the value as a integer if it isn't empty
+            return int(self.value) if self.value != "" else 0
         return self.value # returns the value string
