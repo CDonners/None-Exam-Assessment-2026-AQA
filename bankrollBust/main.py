@@ -5,9 +5,8 @@ from gameLogic import playGame
 ## SHORT TERM GOALS
 # TODO Handle if player ges 21 or if player gets blackjack - Semi Done
 # TODO Handle deck running out of cards somehow
-# TODO Display current bustBux total
-# TODO Display current bet of each player
 # TODO Handle player running out of bustBux
+# TODO Fix infinite money glitch - use a set of owed players each element [playerObj, "Won"/"Draw"]
 
 # Pygame Setup
 pygame.init() # Initialise Pygame
@@ -59,24 +58,30 @@ def playingGame(game):
     def startPlayerTurn(currentPlayer, event):
         # Check if player has natural blackjack
         hitButton.makeInteractable()
-        standButton.makeInteractable()   
-        if game.checkBlackjack(currentPlayer):
-            currentPlayer.bustBux += 2.5*currentPlayer.bet
-            endPlayerTurn()
+        standButton.makeInteractable()
         # Making actions available
         if len(currentPlayer.hand) > 2: # Special cases not available
             splitButton.makeUninteractable()
             insuranceButton.makeUninteractable()
+        # Checks if player has natural blackjack
+        elif game.checkBlackjack(currentPlayer):
+            currentPlayer.bustBux += 2.5*currentPlayer.bet
+            endPlayerTurn()
         else: # Need to check if special cases are available
+            # Check's if split is available
             if currentPlayer.hand[0].face == currentPlayer.hand[1].face: # If player's cards are equal
                 splitButton.makeInteractable()
+            # Checks if insurance is available
             if dealer.hand[0].face == "A": # If the dealer has a visible Ace
                 insuranceButton.makeInteractable()
+            # Makes double down available
             if doubleDownButton.updateImage(event): # If the player hasn't acted they can double down
                 currentPlayer.bustBux -= currentPlayer.bet # Remove the additional bet from their total
                 currentPlayer.bet *= 2 # Double the bet
                 # Usual card dealing process
                 currentPlayer.dealCard(game.deckInstance)
+                game.updateBet(currentPlayerIndex)
+                print(currentPlayer.bet)
                 if game.checkBusted(currentPlayer):
                     endPlayerTurn()
                     currentPlayer.bust(game)
@@ -85,7 +90,10 @@ def playingGame(game):
     while gamePlayRunning:
         for event in pygame.event.get(): # Checking for events
             screen.blit(bg, (0,0)) # Set the screen as my background
-            game.drawPlayerTexts()
+            # game.drawPlayerTexts()
+            # game.drawBalance()
+            # game.drawPlayerBets()
+            game.updateImage()
             if event.type == pygame.QUIT: # If the user presses the X button, quit game
                 quit()
             # Draw buttons
@@ -114,6 +122,7 @@ def playingGame(game):
                 elif currentPlayer.name == "Dealer": # Checks if the current player is the dealer - Signals end of betting phase
                     currentPlayerIndex = 0
                     bettingPhase = False
+                    game.createPlayerBetTexts()
                 else: # Current player is an NPC
                     playerBet = game.players[currentPlayerIndex].calculateBet()
                     currentPlayer.bet = playerBet
@@ -156,21 +165,23 @@ def playingGame(game):
                                 stoodPlayer = game.stoodHands[hand]
                                 stoodPlayer.bustBux += 2*stoodPlayer.bet
                                 # TODO handle end of round
+                        # Waiting for player to be ready for the next round
                         if nextRoundButton.updateImage(event):
                             # Reset game
                             currentPlayerIndex = 0
                             game.bustPlayers = 0
                             game.stoodHands = {}
+                            game.betTexts = []
                             game.roundStarted = False
                             bettingPhase = True
                             for player in game.players:
                                 player.newRound()
-                    elif currentPlayer.handValue < 17 and len(game.players)-1 != game.bustPlayers and len(game.stoodHands) != 0: # If dealer's hand is below 17 must hit, do not hit if all players are bust
+                    elif currentPlayer.handValue < 17 and len(game.players)-1 != game.bustPlayers and len(game.stoodHands) != 0: # If dealer's hand is below 17 must hit, do not hit if all players are bust or all players have blackjack
                         currentPlayer.dealCard(game.deckInstance)
                     else:
                         currentPlayer.stand(game)
-                        
-                else: # Is NPC's turn
+                # NPC's turn
+                else:
                     if currentPlayer.isStood or currentPlayer.isBusted:
                         currentPlayerIndex += 1
         # Initial deal happens once, after betting
@@ -179,8 +190,9 @@ def playingGame(game):
                 game.initialDeal()
                 game.stoodHands = {} # Reset stood hand
                 game.drawPlayerTexts()  # Draw player names
+                game.drawPlayerBets() # Draw player bets
                 game.roundStarted = True  # Mark the round as started
-            game.updateImage()
+            #game.updateImage()
         pygame.display.update()
         
         
