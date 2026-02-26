@@ -70,13 +70,15 @@ class playGame():
             for _ in range(noOfNPCs):
                 self.NPCs.append(self.gameSetup.createNPC())
         self.players = self.NPCs[:] # A list for all the players, cloning the NPCs list
-        self.players.insert((len(self.NPCs))//2, self.user) # Insert the User object into the middle of the list with a left bias
+        self.userIndex = (len(self.NPCs))//2
+        self.players.insert(self.userIndex, self.user) # Insert the User object into the middle of the list with a left bias
         self.getPlayerSeats()
         self.players.append(dealer())
         self.playerSeats[self.players[len(self.players)-1]] = (700, 200)
         self.stoodHands = {}
         self.bustPlayers = 0
         self.playerTexts = []
+        self.betTexts = []
         self.createPlayerTexts()
         
     def initialDeal(self):
@@ -102,19 +104,39 @@ class playGame():
             # self.players[i - startingPos] "i - startingPos" Is the index of the players in the player list
             # seatingPositions[i] is the aligned seating position
             self.playerSeats[self.players[i - startingPos]] = seatingPositions[i]
-        
+
     def createPlayerTexts(self):
-        player_font = pygame.font.SysFont("", 32) # Sets the font to pygame default with size 22
-        for player in self.players:
+        playerFont = pygame.font.SysFont("", 32) # Sets the font to pygame default with size 22
+        for playerObj in self.players:
             # Creating the text for the player
-            player_text_surface = player_font.render(f"{player.name}", True, (255, 255, 255)) # Creates text surface with colour black
-            player_text_rect = player_text_surface.get_rect(center=self.playerSeats[player])
-            self.playerTexts.append([player_text_surface, player_text_rect])
+            playerTextSurface = playerFont.render(f"{playerObj.name}", True, (255, 255, 255)) # Creates text surface with colour black
+            playerTextRect = playerTextSurface.get_rect(center=self.playerSeats[playerObj])
+            self.playerTexts.append([playerTextSurface, playerTextRect])
         
     def drawPlayerTexts(self):
         for text in self.playerTexts:
-            player_surface, player_rect = text[0], text[1]
-            self.screen.blit(player_surface, player_rect)
+            playerSurface, playerRect = text[0], text[1]
+            self.screen.blit(playerSurface, playerRect)
+
+    def createPlayerBetTexts(self):
+        betFont = pygame.font.SysFont("", 28) # Sets the font to pygame default with size 22
+        for playerObj in self.players:
+            if playerObj.name != "Dealer":
+                betCentre = (self.playerSeats[playerObj][0], self.playerSeats[playerObj][1]+25)
+                betTextSurface = betFont.render(f"Bet: {playerObj.bet}", True, (255, 255, 255)) # Creates text surface with colour black
+                betTextRect = betTextSurface.get_rect(center=betCentre)
+                self.betTexts.append([betTextSurface, betTextRect])
+
+    def updateBet(self, betIndex):
+        betFont = pygame.font.SysFont("", 28) # Sets the font to pygame default with size 22
+        playerObj = self.players[betIndex]
+        betTextSurface = betFont.render(f"Bet: {playerObj.bet}", True, (255, 255, 255)) # Creates text surface with colour black
+        self.betTexts[betIndex][0] = betTextSurface
+
+    def drawPlayerBets(self):
+        for text in self.betTexts:
+            betSurface, betRect = text[0], text[1]
+            self.screen.blit(betSurface, betRect)
             
     def drawHands(self, playerObj):
         hand = playerObj.hand
@@ -129,6 +151,14 @@ class playGame():
             x = startX + i * (cardWidth + spacing)  # no overlap
             y = self.playerSeats[playerObj][1] - 30 - cardHeight//2
             card.drawCard(self.screen, (x, y))
+
+    def drawBalance(self):
+        balanceFont = pygame.font.SysFont("", 32) # Sets the font to pygame default with size 22
+        playerBalance = self.players[self.userIndex].bustBux
+        balanceCentre = (25,25)
+        balanceTextSurface = balanceFont.render(f"Balance:{playerBalance}", True, (0, 0, 0)) # Creates text surface with colour black
+        balanceTextRect = balanceTextSurface.get_rect(topleft=balanceCentre)
+        self.screen.blit(balanceTextSurface, balanceTextRect)
         
     def getHandValue(self, playerObj):
         # Get the value of the player's hand
@@ -161,3 +191,7 @@ class playGame():
     def updateImage(self):
         for player in self.players:
             self.drawHands(player)
+        self.drawPlayerTexts()
+        self.drawBalance()
+        self.drawPlayerBets()
+        
