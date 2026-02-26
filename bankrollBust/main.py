@@ -40,7 +40,6 @@ def playingGame(game):
     global currentPlayerIndex
     minBet = round((int(game.startingBux)/100)/5)*5 # Rounds the minimum bet to the nearest 5, so the minimum bet will always be 1% of the starting bux to the nearest 5
     betAmountInputBox = inputBox(screen, (centreX, 770), "Bet Amount:", "num", f"{minBet}", interactable=False, minMax=[float(minBet), 1000*float(minBet)])
-    betAmount = None
     # Game Status variables
     gamePlayRunning = True
     bettingPhase = True
@@ -189,7 +188,6 @@ def playingGame(game):
                 game.stoodHands = {} # Reset stood hand
                 game.drawPlayerTexts()  # Draw player names
                 game.drawPlayerBets() # Draw player bets
-                game.roundStarted = True  # Mark the round as started
         
         pygame.display.update() 
         clock.tick(60) # Limiting clock to 60        
