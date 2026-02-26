@@ -190,12 +190,9 @@ def playingGame(game):
                 game.drawPlayerTexts()  # Draw player names
                 game.drawPlayerBets() # Draw player bets
                 game.roundStarted = True  # Mark the round as started
-            #game.updateImage()
-        pygame.display.update()
         
-        
-        clock.tick(60) # Limiting clock to 60
-        
+        pygame.display.update() 
+        clock.tick(60) # Limiting clock to 60        
 
 def newGameSettings():
     # Mini Window Setup
