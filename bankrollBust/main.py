@@ -39,7 +39,7 @@ def playingGame(game):
     # Creating the bet amount input box
     global currentPlayerIndex
     minBet = round((int(game.startingBux)/100)/5)*5 # Rounds the minimum bet to the nearest 5, so the minimum bet will always be 1% of the starting bux to the nearest 5
-    betAmountInputBox = inputBox(screen, (centreX, 770), "Bet Amount", "num", f"{minBet}", interactable=False, minMax=[float(minBet), 1000*float(minBet)])
+    betAmountInputBox = inputBox(screen, (centreX, 770), "Bet Amount:", "num", f"{minBet}", interactable=False, minMax=[float(minBet), 1000*float(minBet)])
     betAmount = None
     # Game Status variables
     gamePlayRunning = True
@@ -72,10 +72,14 @@ def playingGame(game):
                 splitButton.makeInteractable()
             if dealer.hand[0].face == "A": # If the dealer has a visible Ace
                 insuranceButton.makeInteractable()
-            if doubleDownButton.updateImage(event):
-                currentPlayer.bustBux -= currentPlayer.bet
-                currentPlayer.bet *= 2
+            if doubleDownButton.updateImage(event): # If the player hasn't acted they can double down
+                currentPlayer.bustBux -= currentPlayer.bet # Remove the additional bet from their total
+                currentPlayer.bet *= 2 # Double the bet
+                # Usual card dealing process
                 currentPlayer.dealCard(game.deckInstance)
+                if game.checkBusted(currentPlayer):
+                    endPlayerTurn()
+                    currentPlayer.bust(game)
     
     # Gameplay loop
     while gamePlayRunning:
@@ -190,10 +194,10 @@ def newGameSettings():
     # Interaction Setup
     currentX = miniWindowRect.centerx # Making my function calls shorter - Neater code :)
     currentY = miniWindowRect.centery
-    noOfDecksSlider = discreteSlider(screen, "Number Of Decks", (currentX, currentY-150), [1,2,4,6,8,10], scale=1.3)
-    difficultySlider = discreteSlider(screen, "Difficulty", (currentX, currentY-100), ["Full-Assist", "Semi-Assist", "There-When-Needed","No-Help"], scale=1.3)
-    noOfNPCsSlider = discreteSlider(screen, "Number of NPCs", (currentX, currentY-50), [0,1,2,3,4,5,6], scale=1.3)
-    startingBuxInput = inputBox(screen, (currentX, currentY+25), "Starting Bux", "num", "1000",  scale=0.8, minMax=(1000, 100000))
+    noOfDecksSlider = discreteSlider(screen, "Number Of Decks:", (currentX, currentY-150), [1,2,4,6,8,10], scale=1.3)
+    difficultySlider = discreteSlider(screen, "Difficulty:", (currentX, currentY-100), ["Full-Assist", "Semi-Assist", "There-When-Needed","No-Help"], scale=1.3)
+    noOfNPCsSlider = discreteSlider(screen, "Number of NPCs:", (currentX, currentY-50), [0,1,2,3,4,5,6], scale=1.3)
+    startingBuxInput = inputBox(screen, (currentX, currentY+25), "Starting Bux:", "num", "1000",  scale=0.8, minMax=(1000, 100000))
     startButton = button(screen, (currentX+135, currentY+125), "Start Game", scale=0.7)
     cancelButton = button(screen, (currentX-135, currentY+125), "Cancel", scale=0.7)
     # Keeping Window Open

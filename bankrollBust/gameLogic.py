@@ -156,7 +156,6 @@ class playGame():
     def checkBlackjack(self, playerObj):
         self.getHandValue(playerObj)
         if playerObj.handValue == 21:
-            print("Player has blackjack")
             return True
         
     def updateImage(self):

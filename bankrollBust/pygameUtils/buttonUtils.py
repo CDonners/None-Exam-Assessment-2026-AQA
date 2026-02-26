@@ -179,10 +179,10 @@ class inputBox(button):
         # Creating the input box
         self.interactableImage = pygame.transform.scale_by(pygame.image.load(BIFD + "button.png"), self.scale)
         self.interactableObj = self.interactableImage.get_rect(center = centre)
-        # Creating the text for the slider title
+        # Creating the text for the inputbox title
         self.title_font = pygame.font.SysFont("", 22) # Sets the font of the text to the default pygame font and the size to 22
         self.title_text_surface = self.title_font.render(f"{self.name}", True, (255, 255, 255)) # Creates the text surface with black colour
-        self.title_text_rect = self.title_text_surface.get_rect(center=(self.centre[0], self.centre[1]-50*self.scale)) # Creates the rect with an offset to appear above the input box
+        self.title_text_rect = self.title_text_surface.get_rect(center=(self.centre[0], self.centre[1]-25*self.scale)) # Creates the rect with an offset to appear above the input box
     
     def draw(self):
         # Check if it's interactable
