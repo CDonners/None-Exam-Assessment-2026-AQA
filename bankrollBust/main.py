@@ -2,8 +2,12 @@ import pygame
 from pygameUtils.buttonUtils import button, discreteSlider, inputBox
 from gameLogic import playGame
 
+## SHORT TERM GOALS
 # TODO Handle if player ges 21 or if player gets blackjack - Semi Done
 # TODO Handle deck running out of cards somehow
+# TODO Display current bustBux total
+# TODO Display current bet of each player
+# TODO Handle player running out of bustBux
 
 # Pygame Setup
 pygame.init() # Initialise Pygame
@@ -52,8 +56,10 @@ def playingGame(game):
         splitButton.makeUninteractable()
         insuranceButton.makeUninteractable()
         
-    def startPlayerTurn(currentPlayer):
+    def startPlayerTurn(currentPlayer, event):
         # Check if player has natural blackjack
+        hitButton.makeInteractable()
+        standButton.makeInteractable()   
         if game.checkBlackjack(currentPlayer):
             currentPlayer.bustBux += 2.5*currentPlayer.bet
             endPlayerTurn()
@@ -66,8 +72,10 @@ def playingGame(game):
                 splitButton.makeInteractable()
             if dealer.hand[0].face == "A": # If the dealer has a visible Ace
                 insuranceButton.makeInteractable()
-        hitButton.makeInteractable()
-        standButton.makeInteractable()     
+            if doubleDownButton.updateImage(event):
+                currentPlayer.bustBux -= currentPlayer.bet
+                currentPlayer.bet *= 2
+                currentPlayer.dealCard(game.deckInstance)
     
     # Gameplay loop
     while gamePlayRunning:
@@ -109,7 +117,7 @@ def playingGame(game):
             # Starting action phase
             if game.roundStarted:
                 if currentPlayer.name == "Player": # Is the Player's turn
-                    startPlayerTurn(currentPlayer)                
+                    startPlayerTurn(currentPlayer, event)                
                     # Waiting for interactions
                     if standButton.updateImage(event):
                         currentPlayer.stand(game)
