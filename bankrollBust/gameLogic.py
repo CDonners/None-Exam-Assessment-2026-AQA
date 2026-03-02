@@ -26,6 +26,7 @@ class setupGame():
             generatedIndex = genRandInt(8) # Generate an integer for the index
             if generatedIndex < len(NPCNAMES): # If the index is greater or equal to length of the names list, regenerate it.
                 pickedName = NPCNAMES[generatedIndex] # Get the item at the index
+                indexCorrect = True
         return pickedName
 
     def generateFloat(self, lowerBound: int, upperBound: int):

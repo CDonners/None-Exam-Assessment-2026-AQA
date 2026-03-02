@@ -53,6 +53,9 @@ def playingGame(game):
     playerBet = 0
     hit = False
     stood = False
+    # Dealer action delay (in frames at 60 FPS)
+    gameActionDelay = 30  # 1 second at 60 FPS
+    gameAct = 0
     # Utility
     dealer = game.players[len(game.players) -1] # Dealer is always this index
     
@@ -158,9 +161,12 @@ def playingGame(game):
                 game.drawPlayerTexts()  # Draw player names
                 game.drawPlayerBets() # Draw player bets
             else: # Current player is an NPC
-                playerBet = game.players[currentPlayerIndex].calculateBet()
-                currentPlayer.bet = playerBet
-                currentPlayerIndex += 1
+                gameAct += 1
+                if gameAct == gameActionDelay:
+                    playerBet = game.players[currentPlayerIndex].calculateBet()
+                    currentPlayer.bet = playerBet
+                    currentPlayerIndex += 1
+                    gameAct = 0
         
         elif game.roundStarted:
             if currentPlayer.name == "Player": # Is the Player's turn               
@@ -182,6 +188,7 @@ def playingGame(game):
                     hit = False
 
             elif currentPlayer.name == "Dealer": # Is the dealer's turn
+                gameAct += 1  # Increment frame counter
                 dealer = currentPlayer # Making it more clear that we are talking about dealer
                 dealer.hand[1].setVisible() # Show the dealer's down card
                 # Checking the players have won and paying them
@@ -214,6 +221,7 @@ def playingGame(game):
                     # Waiting for player to be ready for the next round
                     if nextRound:
                         # Reset game
+                        gameAct = 0
                         currentPlayerIndex = 0
                         game.bustPlayers = 0
                         game.stoodHands = {}
@@ -225,9 +233,11 @@ def playingGame(game):
                             player.newRound()
                 elif dealer.handValue < 17 and len(game.players)-1 != game.bustPlayers and len(game.stoodHands) != 0: # If dealer's hand is below 17 must hit
                     # Don't hit if everyone is bust or has natural blackjack
-                    dealer.dealCard(game.deckInstance)
-                    if game.checkBusted(currentPlayer):
-                        currentPlayer.bust(game)
+                    if gameAct == gameActionDelay:
+                        gameAct = 0
+                        dealer.dealCard(game.deckInstance)
+                        if game.checkBusted(currentPlayer):
+                            currentPlayer.bust(game)
                 else:
                     dealer.stand(game)
             # NPC's turn
