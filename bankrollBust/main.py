@@ -36,23 +36,25 @@ doubleDownButton = button(screen, (centreX, centreY), "Double Down")
 nextRoundButton = button(screen, (centreX, centreY), "Next Round")
 
 def playingGame(game):
-    # Creating the bet amount input box
     global currentPlayerIndex
     global showDBButton
+    # Creating the bet amount input box
     minBet = round((int(game.startingBux)/100)/5)*5 # Rounds the minimum bet to the nearest 5, so the minimum bet will always be 1% of the starting bux to the nearest 5
     betAmountInputBox = inputBox(screen, (centreX, 770), "Bet Amount:", "num", f"{minBet}", interactable=False, minMax=[float(minBet), 1000*float(minBet)])
-    # Game Status variables
+    # Game State variables
     gamePlayRunning = True
     bettingPhase = True
+    nextRound = False
+    showDBButton = False
+    currentPlayerIndex = 0
+    betsGiven = False
+    # Player state variables
     betMade = False
     playerBet = 0
     hit = False
     stood = False
-    nextRound = False
-    showDBButton = False
-    currentPlayerIndex = 0
+    # Utility
     dealer = game.players[len(game.players) -1] # Dealer is always this index
-    betsGiven = False
     
     def endPlayerTurn():
         global currentPlayerIndex
