@@ -5,10 +5,11 @@ from gameLogic import playGame
 # ! SHORT TERM GOALS !
 # TODO Handle deck running out of cards somehow
 # TODO Handle player running out of bustBux
-# TODO Show a text saying player Won/Lost/Push
+# TODO Show a text saying player Won/Lost/Pushq
 # TODO Add insurance - Will just be an if statement and a variable
 # TODO Add split - Will use 2D list, need to add checks for integration
 # TODO Detect natural blackjack not working
+# TODO Need to add that soft numbers are worse than none-soft numbers
 
 # Pygame Setup
 pygame.init() # Initialise Pygame
@@ -54,7 +55,7 @@ def playingGame(game):
     playerBet = 0
     hit = False
     stood = False
-    # Dealer action delay (in frames at 60 FPS)
+    # Game action delay (in frames at 60 FPS)
     gameActionDelay = 30  # 1 second at 60 FPS
     gameAct = 0
     # Utility
@@ -114,19 +115,19 @@ def playingGame(game):
         for event in pygame.event.get(): # Checking for events
             if event.type == pygame.QUIT: # If the user presses the X button, quit game
                 quit()
-            # Draw buttons
+            # # Draw buttons
+            hitButton.updateImage(event)
+            standButton.updateImage(event)
             splitButton.updateImage(event)
             insuranceButton.updateImage(event)
             confirmBetButton.updateImage(event)
             # State Machine for gameplay
-            
             if bettingPhase: # If betting phase is active
                 if currentPlayer.name == "Player": # Checks if current player is the human player
                     # Make the relevant interactables be interactable
                     betAmountInputBox.setMax(currentPlayer.bustBux)
                     playerBet = int(betAmountInputBox.getInput(event))
                     betMade = confirmBetButton.updateImage(event)
-                    hit = hitButton.updateImage(event)
                     
             # Starting action phase
             elif game.roundStarted:
@@ -174,7 +175,7 @@ def playingGame(game):
                     showDBButton = False
                     currentPlayer.stand(game)
                     endPlayerTurn()
-                    stood = False
+                    stood = False                                               
                 if hit:
                     showDBButton = False
                     currentPlayer.dealCard(game.deckInstance)
@@ -318,4 +319,3 @@ while gameRunning: # Main Menu Loop
     
     
 pygame.quit # Exit out of Pygame
-
