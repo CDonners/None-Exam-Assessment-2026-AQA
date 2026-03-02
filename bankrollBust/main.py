@@ -2,12 +2,12 @@ import pygame
 from pygameUtils.buttonUtils import button, discreteSlider, inputBox
 from gameLogic import playGame
 
-## SHORT TERM GOALS
-# TODO Handle if player ges 21 or if player gets blackjack - Semi Done
+## ! SHORT TERM GOALS !
 # TODO Handle deck running out of cards somehow
 # TODO Handle player running out of bustBux
-# TODO See if I can make it so the screen can update the cards n such without needing an event??? Probs alot of rewriting
-# TODO Now need to figure out why the dealer randomly starts dealing cards to themself straight away after like 2 rounds
+# TODO Do not allow player to enter debt
+# TODO Show a text saying player Won/Lost/Push
+# TODO Slow down the dealer's moves
 
 # Pygame Setup
 pygame.init() # Initialise Pygame
@@ -75,7 +75,7 @@ def playingGame(game):
             splitButton.makeUninteractable()
             insuranceButton.makeUninteractable()
             if game.checkBlackjack(currentPlayer):
-                currentPlayer.stand()
+                currentPlayer.stand(game)
                 endPlayerTurn()
         # Checks if player has natural blackjack as they have 2 cards
         elif game.checkBlackjack(currentPlayer):
@@ -167,6 +167,7 @@ def playingGame(game):
                     showDBButton = False
                     currentPlayer.stand(game)
                     endPlayerTurn()
+                    stood = False
                 if hit:
                     showDBButton = False
                     currentPlayer.dealCard(game.deckInstance)
@@ -179,21 +180,30 @@ def playingGame(game):
                     hit = False
 
             elif currentPlayer.name == "Dealer": # Is the dealer's turn
-                currentPlayer.hand[1].setVisible()
-                if currentPlayer.isStood or game.checkBusted(currentPlayer): # Dealer has either stood or busted
-                    if currentPlayer.isStood and not betsGiven: # Once dealer has stood
-                        for hand in list(game.stoodHands.keys()):
+                dealer = currentPlayer # Making it more clear that we are talking about dealer
+                dealer.hand[1].setVisible() # Show the dealer's down card
+                # Checking the players have won and paying them
+                if dealer.isStood or game.checkBusted(dealer): # Dealer has either stood or busted
+                    if dealer.isStood and not betsGiven: # Once dealer has stood if bets haven't been paid
+                        print("Dealer stood")
+                        for hand in list(game.stoodHands.keys()): # Loop through the list of stoof hands
                             stoodPlayer = game.stoodHands[hand]
-                            if currentPlayer.handValue == hand:
+                            print("1", stoodPlayer.name)
+                            if dealer.handValue == hand:
+                                print("2 draw")
                                 stoodPlayer.bustBux += stoodPlayer.bet
                                 # TODO handle end of round
-                            elif currentPlayer.handValue < hand:
+                            elif dealer.handValue < hand:
                                 stoodPlayer.bustBux += 2*stoodPlayer.bet
+                                print("3 player won")
                                 # TODO handle end of round
+                            else:
+                                print("Player lost")
                             # If player doesn't enter either of these, player has lost
                         betsGiven = True
                     # Dealer has bust so every stood player wins
-                    elif currentPlayer.isBusted and not betsGiven:
+                    elif dealer.isBusted and not betsGiven:
+                        print("Dealer is bust")
                         for hand in list(game.stoodHands.keys()):
                             stoodPlayer = game.stoodHands[hand]
                             stoodPlayer.bustBux += 2*stoodPlayer.bet
@@ -211,10 +221,13 @@ def playingGame(game):
                         betsGiven = False
                         for player in game.players:
                             player.newRound()
-                elif currentPlayer.handValue < 17 and len(game.players)-1 != game.bustPlayers and len(game.stoodHands) != 0: # If dealer's hand is below 17 must hit, do not hit if all players are bust or all players have blackjack
-                    currentPlayer.dealCard(game.deckInstance)
+                elif dealer.handValue < 17 and len(game.players)-1 != game.bustPlayers and len(game.stoodHands) != 0: # If dealer's hand is below 17 must hit
+                    # Don't hit if everyone is bust or has natural blackjack
+                    dealer.dealCard(game.deckInstance)
+                    if game.checkBusted(currentPlayer):
+                        currentPlayer.bust(game)
                 else:
-                    currentPlayer.stand(game)
+                    dealer.stand(game)
             # NPC's turn
             else:
                 if currentPlayer.isStood or currentPlayer.isBusted:
@@ -242,7 +255,7 @@ def newGameSettings():
     # Interaction Setup
     currentX = miniWindowRect.centerx # Making my function calls shorter - Neater code :)
     currentY = miniWindowRect.centery
-    noOfDecksSlider = discreteSlider(screen, "Number Of Decks:", (currentX, currentY-150), [1,2,4,6,8,10], scale=1.3)
+    noOfDecksSlider = discreteSlider(screen, "Number Of Decks:", (currentX, currentY-150), [4,6,8,10,12,16], scale=1.3)
     difficultySlider = discreteSlider(screen, "Difficulty:", (currentX, currentY-100), ["Full-Assist", "Semi-Assist", "There-When-Needed","No-Help"], scale=1.3)
     noOfNPCsSlider = discreteSlider(screen, "Number of NPCs:", (currentX, currentY-50), [0,1,2,3,4,5,6], scale=1.3)
     startingBuxInput = inputBox(screen, (currentX, currentY+25), "Starting Bux:", "num", "1000",  scale=0.8, minMax=(1000, 100000))
