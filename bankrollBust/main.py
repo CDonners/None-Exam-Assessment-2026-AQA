@@ -6,9 +6,8 @@ from gameLogic import playGame
 # TODO Handle if player ges 21 or if player gets blackjack - Semi Done
 # TODO Handle deck running out of cards somehow
 # TODO Handle player running out of bustBux
-# TODO Fix infinite money glitch - use a set of owed players each element [playerObj, "Won"/"Draw"]
 # TODO See if I can make it so the screen can update the cards n such without needing an event??? Probs alot of rewriting
-## TODO Trying to do above, figure out why showDBButton is resetting to false???
+# TODO Now need to figure out why the dealer randomly starts dealing cards to themself straight away after like 2 rounds
 
 # Pygame Setup
 pygame.init() # Initialise Pygame
@@ -63,6 +62,8 @@ def playingGame(game):
         standButton.makeUninteractable()
         splitButton.makeUninteractable()
         insuranceButton.makeUninteractable()
+        confirmBetButton.makeUninteractable()
+        betAmountInputBox.makeUninteractable()
         
     def startPlayerTurn(currentPlayer, event):
         global showDBButton
@@ -88,7 +89,7 @@ def playingGame(game):
             if dealer.hand[0].face == "A": # If the dealer has a visible Ace
                 insuranceButton.makeInteractable()
             # Makes double down available
-            showDBButton = True if len(currentPlayer.hand) == 2 else False
+            showDBButton = True
             if doubleDownButton.updateImage(event): # If the player hasn't acted they can double down
                 showDBButton = False
                 currentPlayer.bustBux -= currentPlayer.bet # Remove the additional bet from their total
@@ -163,9 +164,11 @@ def playingGame(game):
             if currentPlayer.name == "Player": # Is the Player's turn               
                 # Wait for interactions
                 if stood:
+                    showDBButton = False
                     currentPlayer.stand(game)
                     endPlayerTurn()
                 if hit:
+                    showDBButton = False
                     currentPlayer.dealCard(game.deckInstance)
                     if game.checkBusted(currentPlayer):
                         endPlayerTurn()
@@ -176,13 +179,6 @@ def playingGame(game):
                     hit = False
 
             elif currentPlayer.name == "Dealer": # Is the dealer's turn
-                # Handling the end of the game
-                hitButton.makeUninteractable()
-                standButton.makeUninteractable()
-                splitButton.makeUninteractable()
-                insuranceButton.makeUninteractable()
-                confirmBetButton.makeUninteractable()
-                betAmountInputBox.makeUninteractable()
                 currentPlayer.hand[1].setVisible()
                 if currentPlayer.isStood or game.checkBusted(currentPlayer): # Dealer has either stood or busted
                     if currentPlayer.isStood and not betsGiven: # Once dealer has stood
