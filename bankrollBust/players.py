@@ -16,9 +16,7 @@ class player():
     
     def stand(self, game):
         if self.name != "Dealer":
-            print("Dealer not standing")
             game.stoodHands[self.handValue] = self # Adding the stood hand to the dictionary
-            print(len(game.stoodHands))
         self.isStood = True
 
     def dealCard(self, deck: Any, visible = True):
