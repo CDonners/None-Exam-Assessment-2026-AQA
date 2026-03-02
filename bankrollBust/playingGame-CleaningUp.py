@@ -43,6 +43,11 @@ def playingGame(game):
     # Game Status variables
     gamePlayRunning = True
     bettingPhase = True
+    betMade = False
+    betAmount = 0
+    hit = False
+    stood = False
+    nextRound = False
     currentPlayerIndex = 0
     dealer = game.players[len(game.players) -1] # Dealer is always this index
     
@@ -88,9 +93,10 @@ def playingGame(game):
     
     # Gameplay loop
     while gamePlayRunning:
+        currentPlayer = game.players[currentPlayerIndex]
+        game.updateImage()
         for event in pygame.event.get(): # Checking for events
             screen.blit(bg, (0,0)) # Set the screen as my background
-            game.updateImage()
             if event.type == pygame.QUIT: # If the user presses the X button, quit game
                 quit()
             # Draw buttons
@@ -98,41 +104,54 @@ def playingGame(game):
             standButton.updateImage(event)
             splitButton.updateImage(event)
             insuranceButton.updateImage(event)
-            confirmBetButton.draw()
-            betAmountInputBox.draw()
+            confirmBetButton.updateImage(event)
+            betAmountInputBox.getInput(event)
             # State Machine for gameplay
-            currentPlayer = game.players[currentPlayerIndex]
+            
             if bettingPhase: # If betting phase is active
                 if currentPlayer.name == "Player": # Checks if current player is the human player
                     # Make the relevant interactables be interactable
-                    confirmBetButton.makeInteractable()
-                    betAmountInputBox.makeInteractable()
+                    startPlayerTurn(currentPlayer, event) 
                     playerBet = int(betAmountInputBox.getInput(event))
-                    if confirmBetButton.updateImage(event): # Bet confirmed
-                        currentPlayer.bet = playerBet
-                        currentPlayer.bustBux -= playerBet
-                        currentPlayerIndex += 1 # Increment player index
-                        # Make buttons uninteractable
-                        confirmBetButton.makeUninteractable()
-                        betAmountInputBox.makeUninteractable()
-                        confirmBetButton.updateImage(event) # Updating the image of the button properly
-                elif currentPlayer.name == "Dealer": # Checks if the current player is the dealer - Signals end of betting phase
-                    currentPlayerIndex = 0
-                    bettingPhase = False
-                    game.createPlayerBetTexts()
-                else: # Current player is an NPC
-                    playerBet = game.players[currentPlayerIndex].calculateBet()
-                    currentPlayer.bet = playerBet
-                    currentPlayerIndex += 1
+                    betMade = confirmBetButton.updateImage(event)
+                    hit = hitButton.updateImage(event)
+                    
             # Starting action phase
             if game.roundStarted:
-                if currentPlayer.name == "Player": # Is the Player's turn
-                    startPlayerTurn(currentPlayer, event)                
+                hit = hitButton.updateImage(event)
+                stood = standButton.updateImage(event)
+                if currentPlayer.name == "Dealer":
+                    if currentPlayer.isStood or game.checkBusted(currentPlayer):
+                        nextRound = nextRoundButton.updateImage(event)
+                        
+        if bettingPhase: # If betting phase is active
+            if currentPlayer.name == "Player": # Checks if current player is the human player
+                # Make the relevant interactables be interactable
+                confirmBetButton.makeInteractable()
+                betAmountInputBox.makeInteractable()
+                if betMade: # Bet confirmed
+                    currentPlayer.bet = betAmount
+                    currentPlayer.bustBux -= betAmount
+                    currentPlayerIndex += 1 # Increment player index
+                    # Make buttons uninteractable
+                    confirmBetButton.makeUninteractable()
+                    betAmountInputBox.makeUninteractable()
+            elif currentPlayer.name == "Dealer": # Checks if the current player is the dealer - Signals end of betting phase
+                currentPlayerIndex = 0
+                bettingPhase = False
+                game.createPlayerBetTexts()
+            else: # Current player is an NPC
+                playerBet = game.players[currentPlayerIndex].calculateBet()
+                currentPlayer.bet = playerBet
+                currentPlayerIndex += 1
+        
+        if game.roundStarted:
+            if currentPlayer.name == "Player": # Is the Player's turn               
                     # Waiting for interactions
-                    if standButton.updateImage(event):
+                    if stood:
                         currentPlayer.stand(game)
                         endPlayerTurn()
-                    if hitButton.updateImage(event):
+                    if hit:
                         currentPlayer.dealCard(game.deckInstance)
                         if game.checkBusted(currentPlayer):
                             endPlayerTurn()
@@ -140,47 +159,48 @@ def playingGame(game):
                         elif game.checkBlackjack(currentPlayer):
                             currentPlayer.stand(game)
 
-                elif currentPlayer.name == "Dealer": # Is the dealer's turn
-                    # Handling the end of the game
-                    currentPlayer.hand[1].setVisible()
-                    if currentPlayer.isStood or game.checkBusted(currentPlayer): # Dealer has either stood or busted
-                        if currentPlayer.isStood: # Once dealer has stood
-                            for hand in list(game.stoodHands.keys()):
-                                stoodPlayer = game.stoodHands[hand]
-                                if currentPlayer.handValue == hand:
-                                    stoodPlayer.bustBux += stoodPlayer.bet
-                                    # TODO handle end of round
-                                elif currentPlayer.handValue < hand:
-                                    stoodPlayer.bustBux += 2*stoodPlayer.bet
-                                    # TODO handle end of round
-                                # If player doesn't enter either of these, player has lost
-                                else:
-                                    pass
-                        # Dealer has bust so every stood player wins
-                        elif currentPlayer.isBusted:
-                            for hand in list(game.stoodHands.keys()):
-                                stoodPlayer = game.stoodHands[hand]
+            elif currentPlayer.name == "Dealer": # Is the dealer's turn
+                # Handling the end of the game
+                currentPlayer.hand[1].setVisible()
+                if currentPlayer.isStood or game.checkBusted(currentPlayer): # Dealer has either stood or busted
+                    if currentPlayer.isStood: # Once dealer has stood
+                        for hand in list(game.stoodHands.keys()):
+                            stoodPlayer = game.stoodHands[hand]
+                            if currentPlayer.handValue == hand:
+                                stoodPlayer.bustBux += stoodPlayer.bet
+                                # TODO handle end of round
+                            elif currentPlayer.handValue < hand:
                                 stoodPlayer.bustBux += 2*stoodPlayer.bet
                                 # TODO handle end of round
-                        # Waiting for player to be ready for the next round
-                        if nextRoundButton.updateImage(event):
-                            # Reset game
-                            currentPlayerIndex = 0
-                            game.bustPlayers = 0
-                            game.stoodHands = {}
-                            game.betTexts = []
-                            game.roundStarted = False
-                            bettingPhase = True
-                            for player in game.players:
-                                player.newRound()
-                    elif currentPlayer.handValue < 17 and len(game.players)-1 != game.bustPlayers and len(game.stoodHands) != 0: # If dealer's hand is below 17 must hit, do not hit if all players are bust or all players have blackjack
-                        currentPlayer.dealCard(game.deckInstance)
-                    else:
-                        currentPlayer.stand(game)
-                # NPC's turn
+                            # If player doesn't enter either of these, player has lost
+                            else:
+                                pass
+                    # Dealer has bust so every stood player wins
+                    elif currentPlayer.isBusted:
+                        for hand in list(game.stoodHands.keys()):
+                            stoodPlayer = game.stoodHands[hand]
+                            stoodPlayer.bustBux += 2*stoodPlayer.bet
+                            # TODO handle end of round
+                    # Waiting for player to be ready for the next round
+                    if nextRound:
+                        # Reset game
+                        currentPlayerIndex = 0
+                        game.bustPlayers = 0
+                        game.stoodHands = {}
+                        game.betTexts = []
+                        game.roundStarted = False
+                        bettingPhase = True
+                        for player in game.players:
+                            player.newRound()
+                elif currentPlayer.handValue < 17 and len(game.players)-1 != game.bustPlayers and len(game.stoodHands) != 0: # If dealer's hand is below 17 must hit, do not hit if all players are bust or all players have blackjack
+                    currentPlayer.dealCard(game.deckInstance)
                 else:
-                    if currentPlayer.isStood or currentPlayer.isBusted:
-                        currentPlayerIndex += 1
+                    currentPlayer.stand(game)
+            # NPC's turn
+            else:
+                if currentPlayer.isStood or currentPlayer.isBusted:
+                    currentPlayerIndex += 1
+                                
         # Initial deal happens once, after betting
         if bettingPhase == False:
             if game.roundStarted == False:
