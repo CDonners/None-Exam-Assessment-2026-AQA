@@ -5,9 +5,9 @@ from gameLogic import playGame
 ## ! SHORT TERM GOALS !
 # TODO Handle deck running out of cards somehow
 # TODO Handle player running out of bustBux
-# TODO Do not allow player to enter debt
 # TODO Show a text saying player Won/Lost/Push
-# TODO Slow down the dealer's moves
+# TODO Add insurance - Will just be an if statement and a variable
+# TODO Add split - Will use 2D list, need to add checks for integration
 
 # Pygame Setup
 pygame.init() # Initialise Pygame
@@ -119,12 +119,12 @@ def playingGame(game):
             splitButton.updateImage(event)
             insuranceButton.updateImage(event)
             confirmBetButton.updateImage(event)
-            betAmountInputBox.getInput(event)
             # State Machine for gameplay
             
             if bettingPhase: # If betting phase is active
                 if currentPlayer.name == "Player": # Checks if current player is the human player
                     # Make the relevant interactables be interactable
+                    betAmountInputBox.setMax(currentPlayer.bustBux)
                     playerBet = int(betAmountInputBox.getInput(event))
                     betMade = confirmBetButton.updateImage(event)
                     hit = hitButton.updateImage(event)
