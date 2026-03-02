@@ -2,12 +2,13 @@ import pygame
 from pygameUtils.buttonUtils import button, discreteSlider, inputBox
 from gameLogic import playGame
 
-## ! SHORT TERM GOALS !
+# ! SHORT TERM GOALS !
 # TODO Handle deck running out of cards somehow
 # TODO Handle player running out of bustBux
 # TODO Show a text saying player Won/Lost/Push
 # TODO Add insurance - Will just be an if statement and a variable
 # TODO Add split - Will use 2D list, need to add checks for integration
+# TODO Detect natural blackjack not working
 
 # Pygame Setup
 pygame.init() # Initialise Pygame
@@ -114,8 +115,6 @@ def playingGame(game):
             if event.type == pygame.QUIT: # If the user presses the X button, quit game
                 quit()
             # Draw buttons
-            hitButton.updateImage(event)
-            standButton.updateImage(event)
             splitButton.updateImage(event)
             insuranceButton.updateImage(event)
             confirmBetButton.updateImage(event)
@@ -194,25 +193,18 @@ def playingGame(game):
                 # Checking the players have won and paying them
                 if dealer.isStood or game.checkBusted(dealer): # Dealer has either stood or busted
                     if dealer.isStood and not betsGiven: # Once dealer has stood if bets haven't been paid
-                        print("Dealer stood")
                         for hand in list(game.stoodHands.keys()): # Loop through the list of stoof hands
                             stoodPlayer = game.stoodHands[hand]
-                            print("1", stoodPlayer.name)
                             if dealer.handValue == hand:
-                                print("2 draw")
                                 stoodPlayer.bustBux += stoodPlayer.bet
                                 # TODO handle end of round
                             elif dealer.handValue < hand:
                                 stoodPlayer.bustBux += 2*stoodPlayer.bet
-                                print("3 player won")
                                 # TODO handle end of round
-                            else:
-                                print("Player lost")
                             # If player doesn't enter either of these, player has lost
                         betsGiven = True
                     # Dealer has bust so every stood player wins
                     elif dealer.isBusted and not betsGiven:
-                        print("Dealer is bust")
                         for hand in list(game.stoodHands.keys()):
                             stoodPlayer = game.stoodHands[hand]
                             stoodPlayer.bustBux += 2*stoodPlayer.bet
