@@ -105,8 +105,8 @@ def playingGame(game):
                 currentPlayer.dealCard(game.deckInstance)
                 game.updateBet(currentPlayerIndex)
                 if game.checkBusted(currentPlayer):
-                    endPlayerTurn()
                     currentPlayer.bust(game)
+                endPlayerTurn()
     
     # Gameplay loop
     while gamePlayRunning:
