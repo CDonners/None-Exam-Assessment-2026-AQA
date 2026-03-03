@@ -3,13 +3,13 @@ from pygameUtils.buttonUtils import button, discreteSlider, inputBox
 from gameLogic import playGame
 
 # ! SHORT TERM GOALS !
-# TODO Handle deck running out of cards somehow
-# TODO Handle player running out of bustBux
-# TODO Show a text saying player Won/Lost/Pushq
+# TODO Handle deck running out of cards somehow - Probably regenerate deck telling the player you have
+# TODO Handle player running out of bustBux - End game as player lost
+# TODO Show a text saying player Won/Lost/Push
 # TODO Add insurance - Will just be an if statement and a variable
 # TODO Add split - Will use 2D list, need to add checks for integration
-# TODO Detect natural blackjack not working
-# TODO Need to add that soft numbers are worse than none-soft numbers
+# TODO Detect natural blackjack not working - It might
+# TODO Need to add that soft numbers are worse than none-soft numbers - Simple if statement
 
 # Pygame Setup
 pygame.init() # Initialise Pygame
