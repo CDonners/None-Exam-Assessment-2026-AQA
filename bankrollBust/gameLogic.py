@@ -197,10 +197,24 @@ class playGame():
         if playerObj.handValue == 21:
             return True
         
+    def drawStatusText(self, status, winnings):
+        font = pygame.font.SysFont("", 32) # Sets the font to pygame default with size 2
+        if status == "Win":
+            textSurface = font.render(f"Won: {winnings*2}", True, (0, 0, 0)) # Creates text surface with colour black
+        elif status == "Loss":
+            textSurface = font.render(f"Lose", True, (0, 0, 0)) # Creates text surface with colour black
+        elif status == "Push":
+            textSurface = font.render(f"Push: Bets Returned", True, (0, 0, 0)) # Creates text surface with colour black
+        elif status == "Bust":
+            textSurface = font.render(f"BUSTED", True, (0, 0, 0)) # Creates text surface with colour black
+        else:
+            textSurface = font.render(f"BLACKJACK!!! {winnings*2.5}", True, (0, 0, 0)) # Creates text surface with colour black
+        textRect = textSurface.get_rect(center=(700,350))
+        self.screen.blit(textSurface, textRect)
+        
     def updateImage(self):
         for player in self.players:
             self.drawHands(player)
         self.drawPlayerTexts()
         self.drawBalance()
         self.drawPlayerBets()
-        

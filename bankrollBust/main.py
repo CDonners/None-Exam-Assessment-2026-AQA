@@ -5,10 +5,9 @@ from gameLogic import playGame
 # ! SHORT TERM GOALS !
 # TODO Handle deck running out of cards somehow - Probably regenerate deck telling the player you have
 # TODO Handle player running out of bustBux - End game as player lost
-# TODO Show a text saying player Won/Lost/Push
 # TODO Add insurance - Will just be an if statement and a variable
 # TODO Add split - Will use 2D list, need to add checks for integration
-# TODO Detect natural blackjack not working - It might
+# TODO Detect natural blackjack not working 
 # TODO Need to add that soft numbers are worse than none-soft numbers - Simple if statement
 
 # Pygame Setup
@@ -56,6 +55,7 @@ def playingGame(game):
     hit = False
     stood = False
     split = False
+    gameStatus = ""
     # Game action delay (in frames at 60 FPS)
     gameActionDelay = 30  # 1 second at 60 FPS
     gameAct = 0
@@ -107,6 +107,8 @@ def playingGame(game):
                 game.updateBet(currentPlayerIndex)
                 if game.checkBusted(currentPlayer):
                     currentPlayer.bust(game)
+                else:
+                    currentPlayer.stand(game)
                 endPlayerTurn()
     
     # Gameplay loop
@@ -129,7 +131,6 @@ def playingGame(game):
                     betAmountInputBox.setMax(currentPlayer.bustBux)
                     playerBet = int(betAmountInputBox.getInput(event))
                     betMade = confirmBetButton.updateImage(event)
-                    
             # Starting action phase
             elif game.roundStarted:
                 if currentPlayer.name == "Player":
@@ -183,6 +184,7 @@ def playingGame(game):
                     if game.checkBusted(currentPlayer):
                         endPlayerTurn()
                         currentPlayer.bust(game)
+                        gameStatus = "Bust"
                     elif game.checkBlackjack(currentPlayer):
                         currentPlayer.stand(game)
                         endPlayerTurn()
@@ -199,14 +201,23 @@ def playingGame(game):
                             stoodPlayer = game.stoodHands[hand]
                             if dealer.handValue == hand:
                                 stoodPlayer.bustBux += stoodPlayer.bet
+                                if stoodPlayer.name == "Player":
+                                    gameStatus = "Push"
                             elif dealer.handValue < hand:
-                                stoodPlayer.bustBux += 2*stoodPlayer.bet
+                                stoodPlayer.bustBux += 2*stoodPlayer.bet#
+                                if stoodPlayer.name == "Player":
+                                    gameStatus = "Win"
+                            else:
+                                if stoodPlayer.name == "Player":
+                                    gameStatus = "Loss"
                         betsGiven = True
                     # Dealer has bust so every stood player wins
                     elif dealer.isBusted and not betsGiven:
                         for hand in list(game.stoodHands.keys()):
                             stoodPlayer = game.stoodHands[hand]
                             stoodPlayer.bustBux += 2*stoodPlayer.bet
+                            if stoodPlayer.name == "Player":
+                                gameStatus = "Win"
                         betsGiven = True
                             # TODO handle end of round
                     # Waiting for player to be ready for the next round
@@ -218,6 +229,7 @@ def playingGame(game):
                         game.stoodHands = {}
                         game.betTexts = []
                         game.roundStarted = False
+                        gameStatus = ""
                         bettingPhase = True
                         betsGiven = False
                         for player in game.players:
@@ -239,7 +251,9 @@ def playingGame(game):
         if currentPlayer.name == "Dealer":
             if currentPlayer.isStood or game.checkBusted(currentPlayer):
                 nextRound = nextRoundButton.draw() # Keeps the next round button drawn and sets nextRound to None
-                #draw text whether player bust, push or won
+        if gameStatus != "":
+            print(gameStatus)
+            game.drawStatusText(gameStatus, playerBet)
         if showDBButton:
             doubleDownButton.draw()
         hitButton.draw()
