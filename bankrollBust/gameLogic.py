@@ -173,6 +173,7 @@ class playGame():
         # Get the value of the player's hand
         totalSum = 0 # Creating variable for value
         cardValues = [card.value for card in playerObj.hand] # List of all values in the player's hand
+        print(cardValues)
         for value in cardValues: # Loop through the card values
             totalSum += value # Add them all together
         playerObj.handValue = totalSum # Making the handValue of the player object be the gathered value    

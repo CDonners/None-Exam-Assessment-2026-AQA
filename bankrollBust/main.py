@@ -7,7 +7,7 @@ from gameLogic import playGame
 # TODO Handle player running out of bustBux - End game as player lost
 # TODO Add insurance - Will just be an if statement and a variable
 # TODO Add split - Will use 2D list, need to add checks for integration
-# TODO Detect natural blackjack not working 
+# TODO Detect natural blackjack not working - Worked with Jack Ace, didnt with Queen Ace
 # TODO Need to add that soft numbers are worse than none-soft numbers - Simple if statement
 
 # Pygame Setup
@@ -87,6 +87,7 @@ def playingGame(game):
                 endPlayerTurn()
         # Checks if player has natural blackjack as they have 2 cards
         elif game.checkBlackjack(currentPlayer):
+            print("Checking blackjack")
             currentPlayer.bustBux += 2.5*currentPlayer.bet
             endPlayerTurn()
         else: # Need to check if special cases are available
@@ -252,7 +253,6 @@ def playingGame(game):
             if currentPlayer.isStood or game.checkBusted(currentPlayer):
                 nextRound = nextRoundButton.draw() # Keeps the next round button drawn and sets nextRound to None
         if gameStatus != "":
-            print(gameStatus)
             game.drawStatusText(gameStatus, playerBet)
         if showDBButton:
             doubleDownButton.draw()
