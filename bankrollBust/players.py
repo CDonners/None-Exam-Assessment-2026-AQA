@@ -9,6 +9,7 @@ class player():
         self.isBusted = False
         self.isStood = False
         self.bet = 0
+        self.insurance = False
         
     def bust(self, game):
         game.bustPlayers += 1

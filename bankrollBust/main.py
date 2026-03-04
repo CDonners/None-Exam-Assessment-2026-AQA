@@ -55,6 +55,7 @@ def playingGame(game):
     playerBet = 0
     hit = False
     stood = False
+    split = False
     # Game action delay (in frames at 60 FPS)
     gameActionDelay = 30  # 1 second at 60 FPS
     gameAct = 0
@@ -192,17 +193,14 @@ def playingGame(game):
                 dealer = currentPlayer # Making it more clear that we are talking about dealer
                 dealer.hand[1].setVisible() # Show the dealer's down card
                 # Checking the players have won and paying them
-                if dealer.isStood or game.checkBusted(dealer): # Dealer has either stood or busted
+                if dealer.isStood or game.checkBusted(dealer): # Dealer has either stood or busted so round will end
                     if dealer.isStood and not betsGiven: # Once dealer has stood if bets haven't been paid
                         for hand in list(game.stoodHands.keys()): # Loop through the list of stoof hands
                             stoodPlayer = game.stoodHands[hand]
                             if dealer.handValue == hand:
                                 stoodPlayer.bustBux += stoodPlayer.bet
-                                # TODO handle end of round
                             elif dealer.handValue < hand:
                                 stoodPlayer.bustBux += 2*stoodPlayer.bet
-                                # TODO handle end of round
-                            # If player doesn't enter either of these, player has lost
                         betsGiven = True
                     # Dealer has bust so every stood player wins
                     elif dealer.isBusted and not betsGiven:
@@ -240,7 +238,8 @@ def playingGame(game):
         # Keeping all buttons on screen
         if currentPlayer.name == "Dealer":
             if currentPlayer.isStood or game.checkBusted(currentPlayer):
-                nextRound = nextRoundButton.draw()
+                nextRound = nextRoundButton.draw() # Keeps the next round button drawn and sets nextRound to None
+                #draw text whether player bust, push or won
         if showDBButton:
             doubleDownButton.draw()
         hitButton.draw()

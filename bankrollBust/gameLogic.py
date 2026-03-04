@@ -128,7 +128,7 @@ class playGame():
             self.screen.blit(playerSurface, playerRect)
 
     def createPlayerBetTexts(self):
-        betFont = pygame.font.SysFont("", 28) # Sets the font to pygame default with size 22
+        betFont = pygame.font.SysFont("", 28) # Sets the font to pygame default with size 28
         for playerObj in self.players:
             if playerObj.name != "Dealer":
                 betCentre = (self.playerSeats[playerObj][0], self.playerSeats[playerObj][1]+25)
