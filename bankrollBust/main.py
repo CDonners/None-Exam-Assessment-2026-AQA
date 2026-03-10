@@ -5,9 +5,8 @@ from gameLogic import playGame
 # ! SHORT TERM GOALS !
 # TODO Handle deck running out of cards somehow - Probably regenerate deck telling the player you have
 # TODO Handle player running out of bustBux - End game as player lost
-# TODO Add insurance - Will just be an if statement and a variable
+# TODO Add insurance - Will just be an if statement
 # TODO Add split - Will use 2D list, need to add checks for integration
-# TODO Detect natural blackjack not working - Worked with Jack Ace, didnt with Queen Ace
 # TODO Need to add that soft numbers are worse than none-soft numbers - Simple if statement
 
 # Pygame Setup
@@ -73,9 +72,8 @@ def playingGame(game):
         confirmBetButton.makeUninteractable()
         betAmountInputBox.makeUninteractable()
         
-    def startPlayerTurn(currentPlayer, event):
+    def playerTurn(currentPlayer, event):
         global showDBButton
-        # Check if player has natural blackjack
         hitButton.makeInteractable()
         standButton.makeInteractable()
         # Making actions available
@@ -87,7 +85,6 @@ def playingGame(game):
                 endPlayerTurn()
         # Checks if player has natural blackjack as they have 2 cards
         elif game.checkBlackjack(currentPlayer):
-            print("Checking blackjack")
             currentPlayer.bustBux += 2.5*currentPlayer.bet
             endPlayerTurn()
         else: # Need to check if special cases are available
@@ -135,7 +132,7 @@ def playingGame(game):
             # Starting action phase
             elif game.roundStarted:
                 if currentPlayer.name == "Player":
-                    startPlayerTurn(currentPlayer, event)
+                    playerTurn(currentPlayer, event)
                     hit = hitButton.updateImage(event)
                     stood = standButton.updateImage(event)
                 elif currentPlayer.name == "Dealer":
@@ -193,19 +190,20 @@ def playingGame(game):
 
             elif currentPlayer.name == "Dealer": # Is the dealer's turn
                 gameAct += 1  # Increment frame counter
-                dealer = currentPlayer # Making it more clear that we are talking about dealer
                 dealer.hand[1].setVisible() # Show the dealer's down card
+                dealerValuesValues = [card.value for card in dealer.hand]
                 # Checking the players have won and paying them
                 if dealer.isStood or game.checkBusted(dealer): # Dealer has either stood or busted so round will end
                     if dealer.isStood and not betsGiven: # Once dealer has stood if bets haven't been paid
                         for hand in list(game.stoodHands.keys()): # Loop through the list of stoof hands
+                            cardValues = [card.value for card in hand]
                             stoodPlayer = game.stoodHands[hand]
                             if dealer.handValue == hand:
                                 stoodPlayer.bustBux += stoodPlayer.bet
                                 if stoodPlayer.name == "Player":
                                     gameStatus = "Push"
                             elif dealer.handValue < hand:
-                                stoodPlayer.bustBux += 2*stoodPlayer.bet#
+                                stoodPlayer.bustBux += 2*stoodPlayer.bet
                                 if stoodPlayer.name == "Player":
                                     gameStatus = "Win"
                             else:
@@ -220,7 +218,6 @@ def playingGame(game):
                             if stoodPlayer.name == "Player":
                                 gameStatus = "Win"
                         betsGiven = True
-                            # TODO handle end of round
                     # Waiting for player to be ready for the next round
                     if nextRound:
                         # Reset game

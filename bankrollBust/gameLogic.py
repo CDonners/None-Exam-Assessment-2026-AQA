@@ -173,7 +173,6 @@ class playGame():
         # Get the value of the player's hand
         totalSum = 0 # Creating variable for value
         cardValues = [card.value for card in playerObj.hand] # List of all values in the player's hand
-        print(cardValues)
         for value in cardValues: # Loop through the card values
             totalSum += value # Add them all together
         playerObj.handValue = totalSum # Making the handValue of the player object be the gathered value    
@@ -183,9 +182,13 @@ class playGame():
         cardValues = [card.value for card in playerToCheck.hand] # List of all values in the player's hand
         # Check if the player has busted
         if playerToCheck.handValue > 21: # Player might be bust
+            print("the player may bust everywhere", playerToCheck.name, playerToCheck.handValue)
             if 11 in cardValues: # See if the player has the ace
+                print("Changing the ACE")
                 aceIndex = cardValues.index(11) # Get the location of the ace
+                print(playerToCheck.hand[aceIndex].face, playerToCheck.hand[aceIndex].value)
                 playerToCheck.hand[aceIndex].value = 1 # Set the ace's value to 1
+                print(playerToCheck.hand[aceIndex].value)
                 playerToCheck.handValue -= 10 # Correct the player's hand value
                 return False # Player hasn't bust
             else: # Player has no ace and has bust

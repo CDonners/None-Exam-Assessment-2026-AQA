@@ -19,7 +19,7 @@ class cards():
         pygame.draw.rect(surface, (255, 255, 255), self.cardRect) # Black border of card
         pygame.draw.rect(surface, (0, 0, 0), self.cardRect, 2) # White centre
         # Get the correct font colour
-        if self.suit in ["♥", "♦"]:
+        if self.suit in ["H", "D"]:
             colour = (200, 0, 0)
         else:
             colour = (0, 0, 0)
@@ -50,14 +50,15 @@ class deckHandling():
 
     def generateDeck(self, noOfDecks: int):
         # Card Values and Suits
-        suits = ["♠", "♥", "♦", "♣"]
+        suits = ["S", "H", "D", "C"]
         values = [["A", -1],["2", 1],["3", 1],["4", 2],["5", 2],["6", 2],["7", 1],["8", 0],["9", 0],["10", -2],["J", -2],["Q", -2],["K", -2]] 
         deck = [] # Empty list to append generated cards to
         # Create every card in the standard 52 playing card deck
-        for suit in suits:
-            for value in values:
-                deck.append(cards(value[0], suit, value[1])) # Create object for the individual card
-        deck = deck*noOfDecks # Combines multiple decks together
+        for _ in range(noOfDecks):
+            for suit in suits:
+                for value in values:
+                    deck.append(cards(value[0], suit, value[1])) # Create object for the individual card
+            #deck = deck*noOfDecks # Combines multiple decks together
         return deck # Returns finalised deck
     
     def shuffle(self):
