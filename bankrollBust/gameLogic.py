@@ -147,19 +147,20 @@ class playGame():
             betSurface, betRect = text[0], text[1]
             self.screen.blit(betSurface, betRect)
             
-    def drawHands(self, playerObj):
+    def drawHand(self, playerObj):
         hand = playerObj.hand
-        cardWidth = 80
-        cardHeight = 120
-        spacing = 30
-        totalWidth = len(hand)*80 + (len(hand)-1) * 30
-        startX = self.playerSeats[playerObj][0] - totalWidth // 2
-        # The right card is self.playerSeats[player][0] + totalWidth // 2
-        # Cards inbetween is last card position plus 30
-        for i, card in enumerate(hand):
-            x = startX + i * (cardWidth + spacing)  # no overlap
-            y = self.playerSeats[playerObj][1] - 30 - cardHeight//2
-            card.drawCard(self.screen, (x, y))
+        if len(hand) != 0:
+            cardWidth = 60
+            cardHeight = 80
+            spacing = 15
+            totalWidth = len(hand)*cardWidth + (len(hand)-1) * spacing
+            startX = self.playerSeats[playerObj][0] - totalWidth // 2
+            # The right card is self.playerSeats[player][0] + totalWidth // 2
+            # Cards inbetween is last card position plus 30
+            for i, card in enumerate(hand):
+                x = startX + i * (cardWidth + spacing)  # no overlap
+                y = self.playerSeats[playerObj][1] - spacing - cardHeight//2
+                card.drawCard(self.screen, (x, y))
 
     def drawBalance(self):
         balanceFont = pygame.font.SysFont("", 32) # Sets the font to pygame default with size 22
@@ -184,9 +185,7 @@ class playGame():
         if playerToCheck.handValue > 21: # Player might be bust
             if 11 in cardValues: # See if the player has the ace
                 aceIndex = cardValues.index(11) # Get the location of the ace
-                print(playerToCheck.hand[aceIndex].face, playerToCheck.hand[aceIndex].value)
                 playerToCheck.hand[aceIndex].value = 1 # Set the ace's value to 1
-                print(playerToCheck.hand[aceIndex].value)
                 playerToCheck.handValue -= 10 # Correct the player's hand value
                 return False # Player hasn't bust
             else: # Player has no ace and has bust
@@ -216,7 +215,7 @@ class playGame():
         
     def updateImage(self):
         for player in self.players:
-            self.drawHands(player)
+            self.drawHand(player)
         self.drawPlayerTexts()
         self.drawBalance()
         self.drawPlayerBets()

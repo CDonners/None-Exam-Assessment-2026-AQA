@@ -9,6 +9,7 @@ class player():
         self.isBusted = False
         self.isStood = False
         self.bet = 0
+        self.split = False
         self.insurance = 0
         
     def bust(self, game):
@@ -33,6 +34,7 @@ class player():
         self.isStood = False
         self.bet = 0
         self.insurance = 0
+        self.split = False
     
 class dealer(player):
     def __init__(self):

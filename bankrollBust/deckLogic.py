@@ -10,16 +10,14 @@ class cards():
         self.cardWeight = cardWeight
         self.visible = False
         self.discarded = False
-        self.cardRect = pygame.Rect(0, 0, 80, 120)
+        self.cardRect = pygame.Rect(0, 0, 60, 80)
         self.FONT_VALUE = pygame.font.SysFont("", 36)
-        self.FONT_SUIT = pygame.font.SysFont("", 22)
+        self.FONT_SUIT = pygame.font.SysFont("segoeuiemoji", 18)
         
     def drawCard(self, surface, centre: tuple):
         self.cardRect.center = centre
-        pygame.draw.rect(surface, (255, 255, 255), self.cardRect) # Black border of card
-        pygame.draw.rect(surface, (0, 0, 0), self.cardRect, 2) # White centre
         # Get the correct font colour
-        if self.suit in ["H", "D"]:
+        if self.suit in ["♥️", "♦️"]:
             colour = (200, 0, 0)
         else:
             colour = (0, 0, 0)
@@ -30,8 +28,12 @@ class cards():
         text_rect = center_text.get_rect(center=self.cardRect.center)
         # Drawing texts if card is visible
         if self.visible:
+            pygame.draw.rect(surface, "white", self.cardRect) # White card Centre
             surface.blit(text, (self.cardRect.x + 5, self.cardRect.y + 5))
             surface.blit(center_text, text_rect)
+        else:
+            pygame.draw.rect(surface, (255,69,67), self.cardRect) # White card Centre
+        pygame.draw.rect(surface, "black", self.cardRect, 2) # Black border
         
     def setVisible(self):
         self.visible = True
@@ -50,7 +52,7 @@ class deckHandling():
 
     def generateDeck(self, noOfDecks: int):
         # Card Values and Suits
-        suits = ["S", "H", "D", "C"]
+        suits = ["♠️", "♥️", "♦️", "♣️"]
         values = [["A", -1],["2", 1],["3", 1],["4", 2],["5", 2],["6", 2],["7", 1],["8", 0],["9", 0],["10", -2],["J", -2],["Q", -2],["K", -2]] 
         deck = [] # Empty list to append generated cards to
         # Create every card in the standard 52 playing card deck
