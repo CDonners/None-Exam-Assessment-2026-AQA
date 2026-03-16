@@ -47,6 +47,7 @@ def playingGame(game):
     showDBButton = False
     currentPlayerIndex = 0
     betsGiven = False
+    currentHandIndex = 0
     # Player state variables
     betMade = False
     playerBet = 0
@@ -206,18 +207,25 @@ def playingGame(game):
                     endPlayerTurn()
                     stood = False                                               
                 if hit:
-                    showDBButton = False
-                    currentPlayer.dealCard(game.deckInstance)
-                    if game.checkBusted(currentPlayer):
-                        endPlayerTurn()
-                        currentPlayer.bust(game)
-                        gameStatus = "Bust"
-                    elif game.checkBlackjack(currentPlayer):
-                        currentPlayer.stand(game)
-                        endPlayerTurn()
+                    if not currentPlayer.split:
+                        showDBButton = False
+                        currentPlayer.dealCard(game.deckInstance)
+                        if game.checkBusted(currentPlayer):
+                            endPlayerTurn()
+                            currentPlayer.bust(game)
+                            gameStatus = "Bust"
+                        elif game.checkBlackjack(currentPlayer):
+                            currentPlayer.stand(game)
+                            endPlayerTurn()
+                    else:
+                        pass
                     hit = False
                 if split:
                     # Splitting logic
+                    if len(currentPlayer.hands) >= 2: # Handle a hand that has already been split
+                        pass
+                    else:
+                        currentPlayer.hands = [{hand: [currentPlayer.hand[0]], stood: False}, {hand:[currentPlayer.hand[1]], stood: False}]
                     currentPlayer.split = True
                     split = False
                     splitButton.makeUninteractable()

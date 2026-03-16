@@ -4,6 +4,7 @@ class player():
     def __init__(self, bustBux: int):
         self.name = "Player"
         self.hand = []
+        self.hands = [] # For a split hand 
         self.handValue = 0
         self.bustBux = bustBux
         self.isBusted = False
@@ -29,6 +30,7 @@ class player():
         
     def newRound(self):
         self.hand = []
+        self.hands = []
         self.handValue = 0
         self.isBusted = False
         self.isStood = False
