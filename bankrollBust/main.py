@@ -20,7 +20,7 @@ bg = pygame.transform.scale(BGIMAGE, INITIALSIZE) # Set the size of the backgrou
 clock = pygame.time.Clock() # To limit FPS
 
 # Menu Button Setup
-centreX = INITX//2 # X is always centre no matter the initial size
+centreX = INITX//2
 centreY = INITY//2
 newGameButton = button(screen, (centreX, 300), "New Game")
 continueButton = button(screen, (centreX,400), "Continue")
@@ -36,9 +36,9 @@ doubleDownButton = button(screen, (centreX, centreY), "Double Down")
 nextRoundButton = button(screen, (centreX, centreY), "Next Round")
 
 def playingGame(game):
-    global currentPlayerIndex, showDBButton
+    global currentPlayerIndex, showDBButton, playerBet
     # Creating the bet amount input box
-    minBet = round((int(game.startingBux)/100)/5)*5 # Rounds the minimum bet to the nearest 5, so the minimum bet will always be 1% of the starting bux to the nearest 5
+    minBet = round(game.startingBux * 0.01 / 5) * 5 # Rounds the minimum bet to the nearest 5, so the minimum bet will always be 1% of the starting bux to the nearest 5
     betAmountInputBox = inputBox(screen, (centreX, 770), "Bet Amount:", "num", f"{minBet}", interactable=False, minMax=[float(minBet), 1000*float(minBet)])
     # Game State variables
     gamePlayRunning = True
@@ -73,7 +73,7 @@ def playingGame(game):
         betAmountInputBox.makeUninteractable()
         
     def playerTurn(currentPlayer, event):
-        global showDBButton
+        global showDBButton, playerBet
         hitButton.makeInteractable()
         standButton.makeInteractable()
         # Making actions available
@@ -103,6 +103,7 @@ def playingGame(game):
                 # Usual card dealing process
                 currentPlayer.dealCard(game.deckInstance)
                 game.updateBet(currentPlayerIndex)
+                playerBet = currentPlayer.bet
                 if game.checkBusted(currentPlayer):
                     currentPlayer.bust(game)
                 else:
@@ -190,7 +191,7 @@ def playingGame(game):
                 game.drawPlayerBets() # Draw player bets
             else: # Current player is an NPC
                 gameAct += 1
-                if gameAct == gameActionDelay:
+                if gameAct >= gameActionDelay:
                     playerBet = game.players[currentPlayerIndex].calculateBet()
                     currentPlayer.bet = playerBet
                     currentPlayerIndex += 1
@@ -234,7 +235,7 @@ def playingGame(game):
                 # Checking the players have won and paying them
                 if dealer.isStood or game.checkBusted(dealer): # Dealer has either stood or busted so round will end
                     # Once dealer has stood if bets haven't been paid
-                    if dealer.isStood and not betsGiven: 
+                    if dealer.isStood and not betsGiven and gameStatus != "Bust": 
                         gameStatus = payStoodPlayers(stoodPlayerHandValues)
                     # Dealer has bust so every stood player wins
                     elif dealer.isBusted and not betsGiven:
@@ -258,9 +259,9 @@ def playingGame(game):
                         betsGiven = False
                         for player in game.players:
                             player.newRound()
-                elif len(game.players)-1 != game.bustPlayers and len(game.stoodHands) != 0: # If dealer's hand is below 17 must hit
+                elif len(game.players)-1 != game.bustPlayers and len(game.stoodHands) != 0:
                     # Don't hit if everyone is bust or has natural blackjack
-                    if gameAct == gameActionDelay:
+                    if gameAct >= gameActionDelay:
                         if dealer.handValue < 17:
                             dealer.dealCard(game.deckInstance)
                             if game.checkBusted(dealer):
@@ -279,13 +280,13 @@ def playingGame(game):
                         else:
                             dealer.stand(game)
                         gameAct = 0
-                        
                 else:
                     dealer.stand(game)
             # NPC's turn
             else:
                 if currentPlayer.isStood or currentPlayer.isBusted:
                     currentPlayerIndex += 1
+
         # Keeping all buttons on screen
         if dealer.isStood or game.checkBusted(dealer):
             nextRound = nextRoundButton.draw() # Keeps the next round button drawn and sets nextRound to None
@@ -368,4 +369,4 @@ while gameRunning: # Main Menu Loop
     
     
     
-pygame.quit # Exit out of Pygame
+pygame.quit() # Exit out of Pygame
