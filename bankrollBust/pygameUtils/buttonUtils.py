@@ -206,7 +206,7 @@ class inputBox(button):
                 if self.checkHover(): # Checks if the mouse was hovering over the box when it was pressed
                     self.selected = True # If it was then selected is true
                     self.value = "" # Value is blank
-                else: # Otherwise
+                else: 
                     self.selected = False # Selected is now false
                     if self.value == "": # If no value was set when it was pressed then the default value is set bac
                         self.value = self.defaultValue

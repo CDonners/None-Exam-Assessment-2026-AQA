@@ -1,7 +1,7 @@
 from typing import Any
 
 class hand:
-    def __init__(self):
+    def __init__(self, card = None):
         self.hand = []
         self.handValue = 0
         self.stood = False
@@ -10,35 +10,48 @@ class hand:
         self.push = False
         self.bet = 0
 
+    def addCard(self, card):
+        self.hand.append(card)
+
 class player():
     def __init__(self, bustBux: int):
         self.name = "Player"
-        self.hands = [{"hand": [], "handValue": 0, "stood": False, "busted": False, "blackjack": False, "bet": 0}] 
+        self.hands = [hand()] 
         self.handIndex = 0
         self.totalBet = 0
         self.bustBux = bustBux
         self.insurance = 0
         
     def bust(self, game):
-        currentHand = self.hands[self.handIndex]
-        game.bustPlayers += 1
-        currentHand["busted"] = True
-        self.handIndex += 1
+        if len(self.hands) > self.handIndex:
+            currentHand = self.hands[self.handIndex]
+            game.bustPlayers += 1
+            currentHand.busted = True
+            self.handIndex += 1
     
     def stand(self, game):
-        currentHand = self.hands[self.handIndex]
-        if self.name != "Dealer":
-            uniqueHandID = f"{currentHand["handValue"]},{self.name},{self.handIndex}"
-            game.stoodHands[uniqueHandID] = self # Adding the stood hand to the dictionary
-        self.hands[self.handIndex]["stood"] = True
-        self.handIndex += 1
+        if len(self.hands) > self.handIndex:
+            currentHand = self.hands[self.handIndex]
+            if self.name != "Dealer":
+                uniqueHandID = f"{currentHand.handValue},{self.name},{self.handIndex}"
+                game.stoodHands[uniqueHandID] = self # Adding the stood hand to the dictionary
+            currentHand.stood = True
+            self.handIndex += 1
 
     def dealCard(self, deck: Any, visible = True):
-        currentHand = self.hands[self.handIndex] 
-        card = deck.getCard()
-        if visible:
-            card.setVisible()
-        currentHand["hand"].append(card) # TODO Make compatible with new hand system
+        if len(self.hands) > self.handIndex:
+            currentHand = self.hands[self.handIndex] 
+            card = deck.getCard()
+            if visible:
+                card.setVisible()
+            currentHand.addCard(card)
+
+    def splitHand(self):
+        currentHand = self.hands[self.handIndex]
+        cardToSplit = currentHand.hand.pop(1)
+        newHand = hand()
+        newHand.addCard(cardToSplit)
+        self.hands.insert(self.handIndex+1, newHand)
         
     def newRound(self):
         self.hands = [hand()]

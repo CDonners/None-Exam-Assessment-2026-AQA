@@ -159,7 +159,7 @@ class playGame():
             # Calculate total width
             totalWidth = 0
             for i, hand in enumerate(hands):
-                cards = hand["hand"]
+                cards = hand.hand
                 if len(cards) > 0:
                     totalWidth += len(cards) * cardWidth # Combined width of cards
                     totalWidth += (len(cards) - 1) * spacing # Include spacing of cards
@@ -172,7 +172,7 @@ class playGame():
             # Start drawing hands at the specified positions
             currentX = startX
             for i, hand in enumerate(reversed(hands)):
-                cards = hand["hand"]
+                cards = hand.hand
                 for j, card in enumerate(cards):
                     x = currentX + j * (cardWidth + spacing)
                     y = self.playerSeats[playerObj][1] - spacing - cardHeight // 2
@@ -197,21 +197,21 @@ class playGame():
         # Get the value of the player's hand
         currentHand = playerObj.hands[playerObj.handIndex]
         totalSum = 0 # Creating variable for value
-        cardValues = [card.value for card in currentHand["hand"]] # List of all values in the player's hand
+        cardValues = [card.value for card in currentHand.hand] # List of all values in the player's hand
         for value in cardValues: # Loop through the card values
             totalSum += value # Add them all together
-        currentHand["handValue"] = totalSum # Making the handValue of the player object be the gathered value
+        currentHand.handValue = totalSum # Making the handValue of the player object be the gathered value
         return cardValues    
         
     def checkBusted(self, playerObj):
         cardValues = self.getHandValue(playerObj)
         # Check if the player has busted
         currentHand = playerObj.hands[playerObj.handIndex]
-        if currentHand["handValue"] > 21: # Player might be bust
+        if currentHand.handValue > 21: # Player might be bust
             if 11 in cardValues: # See if the player has the ace
                 aceIndex = cardValues.index(11) # Get the location of the ace
-                currentHand["hand"][aceIndex].value = 1 # Set the ace's value to 1
-                currentHand["handValue"] -= 10 # Correct the player's hand value
+                currentHand.hand[aceIndex].value = 1 # Set the ace's value to 1
+                currentHand.handValue -= 10 # Correct the player's hand value
                 return False # Player hasn't bust
             else: # Player has no ace and has bust
                 return True 
@@ -221,7 +221,7 @@ class playGame():
     def checkBlackjack(self, playerObj):
         self.getHandValue(playerObj)
         currentHand = playerObj.hands[playerObj.handIndex]
-        if currentHand["handValue"] == 21:
+        if currentHand.handValue == 21:
             return True
         
     def drawStatusText(self, winnings):
