@@ -14,7 +14,8 @@ class cards():
         self.FONT_VALUE = pygame.font.SysFont("", 36)
         self.FONT_SUIT = pygame.font.SysFont("segoeuiemoji", 18)
         
-    def drawCard(self, surface, centre: tuple):
+    def drawCard(self, surface, centre: tuple, handIndex = 0):
+        handColours = {0:"black", 1: (255, 87, 51), 2: (51, 255, 87), 3: (51, 87, 255), 4: (255, 51, 168), 5: (51, 255, 243), 6: (243, 255, 51), 7: (168, 51, 255), 8: (255, 140, 51), 9: (51, 255, 140)} # Colours for hands to distinguish them
         self.cardRect.center = centre
         # Get the correct font colour
         if self.suit in ["♥️", "♦️"]:
@@ -33,7 +34,7 @@ class cards():
             surface.blit(center_text, text_rect)
         else:
             pygame.draw.rect(surface, (255,69,67), self.cardRect) # White card Centre
-        pygame.draw.rect(surface, "black", self.cardRect, 2) # Black border
+        pygame.draw.rect(surface, handColours[handIndex], self.cardRect, 4) # Border
         
     def setVisible(self):
         self.visible = True

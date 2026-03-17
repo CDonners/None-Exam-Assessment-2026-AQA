@@ -1,11 +1,21 @@
 from typing import Any
 
+class hand:
+    def __init__(self):
+        self.hand = []
+        self.handValue = 0
+        self.stood = False
+        self.busted = False
+        self.blackjack = False
+        self.push = False
+        self.bet = 0
+
 class player():
     def __init__(self, bustBux: int):
         self.name = "Player"
-        self.hands = [{"hand": [], "handValue": 0, "stood": False, "busted": False, "bet": 0}] # For a split hand 
+        self.hands = [{"hand": [], "handValue": 0, "stood": False, "busted": False, "blackjack": False, "bet": 0}] 
         self.handIndex = 0
-        self.totalbet = 0
+        self.totalBet = 0
         self.bustBux = bustBux
         self.insurance = 0
         
@@ -31,11 +41,10 @@ class player():
         currentHand["hand"].append(card) # TODO Make compatible with new hand system
         
     def newRound(self):
-        self.hands = [{"hand": [], "handValue": 0, "stood": False, "busted": False}]
+        self.hands = [hand()]
         self.handIndex = 0
         self.totalBet = 0
         self.insurance = 0
-        self.split = False
     
 class dealer(player):
     def __init__(self):

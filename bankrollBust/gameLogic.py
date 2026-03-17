@@ -86,6 +86,7 @@ class playGame():
         self.deckInstance.shuffle() # Shuffle the deck
         # Gameplay Attributes
         self.roundStarted = False
+        self.roundOver = False
         self.stoodHands = {} # Dictionary of stood hands as HandValue:PlayerObject
         self.bustPlayers = 0 # Integer to count how many players went bust
         self.winners = set() # Empty set of winners
@@ -132,14 +133,14 @@ class playGame():
         for playerObj in self.players:
             if playerObj.name != "Dealer":
                 betCentre = (self.playerSeats[playerObj][0], self.playerSeats[playerObj][1]+25)
-                betTextSurface = betFont.render(f"Bet: {playerObj.bet}", True, (255, 255, 255)) # Creates text surface with colour black
+                betTextSurface = betFont.render(f"Bet: {playerObj.totalBet}", True, (255, 255, 255)) # Creates text surface with colour black
                 betTextRect = betTextSurface.get_rect(center=betCentre)
                 self.betTexts.append([betTextSurface, betTextRect])
 
     def updateBet(self, betIndex):
         betFont = pygame.font.SysFont("", 28) # Sets the font to pygame default with size 22
         playerObj = self.players[betIndex]
-        betTextSurface = betFont.render(f"Bet: {playerObj.bet}", True, (255, 255, 255)) # Creates text surface with colour black
+        betTextSurface = betFont.render(f"Bet: {playerObj.totalBet}", True, (255, 255, 255)) # Creates text surface with colour black
         self.betTexts[betIndex][0] = betTextSurface
 
     def drawPlayerBets(self):
@@ -148,19 +149,41 @@ class playGame():
             self.screen.blit(betSurface, betRect)
             
     def drawHand(self, playerObj):
-        hand = playerObj.hand
-        if len(hand) != 0:
+        hands = playerObj.hands
+        if len(hands) != 0:
+            # Card dimensions
             cardWidth = 60
             cardHeight = 80
             spacing = 15
-            totalWidth = len(hand)*cardWidth + (len(hand)-1) * spacing
-            startX = self.playerSeats[playerObj][0] - totalWidth // 2
-            # The right card is self.playerSeats[player][0] + totalWidth // 2
-            # Cards inbetween is last card position plus 30
-            for i, card in enumerate(hand):
-                x = startX + i * (cardWidth + spacing)  # no overlap
-                y = self.playerSeats[playerObj][1] - spacing - cardHeight//2
-                card.drawCard(self.screen, (x, y))
+            handSpacing = 30  
+            # Calculate total width
+            totalWidth = 0
+            for i, hand in enumerate(hands):
+                cards = hand["hand"]
+                if len(cards) > 0:
+                    totalWidth += len(cards) * cardWidth # Combined width of cards
+                    totalWidth += (len(cards) - 1) * spacing # Include spacing of cards
+                # Add spacing between hands instead of the card spacing
+                if i < len(hands) - 1:
+                    totalWidth += handSpacing
+            # Centering start X
+            centerX = self.playerSeats[playerObj][0]
+            startX = centerX - totalWidth // 2
+            # Start drawing hands at the specified positions
+            currentX = startX
+            for i, hand in enumerate(reversed(hands)):
+                cards = hand["hand"]
+                for j, card in enumerate(cards):
+                    x = currentX + j * (cardWidth + spacing)
+                    y = self.playerSeats[playerObj][1] - spacing - cardHeight // 2
+                    card.drawCard(self.screen, (x, y), handIndex=i)
+                # Move forward by this hand's width
+                if len(cards) > 0:
+                    currentX += len(cards) * cardWidth
+                    currentX += (len(cards) - 1) * spacing
+                # Add gap between hands
+                if i < len(hands) - 1:
+                    currentX += handSpacing
 
     def drawBalance(self):
         balanceFont = pygame.font.SysFont("", 32) # Sets the font to pygame default with size 22
@@ -201,18 +224,15 @@ class playGame():
         if currentHand["handValue"] == 21:
             return True
         
-    def drawStatusText(self, status, winnings):
+    def drawStatusText(self, winnings):
         font = pygame.font.SysFont("", 32) # Sets the font to pygame default with size 2
-        if status == "Win":
-            textSurface = font.render(f"Won: {winnings*2}", True, (0, 0, 0)) # Creates text surface with colour black
-        elif status == "Loss":
-            textSurface = font.render(f"Lose", True, (0, 0, 0)) # Creates text surface with colour black
-        elif status == "Push":
-            textSurface = font.render(f"Push: Bets Returned", True, (0, 0, 0)) # Creates text surface with colour black
-        elif status == "Bust":
-            textSurface = font.render(f"BUSTED", True, (0, 0, 0)) # Creates text surface with colour black
-        else:
-            textSurface = font.render(f"BLACKJACK!!! {winnings*2.5}", True, (0, 0, 0)) # Creates text surface with colour black
+        if winnings == 0: # Player made nothing
+            textSurface = font.render(f"Bets returned", True, (0, 0, 0)) # Creates text surface with colour black
+        elif winnings > 0: # Player won BustBux
+            textSurface = font.render(f"Won: {winnings}", True, (0, 0, 0)) # Creates text surface with colour black
+        elif winnings < 0: # Player lose BustBux
+            textSurface = font.render(f"Lost: {winnings*-1}", True, (0, 0, 0)) # Creates text surface with colour black
+        
         textRect = textSurface.get_rect(center=(700,350))
         self.screen.blit(textSurface, textRect)
         
