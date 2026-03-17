@@ -3,38 +3,37 @@ from typing import Any
 class player():
     def __init__(self, bustBux: int):
         self.name = "Player"
-        self.hand = []
-        self.hands = [] # For a split hand 
-        self.handValue = 0
+        self.hands = [{"hand": [], "handValue": 0, "stood": False, "busted": False, "bet": 0}] # For a split hand 
+        self.handIndex = 0
+        self.totalbet = 0
         self.bustBux = bustBux
-        self.isBusted = False
-        self.isStood = False
-        self.bet = 0
-        self.split = False
         self.insurance = 0
         
     def bust(self, game):
+        currentHand = self.hands[self.handIndex]
         game.bustPlayers += 1
-        self.isBusted = True
+        currentHand["busted"] = True
+        self.handIndex += 1
     
     def stand(self, game):
+        currentHand = self.hands[self.handIndex]
         if self.name != "Dealer":
-            game.stoodHands[self.handValue] = self # Adding the stood hand to the dictionary
-        self.isStood = True
+            uniqueHandID = f"{currentHand["handValue"]},{self.name},{self.handIndex}"
+            game.stoodHands[uniqueHandID] = self # Adding the stood hand to the dictionary
+        self.hands[self.handIndex]["stood"] = True
+        self.handIndex += 1
 
     def dealCard(self, deck: Any, visible = True):
+        currentHand = self.hands[self.handIndex] 
         card = deck.getCard()
         if visible:
             card.setVisible()
-        self.hand.append(card)
+        currentHand["hand"].append(card) # TODO Make compatible with new hand system
         
     def newRound(self):
-        self.hand = []
-        self.hands = []
-        self.handValue = 0
-        self.isBusted = False
-        self.isStood = False
-        self.bet = 0
+        self.hands = [{"hand": [], "handValue": 0, "stood": False, "busted": False}]
+        self.handIndex = 0
+        self.totalBet = 0
         self.insurance = 0
         self.split = False
     
@@ -42,9 +41,6 @@ class dealer(player):
     def __init__(self):
         super().__init__(-1)
         self.name = "Dealer"
-        self.hand = []
-        self.isBusted = False
-        self.isStood = False
 
     def decideNextMove(self):
         pass # Do when I feel like it

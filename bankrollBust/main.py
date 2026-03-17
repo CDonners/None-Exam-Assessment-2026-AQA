@@ -5,9 +5,10 @@ from gameLogic import playGame
 # ! SHORT TERM GOALS !
 # TODO Handle deck running out of cards somehow - Probably regenerate deck telling the player you have
 # TODO Handle player running out of bustBux - End game as player lost
-# TODO Add insurance - Will just be an if statement
-# TODO Add split - Will use 2D list, need to add checks for integration
-# TODO Need to add that soft numbers are worse than none-soft numbers - Simple if statement
+# TODO Add split - Hell
+## TODO Make drawing hands compatible with new system - Diff colours for split hands
+## TODO Finish making main loop campatible
+## TODO TEST EVERYTHING!!!
 
 # Pygame Setup
 pygame.init() # Initialise Pygame
@@ -51,6 +52,7 @@ def playingGame(game):
     # Player state variables
     betMade = False
     playerBet = 0
+    winnings = 0
     hit = False
     stood = False
     split = False
@@ -83,11 +85,17 @@ def playingGame(game):
             insuranceButton.makeUninteractable()
             if game.checkBlackjack(currentPlayer):
                 currentPlayer.stand(game)
-                endPlayerTurn()
+                if len(currentPlayer.hands) <= currentPlayer.handIndex:
+                    # Player has no more hands to player so move to the next
+                    endPlayerTurn()
         # Checks if player has natural blackjack as they have 2 cards
         elif game.checkBlackjack(currentPlayer):
             currentPlayer.bustBux += 2.5*currentPlayer.bet
-            endPlayerTurn()
+            if len(currentPlayer.hands) <= currentPlayer.handIndex:
+                # Player has no more hands to player so move to the next
+                endPlayerTurn()
+            else:
+                currentPlayer.handIndex += 1
         else: # Need to check if special cases are available
             # Check's if split is available
             if currentPlayer.hand[0].face == currentPlayer.hand[1].face: # If player's cards are equal
@@ -109,9 +117,11 @@ def playingGame(game):
                     currentPlayer.bust(game)
                 else:
                     currentPlayer.stand(game)
-                endPlayerTurn()
+                if len(currentPlayer.hands) <= currentPlayer.handIndex:
+                    # Player has no more hands to player so move to the next
+                    endPlayerTurn()
                 
-    def payStoodPlayers(stoodPlayerHandValues):
+    def payStoodPlayers(stoodPlayerHandValues): # TODO Make compatible with new hand system
         playerStatus = ""
         for hand in stoodPlayerHandValues: # Loop through the list of stoof hands
             # Useful variables
@@ -175,7 +185,8 @@ def playingGame(game):
                 confirmBetButton.makeInteractable()
                 betAmountInputBox.makeInteractable()
                 if betMade: # Bet confirmed
-                    currentPlayer.bet = playerBet
+                    currentPlayer.hands[0]["bet"] = playerBet
+                    currentPlayer.totalBet += playerBet
                     currentPlayer.bustBux -= playerBet
                     currentPlayerIndex += 1 # Increment player index
                     # Make buttons uninteractable
@@ -194,7 +205,8 @@ def playingGame(game):
                 gameAct += 1
                 if gameAct >= gameActionDelay:
                     playerBet = game.players[currentPlayerIndex].calculateBet()
-                    currentPlayer.bet = playerBet
+                    currentPlayer.hands[0]["bet"] = playerBet
+                    currentPlayer.totalbet += playerBet
                     currentPlayerIndex += 1
                     gameAct = 0
         
@@ -204,54 +216,61 @@ def playingGame(game):
                 if stood:
                     showDBButton = False
                     currentPlayer.stand(game)
-                    endPlayerTurn()
+                    if len(currentPlayer.hands) <= currentPlayer.handIndex:
+                        # Player has no more hands to player so move to the next
+                        endPlayerTurn()
                     stood = False                                               
                 if hit:
-                    if not currentPlayer.split:
-                        showDBButton = False
-                        currentPlayer.dealCard(game.deckInstance)
-                        if game.checkBusted(currentPlayer):
-                            endPlayerTurn()
-                            currentPlayer.bust(game)
-                            gameStatus = "Bust"
-                        elif game.checkBlackjack(currentPlayer):
-                            currentPlayer.stand(game)
-                            endPlayerTurn()
-                    else:
-                        pass
+                    currentPlayer.dealCard()
+                    if game.checkBusted(currentPlayer):
+                        currentPlayer.bust()
+                    elif game.checkBlackjack(currentPlayer):
+                        currentPlayer.stand(game)
+                    if len(currentPlayer.hands) <= currentPlayer.handIndex:
+                        # Player has no more hands to player so move to the next
+                        endPlayerTurn()
                     hit = False
                 if split:
-                    # Splitting logic
-                    if len(currentPlayer.hands) >= 2: # Handle a hand that has already been split
-                        pass
-                    else:
-                        currentPlayer.hands = [{hand: [currentPlayer.hand[0]], stood: False}, {hand:[currentPlayer.hand[1]], stood: False}]
-                    currentPlayer.split = True
+                    # Defining Variables for clearer code
+                    currentHand = currentPlayer.hands[currentPlayer.handIndex]
+                    cardToSplit = currentHand["hand"].pop(1)
+                    handBet = currentHand["bet"]
+                    # Creating the split hand
+                    splitHand = {"hand": [cardToSplit], "handValue": 0, "stood": False, "busted": False, "bet": handBet}
+                    currentPlayer.hands.append(splitHand) # Adding the split hand into the hands list
+                    # Updating game variables
                     split = False
                     splitButton.makeUninteractable()
+                    currentPlayer.bustBux -= handBet # Correcting players BustBux
+                    currentPlayer.totalBet += handBet
                 if insurance:
-                    currentPlayer.insurance = currentPlayer.bet/2
+                    currentPlayer.insurance = currentPlayer.totalBet/2
                     currentPlayer.bustBux -= currentPlayer.insurance
                     insurance = False
                     insuranceButton.makeUninteractable()
 
             elif currentPlayer.name == "Dealer": # Is the dealer's turn
                 gameAct += 1  # Increment frame counter
-                dealer.hand[1].setVisible() # Show the dealer's down card
-                dealerValues = [card.value for card in dealer.hand]
-                stoodPlayerHandValues = list(game.stoodHands.keys())
+                dealerHand = dealer.hands[0] # Dealer only has 1 hand
+                dealerHand["hand"][1].setVisible() # Show the dealer's down card
+                dealerValues = [card.value for card in dealerHand["hand"]]
+                stoodPlayerHandIDs = list(game.stoodHands.keys())
+                stoodPlayerHands = [item.split(",") for item in stoodPlayerHandIDs]
+                stoodPlayerHandValues = [item[0] for item in stoodPlayerHands]
                 # Checking the players have won and paying them
-                if dealer.isStood or game.checkBusted(dealer): # Dealer has either stood or busted so round will end
+                if dealerHand["stood"] or game.checkBusted(dealer): # Dealer has either stood or busted so round will end
                     # Once dealer has stood if bets haven't been paid
-                    if dealer.isStood and not betsGiven and gameStatus != "Bust": 
+                    if dealerHand["stood"] and not betsGiven and gameStatus != "Bust": 
                         gameStatus = payStoodPlayers(stoodPlayerHandValues)
                     # Dealer has bust so every stood player wins
-                    elif dealer.isBusted and not betsGiven:
-                        for hand in stoodPlayerHandValues:
-                            stoodPlayer = game.stoodHands[hand]
-                            stoodPlayer.bustBux += 2*stoodPlayer.bet
+                    elif dealerHand["busted"] and not betsGiven:
+                        for hand in stoodPlayerHands:
+                            handID = "".join(hand)
+                            stoodPlayer = game.stoodHands[handID]
+                            stoodPlayer.bustBux += 2*hand[2] # Bet on hand is always second item
                             if stoodPlayer.name == "Player":
                                 gameStatus = "Win"
+                                winnings += hand[2]
                     betsGiven = True
                     # Waiting for player to be ready for the next round
                     if nextRound:
@@ -299,7 +318,7 @@ def playingGame(game):
         if dealer.isStood or game.checkBusted(dealer):
             nextRound = nextRoundButton.draw() # Keeps the next round button drawn and sets nextRound to None
         if gameStatus != "":
-            game.drawStatusText(gameStatus, playerBet)
+            game.drawStatusText(gameStatus, winnings)
         if showDBButton:
             doubleDownButton.draw()
         hitButton.draw()

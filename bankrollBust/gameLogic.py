@@ -172,21 +172,23 @@ class playGame():
         
     def getHandValue(self, playerObj):
         # Get the value of the player's hand
+        currentHand = playerObj.hands[playerObj.handIndex]
         totalSum = 0 # Creating variable for value
-        cardValues = [card.value for card in playerObj.hand] # List of all values in the player's hand
+        cardValues = [card.value for card in currentHand["hand"]] # List of all values in the player's hand
         for value in cardValues: # Loop through the card values
             totalSum += value # Add them all together
-        playerObj.handValue = totalSum # Making the handValue of the player object be the gathered value    
+        currentHand["handValue"] = totalSum # Making the handValue of the player object be the gathered value
+        return cardValues    
         
-    def checkBusted(self, playerToCheck):
-        self.getHandValue(playerToCheck)
-        cardValues = [card.value for card in playerToCheck.hand] # List of all values in the player's hand
+    def checkBusted(self, playerObj):
+        cardValues = self.getHandValue(playerObj)
         # Check if the player has busted
-        if playerToCheck.handValue > 21: # Player might be bust
+        currentHand = playerObj.hands[playerObj.handIndex]
+        if currentHand["handValue"] > 21: # Player might be bust
             if 11 in cardValues: # See if the player has the ace
                 aceIndex = cardValues.index(11) # Get the location of the ace
-                playerToCheck.hand[aceIndex].value = 1 # Set the ace's value to 1
-                playerToCheck.handValue -= 10 # Correct the player's hand value
+                currentHand["hand"][aceIndex].value = 1 # Set the ace's value to 1
+                currentHand["handValue"] -= 10 # Correct the player's hand value
                 return False # Player hasn't bust
             else: # Player has no ace and has bust
                 return True 
@@ -195,7 +197,8 @@ class playGame():
         
     def checkBlackjack(self, playerObj):
         self.getHandValue(playerObj)
-        if playerObj.handValue == 21:
+        currentHand = playerObj.hands[playerObj.handIndex]
+        if currentHand["handValue"] == 21:
             return True
         
     def drawStatusText(self, status, winnings):
