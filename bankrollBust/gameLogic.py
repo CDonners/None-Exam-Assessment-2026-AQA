@@ -7,8 +7,20 @@ NPCNAMES = ["Paul","Noel","Aniyah","Dalton","Mariah","Zeke","Jolie","Kristian","
 NPCPERSONALITIES = []
 
 class setupGame():
-    def __init__(self, startingBux: int):
+    def __init__(self, startingBux: int, noOfNPCs):
         self.startingBux = startingBux
+        # User object
+        self.user = player(startingBux) # Creating the player object
+        # Create NPCs
+        self.NPCs = [] # Preparing to make the NPCs
+        self.usedNames = []
+        if noOfNPCs != 0: 
+            for _ in range(noOfNPCs): # Repeats for how many NPCs there are
+                self.NPCs.append(self.createNPC()) # Create the NPC
+        self.players = self.NPCs[:] # A list for all the players, cloning the NPCs list
+        self.userPosition = (len(self.NPCs))//2 # Get the index where the user will be
+        self.players.insert(self.userPosition, self.user) # Insert the User object into the middle of the list with a left bias
+        self.players.append(dealer()) # Adds the dealer to the end of the player list
 
     def createNPC(self):
         name = self.pickName()
@@ -26,7 +38,9 @@ class setupGame():
             generatedIndex = genRandInt(8) # Generate an integer for the index
             if generatedIndex < len(NPCNAMES): # If the index is greater or equal to length of the names list, regenerate it.
                 pickedName = NPCNAMES[generatedIndex] # Get the item at the index
-                indexCorrect = True
+                if pickedName not in self.usedNames:
+                    indexCorrect = True
+                    self.usedNames.append(pickedName)
         return pickedName
 
     def generateFloat(self, lowerBound: int, upperBound: int):
@@ -48,105 +62,43 @@ class setupGame():
 
     def generateJudgement(self):
         # Must generate a float between 0.75-1.25
-        generatedConfidence = self.generateFloat(75, 125)
-        return generatedConfidence
+        generatedJudgement = self.generateFloat(75, 125)
+        return generatedJudgement
 
     def generateExperience(self):
         # Must generate a float between 0.5-1.5
-        generatedConfidence = self.generateFloat(50, 150)
-        return generatedConfidence
+        generatedExperience = self.generateFloat(50, 150)
+        return generatedExperience
 
-class playGame():
-    def __init__(self, noOfDecks: int, difficulty: str, noOfNPCs:int, startingBux: int, screen):
-        self.startingBux = startingBux
-        # Game setup variables
+class handleGameUI:
+    def __init__(self, screen, playerSeats):
         self.screen = screen
-        self.gameSetup = setupGame(startingBux)
-        # User object
-        self.user = player(startingBux) # Creating the player object
-        # Create NPCs
-        self.NPCs = [] # Preparing to make the NPCs
-        if noOfNPCs != 0: 
-            for _ in range(noOfNPCs): # Repeats for how many NPCs there are
-                self.NPCs.append(self.gameSetup.createNPC()) # Create the NPC
-        self.players = self.NPCs[:] # A list for all the players, cloning the NPCs list
-        self.userIndex = (len(self.NPCs))//2 # Get the index where the user will be
-        self.players.insert(self.userIndex, self.user) # Insert the User object into the middle of the list with a left bias
-        self.players.append(dealer()) # Adds the dealer to the end of the player list
-        # Sort out player seating positions
-        self.playerSeats = {} # Empty dictionary of player seats Player:SeatPosition
-        self.getPlayerSeats() # Gets every player's seat
-        self.playerSeats[self.players[len(self.players)-1]] = (700, 200) # Adds the dealer's seating position
-        # Texts for UI
-        self.playerTexts = []
-        self.betTexts = []
-        self.createPlayerTexts()
-        # Handle deck
-        self.deckInstance = deckHandling(noOfDecks) # Deck handling instance ready
-        self.deckInstance.shuffle() # Shuffle the deck
-        # Gameplay Attributes
-        self.roundStarted = False
-        self.roundOver = False
-        self.stoodHands = {} # Dictionary of stood hands as HandValue:PlayerObject
-        self.bustPlayers = 0 # Integer to count how many players went bust
-        self.winners = set() # Empty set of winners
+        self.playerSeats = playerSeats
+        # Fonts
+        self.mainFont = pygame.font.SysFont("", 32)
+        self.betFont = pygame.font.SysFont("", 28)
+        self.playerFont = pygame.font.SysFont("", 32) # Sets the font to pygame default with size 22
         
-    def initialDeal(self):
-        for i in range(2): # Deal 2 cards to players from left to right
-            for player in self.players:
-                if i == 1 and player.name == "Dealer": # If the dealer is dealt their second card
-                    player.dealCard(self.deckInstance, visible=False) # Deal the card face down
-                else: # Deal the card to the player
-                    player.dealCard(self.deckInstance)
-        self.roundStarted = True # Start the round
-
-    def getPlayerSeats(self):
-        # Assigns players their seating positions
-        seatingPositions = [(), (), (), (700, 650), (), (), ()] # TODO Find good seating positions, will be the position of the text of the player's name
-        playerPos = 0 # Position of the player in the list
-        # Get the position of the user in the players list
-        for i in self.players:
-            if i.name == "Player":
-                playerPos = self.players.index(i)
-        # Align the 2 lists so the middles match
-        startingPos = 3 - playerPos # 3 is the middle of the seatingPositions list, player pos should be the middle of the players list
-        for i in range(startingPos, len(self.players) + startingPos):
-            # self.players[i - startingPos] "i - startingPos" Is the index of the players in the player list
-            # seatingPositions[i] is the aligned seating position
-            self.playerSeats[self.players[i - startingPos]] = seatingPositions[i]
-
-    def createPlayerTexts(self):
-        playerFont = pygame.font.SysFont("", 32) # Sets the font to pygame default with size 22
-        for playerObj in self.players:
+    def drawPlayerTexts(self, players):
+        for playerObj in players:
             # Creating the text for the player
-            playerTextSurface = playerFont.render(f"{playerObj.name}", True, (255, 255, 255)) # Creates text surface with colour black
+            playerTextSurface = self.playerFont.render(f"{playerObj.name}", True, (255, 255, 255)) # Creates text surface with colour black
             playerTextRect = playerTextSurface.get_rect(center=self.playerSeats[playerObj])
-            self.playerTexts.append([playerTextSurface, playerTextRect])
-        
-    def drawPlayerTexts(self):
-        for text in self.playerTexts:
-            playerSurface, playerRect = text[0], text[1]
-            self.screen.blit(playerSurface, playerRect)
+            self.screen.blit(playerTextSurface, playerTextRect)
 
-    def createPlayerBetTexts(self):
-        betFont = pygame.font.SysFont("", 28) # Sets the font to pygame default with size 28
-        for playerObj in self.players:
+    # !Might not need anymore need to test
+    # def updateBet(self, betIndex):
+    #     playerObj = self.players[betIndex]
+    #     betTextSurface = self.betFont.render(f"Bet: {playerObj.totalBet}", True, (255, 255, 255)) # Creates text surface with colour black
+    #     self.betTexts[betIndex][0] = betTextSurface
+
+    def drawPlayerBets(self, players):
+        for playerObj in players:
             if playerObj.name != "Dealer":
                 betCentre = (self.playerSeats[playerObj][0], self.playerSeats[playerObj][1]+25)
-                betTextSurface = betFont.render(f"Bet: {playerObj.totalBet}", True, (255, 255, 255)) # Creates text surface with colour black
+                betTextSurface = self.betFont.render(f"Bet: {playerObj.totalBet}", True, (255, 255, 255)) # Creates text surface with colour black
                 betTextRect = betTextSurface.get_rect(center=betCentre)
-                self.betTexts.append([betTextSurface, betTextRect])
-
-    def updateBet(self, betIndex):
-        betFont = pygame.font.SysFont("", 28) # Sets the font to pygame default with size 22
-        playerObj = self.players[betIndex]
-        betTextSurface = betFont.render(f"Bet: {playerObj.totalBet}", True, (255, 255, 255)) # Creates text surface with colour black
-        self.betTexts[betIndex][0] = betTextSurface
-
-    def drawPlayerBets(self):
-        for text in self.betTexts:
-            betSurface, betRect = text[0], text[1]
-            self.screen.blit(betSurface, betRect)
+                self.screen.blit(betTextSurface, betTextRect)
             
     def drawHand(self, playerObj):
         hands = playerObj.hands
@@ -159,7 +111,7 @@ class playGame():
             # Calculate total width
             totalWidth = 0
             for i, hand in enumerate(hands):
-                cards = hand.hand
+                cards = hand.cards
                 if len(cards) > 0:
                     totalWidth += len(cards) * cardWidth # Combined width of cards
                     totalWidth += (len(cards) - 1) * spacing # Include spacing of cards
@@ -172,7 +124,7 @@ class playGame():
             # Start drawing hands at the specified positions
             currentX = startX
             for i, hand in enumerate(reversed(hands)):
-                cards = hand.hand
+                cards = hand.cards
                 for j, card in enumerate(cards):
                     x = currentX + j * (cardWidth + spacing)
                     y = self.playerSeats[playerObj][1] - spacing - cardHeight // 2
@@ -185,60 +137,78 @@ class playGame():
                 if i < len(hands) - 1:
                     currentX += handSpacing
 
-    def drawBalance(self):
-        balanceFont = pygame.font.SysFont("", 32) # Sets the font to pygame default with size 22
-        playerBalance = self.players[self.userIndex].bustBux
+    def drawBalance(self, players, userIndex):
+        playerBalance = players[userIndex].bustBux
         balanceCentre = (25,25)
-        balanceTextSurface = balanceFont.render(f"Balance:{playerBalance}", True, (0, 0, 0)) # Creates text surface with colour black
+        balanceTextSurface = self.mainFont.render(f"Balance:{playerBalance}", True, (0, 0, 0)) # Creates text surface with colour black
         balanceTextRect = balanceTextSurface.get_rect(topleft=balanceCentre)
-        self.screen.blit(balanceTextSurface, balanceTextRect)
-        
-    def getHandValue(self, playerObj):
-        # Get the value of the player's hand
-        currentHand = playerObj.hands[playerObj.handIndex]
-        totalSum = 0 # Creating variable for value
-        cardValues = [card.value for card in currentHand.hand] # List of all values in the player's hand
-        for value in cardValues: # Loop through the card values
-            totalSum += value # Add them all together
-        currentHand.handValue = totalSum # Making the handValue of the player object be the gathered value
-        return cardValues    
-        
-    def checkBusted(self, playerObj):
-        cardValues = self.getHandValue(playerObj)
-        # Check if the player has busted
-        currentHand = playerObj.hands[playerObj.handIndex]
-        if currentHand.handValue > 21: # Player might be bust
-            if 11 in cardValues: # See if the player has the ace
-                aceIndex = cardValues.index(11) # Get the location of the ace
-                currentHand.hand[aceIndex].value = 1 # Set the ace's value to 1
-                currentHand.handValue -= 10 # Correct the player's hand value
-                return False # Player hasn't bust
-            else: # Player has no ace and has bust
-                return True 
-        else:
-            return False # Player hasn't bust
-        
-    def checkBlackjack(self, playerObj):
-        self.getHandValue(playerObj)
-        currentHand = playerObj.hands[playerObj.handIndex]
-        if currentHand.handValue == 21:
-            return True
+        self.screen.blit(balanceTextSurface, balanceTextRect)   
         
     def drawStatusText(self, winnings):
-        font = pygame.font.SysFont("", 32) # Sets the font to pygame default with size 2
         if winnings == 0: # Player made nothing
-            textSurface = font.render(f"Bets returned", True, (0, 0, 0)) # Creates text surface with colour black
+            textSurface = self.mainFont.render(f"Bets returned", True, (0, 0, 0)) # Creates text surface with colour black
         elif winnings > 0: # Player won BustBux
-            textSurface = font.render(f"Won: {winnings}", True, (0, 0, 0)) # Creates text surface with colour black
+            textSurface = self.mainFont.render(f"Won: {winnings}", True, (0, 0, 0)) # Creates text surface with colour black
         elif winnings < 0: # Player lose BustBux
-            textSurface = font.render(f"Lost: {winnings*-1}", True, (0, 0, 0)) # Creates text surface with colour black
+            textSurface = self.mainFont.render(f"Lost: {winnings*-1}", True, (0, 0, 0)) # Creates text surface with colour black
         
         textRect = textSurface.get_rect(center=(700,350))
         self.screen.blit(textSurface, textRect)
         
-    def updateImage(self):
-        for player in self.players:
+    def updateImage(self, players, userIndex):
+        for player in players:
             self.drawHand(player)
-        self.drawPlayerTexts()
-        self.drawBalance()
-        self.drawPlayerBets()
+        self.drawPlayerTexts(players)
+        self.drawBalance(players, userIndex)
+        self.drawPlayerBets(players)
+
+class playGame():
+    def __init__(self, noOfDecks: int, difficulty: str, noOfNPCs:int, startingBux: int, screen):
+        self.startingBux = startingBux
+        # Game setup variables
+        self.screen = screen
+        self.gameSetup = setupGame(startingBux, noOfNPCs)
+        self.players = self.gameSetup.players
+        self.playerSeats = self.getPlayerSeats()
+        self.UI = handleGameUI(screen, self.playerSeats)
+        # Handle deck
+        self.deckInstance = deckHandling(noOfDecks) # Deck handling instance ready
+        self.deckInstance.shuffle() # Shuffle the deck
+        # Gameplay Attributes
+        self.playerIndex = 0
+        self.roundStarted = False
+        self.roundOver = False
+        self.stoodHands = {} # Dictionary of stood hands as uniqueID:PlayerObject
+        self.bustPlayers = 0 # Integer to count how many players went bust
+        
+    def initialDeal(self):
+        for i in range(2): # Deal 2 cards to players from left to right
+            for player in self.players:
+                if i == 1 and player.name == "Dealer": # If the dealer is dealt their second card
+                    player.dealCard(self.deckInstance, visible=False) # Deal the card face down
+                else: # Deal the card to the player
+                    player.dealCard(self.deckInstance)
+        self.roundStarted = True # Start the round
+
+
+    def getPlayerSeats(self):
+        # Assigns players their seating positions
+        seatingPositions = [(), (), (), (700, 650), (), (), ()] # TODO Find good seating positions, will be the position of the text of the player's name
+        playerPos = 0 # Position of the player in the list
+        seatingPosDict = {}
+        # Get the position of the user in the players list
+        for i in self.players:
+            if i.name == "Player":
+                playerPos = self.players.index(i)
+        # Align the 2 lists so the middles match
+        startingPos = 3 - playerPos # 3 is the middle of the seatingPositions list, player pos should be the middle of the players list
+        for i in range(startingPos, len(self.players) + startingPos):
+            # self.players[i - startingPos] "i - startingPos" Is the index of the players in the player list
+            # seatingPositions[i] is the aligned seating position
+            seatingPosDict[self.players[i - startingPos]] = seatingPositions[i]
+        seatingPosDict[self.players[len(self.players)-1]] = (700, 200) # Adds the dealer's seating position
+        return seatingPosDict
+    
+    def handleUI(self):
+        self.UI.updateImage(self.players,self.playerIndex)
+    
