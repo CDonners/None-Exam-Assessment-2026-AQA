@@ -137,8 +137,8 @@ class handleGameUI:
                 if i < len(hands) - 1:
                     currentX += handSpacing
 
-    def drawBalance(self, players, userIndex):
-        playerBalance = players[userIndex].bustBux
+    def drawBalance(self, players, playerIndex):
+        playerBalance = players[playerIndex].bustBux
         balanceCentre = (25,25)
         balanceTextSurface = self.mainFont.render(f"Balance:{playerBalance}", True, (0, 0, 0)) # Creates text surface with colour black
         balanceTextRect = balanceTextSurface.get_rect(topleft=balanceCentre)
@@ -155,12 +155,31 @@ class handleGameUI:
         textRect = textSurface.get_rect(center=(700,350))
         self.screen.blit(textSurface, textRect)
         
-    def updateImage(self, players, userIndex):
+    def updateImage(self, players, playerIndex):
         for player in players:
             self.drawHand(player)
         self.drawPlayerTexts(players)
-        self.drawBalance(players, userIndex)
+        self.drawBalance(players, playerIndex)
         self.drawPlayerBets(players)
+
+class gameStates: # TODO Clean and comment
+    # Game States
+    bettingPhase = True
+    roundStarted = False
+    NPCTurn = False
+    dealerTurn = False
+    roundOver = False
+    doubleDownAvailable = False
+    payedOut = False
+
+class playerActionStates:
+    # Player Actions
+    hit = False
+    stand = False
+    split = False
+    insurance = False
+    betMade = False
+    nextRound = False
 
 class playGame():
     def __init__(self, noOfDecks: int, difficulty: str, noOfNPCs:int, startingBux: int, screen):
@@ -174,22 +193,36 @@ class playGame():
         # Handle deck
         self.deckInstance = deckHandling(noOfDecks) # Deck handling instance ready
         self.deckInstance.shuffle() # Shuffle the deck
+        # Game State
+        self.gameState = gameStates()
+        self.playerAction = playerActionStates()
         # Gameplay Attributes
+        self.currentPlayer = None
         self.playerIndex = 0
-        self.roundStarted = False
-        self.roundOver = False
         self.stoodHands = {} # Dictionary of stood hands as uniqueID:PlayerObject
         self.bustPlayers = 0 # Integer to count how many players went bust
         
     def initialDeal(self):
         for i in range(2): # Deal 2 cards to players from left to right
             for player in self.players:
-                if i == 1 and player.name == "Dealer": # If the dealer is dealt their second card
-                    player.dealCard(self.deckInstance, visible=False) # Deal the card face down
+                if i == 1 and player.isDealer(): # If the dealer is dealt their second card
+                    player.dealCard(self, visible=False) # Deal the card face down
                 else: # Deal the card to the player
-                    player.dealCard(self.deckInstance)
+                    player.dealCard(self)
         self.roundStarted = True # Start the round
 
+    def isDoubleDownAvailable(self):
+        # Makes double down available
+        if self.currentPlayer.canDoubleDown():
+            self.gameState.doubleDownAvailable = True
+        else:
+            self.gameState.doubleDownAvailable = False
+
+    def progressTurn(self):
+        self.currentPlayer.handIndex += 1
+        if len(self.currentPlayer.hands) == self.currentPlayer.handIndex: # Player has no more hands to play
+            if len(self.players) - 1 != self.playerIndex: # Avoid going out of range
+                self.playerIndex += 1
 
     def getPlayerSeats(self):
         # Assigns players their seating positions
