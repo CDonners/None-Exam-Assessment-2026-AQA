@@ -12,14 +12,18 @@ class button:
         self.surface = surface # Defining the surface
         self.scale = scale # Defining the scale
         self.interactable = interactable
-        # Creating the interactable button
-        self.interactableImage = pygame.transform.scale_by(pygame.image.load(self.bid+".png"), scale) # Loading the image and adjusting it to the specified scale
+        # Loading Images
+        self.defaultImg = pygame.transform.scale_by(pygame.image.load(self.bid+".png"), self.scale)
+        self.hoveredImg = pygame.transform.scale_by(pygame.image.load(self.bid+"_hovered"+".png"), self.scale)
+        self.pressedImg = pygame.transform.scale_by(pygame.image.load(self.bid+"_pressed"+".png"),self.scale)
+        self.inactiveImg = pygame.transform.scale_by(pygame.image.load(self.bid+"_inactive"+".png"),self.scale)
+        # Creating button variables
+        self.interactableImage = self.defaultImg
         self.interactableObj = self.interactableImage.get_rect(center = centre) # Turn the image into a rect with the specified centre
         # Create text object
         self.font = pygame.font.SysFont("", 36) # Sets the font to pygame default and sets the size
         self.text_surface = self.font.render(f"{name}", True, (255, 255, 255)) # Creates the text surface, colour black
         self.text_rect = self.text_surface.get_rect(center=centre) # Draws the text with the same centre as the button so it is over it
-        
     
     def draw(self): # Blits the rect onto the surface
         self.surface.blit(self.interactableImage, self.interactableObj)
@@ -46,16 +50,16 @@ class button:
             if self.checkHover(): # Check if the mouse is over the button
                 if self.pressed(event): # Button is Pressed
                     # Set the button to the pressed image
-                    self.interactableImage = pygame.transform.scale_by(pygame.image.load(self.bid+"_pressed"+".png"),self.scale)
+                    self.interactableImage = self.pressedImg
                     pressed = True # Telling us the button is pressed
                 else: # Buttons isn't pressed6
                     # Set button to the hovered image
-                    self.interactableImage = pygame.transform.scale_by(pygame.image.load(self.bid+"_hovered"+".png"), self.scale)
+                    self.interactableImage = self.hoveredImg
             else: # Button isn't being interacted with
                 # Set the button image to the regular image as it's not being interacted with
-                self.interactableImage = pygame.transform.scale_by(pygame.image.load(self.bid+".png"), self.scale)
+                self.interactableImage = self.defaultImg
         else:
-            self.interactableImage = pygame.transform.scale_by(pygame.image.load(self.bid+"_inactive"+".png"),self.scale)
+            self.interactableImage = self.inactiveImg
         self.draw() # Draw the updated image
         return pressed # Returns whether button is pressed
         
@@ -75,8 +79,11 @@ class discreteSlider(button):
         # Variables for slider thumb
         self.thumbLBound = self.guideRect.left
         self.thumbUBound = self.guideRect.right
+        # Loading images for the thumb
+        self.defaultImg = pygame.transform.scale_by(pygame.image.load(BIFD + "thumb.png"), self.scale)
+        self.hoveredImg = pygame.transform.scale_by(pygame.image.load(BIFD + "thumbHovered.png"), self.scale)
         # Creating the rect objects for the slider
-        self.interactableImage = pygame.transform.scale_by(pygame.image.load(BIFD + "thumb.png"), self.scale)
+        self.interactableImage = self.defaultImg
         self.interactableObj = self.interactableImage.get_rect(center = (self.thumbLBound, self.guideRect.centery))
         # Variables for Logic
         self.mouseHeld = False # Mouse isn't held by default
@@ -132,13 +139,13 @@ class discreteSlider(button):
         if self.mouseHeld == False: # If the mouse isn't held
             if self.checkHover(): # Check if the mouse is hovering
                 # If it is set the image of the thumb to the hovered image
-                self.interactableImage = pygame.transform.scale_by(pygame.image.load(BIFD + "thumbHovered.png"), self.scale)
+                self.interactableImage = self.hoveredImg
                 self.pressed(event) # Checking if the mouse is pressed
                 if self.mouseHeld: # If the mouse is held down
                     offsetX = mousePos[0] - self.interactableObj.centerx # Set the offset so the thumb doesn't snap to the mouse
             else:
                 # Is the mouse isn't hovering, change the image to the default
-                self.interactableImage = pygame.transform.scale_by(pygame.image.load(BIFD + "thumb.png"), self.scale) 
+                self.interactableImage = self.defaultImg
         if self.mouseHeld == True: # If the mouse is held down
             self.pressed(event) # Check if the mouse is pressed
             if mousePos[0] > self.thumbLBound and mousePos[0] < self.thumbUBound: # Keep the sun within the bounds
@@ -176,8 +183,11 @@ class inputBox(button):
         self.selected = False
         self.value = defaultValue # Setting to a default value
         self.minMax = minMax
+        # Load images
+        self.defaultImg = pygame.transform.scale_by(pygame.image.load(BIFD + "button.png"), self.scale)
+        self.inactiveImg = pygame.transform.scale_by(pygame.image.load(BIFD + "button_inactive.png"), self.scale)
         # Creating the input box
-        self.interactableImage = pygame.transform.scale_by(pygame.image.load(BIFD + "button.png"), self.scale)
+        self.interactableImage = self.defaultImg
         self.interactableObj = self.interactableImage.get_rect(center = centre)
         # Creating the text for the inputbox title
         self.title_font = pygame.font.SysFont("", 22) # Sets the font of the text to the default pygame font and the size to 22
@@ -187,9 +197,9 @@ class inputBox(button):
     def draw(self):
         # Check if it's interactable
         if self.interactable:
-            self.interactableImage = pygame.transform.scale_by(pygame.image.load(BIFD + "button.png"), self.scale)
+            self.interactableImage = self.defaultImg
         else:
-            self.interactableImage = pygame.transform.scale_by(pygame.image.load(BIFD + "button_inactive.png"), self.scale)
+            self.interactableImage = self.inactiveImg
         # Button
         self.surface.blit(self.interactableImage, self.interactableObj)
         # Create the text object for value
