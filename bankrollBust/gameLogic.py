@@ -78,6 +78,12 @@ class handleGameUI:
         self.mainFont = pygame.font.SysFont("", 32)
         self.betFont = pygame.font.SysFont("", 28)
         self.playerFont = pygame.font.SysFont("", 32) # Sets the font to pygame default with size 22
+        # Card dimensions
+        self.cardWidth = 60
+        self.cardHeight = 80
+        self.cardSpacing = 15
+        self.handSpacing = 30  
+
         
     def drawPlayerTexts(self, players):
         for playerObj in players:
@@ -99,25 +105,23 @@ class handleGameUI:
                 betTextSurface = self.betFont.render(f"Bet: {playerObj.totalBet}", True, (255, 255, 255)) # Creates text surface with colour black
                 betTextRect = betTextSurface.get_rect(center=betCentre)
                 self.screen.blit(betTextSurface, betTextRect)
-            
+
+    def drawHandStatus(self, centre):
+        pass
+
     def drawHand(self, playerObj):
         hands = playerObj.hands
         if len(hands) != 0:
-            # Card dimensions
-            cardWidth = 60
-            cardHeight = 80
-            spacing = 15
-            handSpacing = 30  
             # Calculate total width
             totalWidth = 0
             for i, hand in enumerate(hands):
                 cards = hand.cards
                 if len(cards) > 0:
-                    totalWidth += len(cards) * cardWidth # Combined width of cards
-                    totalWidth += (len(cards) - 1) * spacing # Include spacing of cards
-                # Add spacing between hands instead of the card spacing
+                    totalWidth += len(cards) * self.cardWidth # Combined width of cards
+                    totalWidth += (len(cards) - 1) * self.cardSpacing # Include self.cardSpacing of cards
+                # Add self.cardSpacing between hands instead of the card self.cardSpacing
                 if i < len(hands) - 1:
-                    totalWidth += handSpacing
+                    totalWidth += self.handSpacing
             # Centering start X
             centerX = self.playerSeats[playerObj][0]
             startX = centerX - totalWidth // 2
@@ -126,16 +130,16 @@ class handleGameUI:
             for i, hand in enumerate(reversed(hands)):
                 cards = hand.cards
                 for j, card in enumerate(cards):
-                    x = currentX + j * (cardWidth + spacing)
-                    y = self.playerSeats[playerObj][1] - spacing - cardHeight // 2
+                    x = currentX + j * (self.cardWidth + self.cardSpacing)
+                    y = self.playerSeats[playerObj][1] - self.cardSpacing - self.cardHeight // 2
                     card.drawCard(self.screen, (x, y), handIndex=i)
                 # Move forward by this hand's width
                 if len(cards) > 0:
-                    currentX += len(cards) * cardWidth
-                    currentX += (len(cards) - 1) * spacing
+                    currentX += len(cards) * self.cardWidth
+                    currentX += (len(cards) - 1) * self.cardSpacing
                 # Add gap between hands
                 if i < len(hands) - 1:
-                    currentX += handSpacing
+                    currentX += self.handSpacing
 
     def drawBalance(self, players):
         targetPlayer = next(playerObj for playerObj in players if playerObj.isPlayer)
@@ -145,14 +149,14 @@ class handleGameUI:
         balanceTextRect = balanceTextSurface.get_rect(topleft=balanceCentre)
         self.screen.blit(balanceTextSurface, balanceTextRect)   
         
-    def drawStatusText(self, winnings):
+    def drawWinnings(self, winnings):
         # Assume player made nothing
-        textSurface = textSurface = self.mainFont.render(f"Bets returned", True, (0, 0, 0)) # Creates text surface with colour black 
+        textSurface = self.mainFont.render(f"Bets returned", True, (0, 0, 0)) # Creates text surface with colour black 
         if winnings > 0: # Player won BustBux
             textSurface = self.mainFont.render(f"Won: {winnings}", True, (0, 0, 0)) # Creates text surface with colour black
         elif winnings < 0: # Player lose BustBux
             textSurface = self.mainFont.render(f"Lost: {winnings*-1}", True, (0, 0, 0)) # Creates text surface with colour black
-        
+        # Create the text rect
         textRect = textSurface.get_rect(center=(700,350))
         self.screen.blit(textSurface, textRect)
         
@@ -180,7 +184,9 @@ class playerActionStates:
     split = False
     insurance = False
     betMade = False
-    nextRound = False
+    startNextRound = False
+    potentialBet = 0
+    playerWinnings = 0
 
 class playGame():
     def __init__(self, noOfDecks: int, difficulty: str, noOfNPCs:int, startingBux: int, screen):
@@ -200,7 +206,6 @@ class playGame():
         # Gameplay Attributes
         self.currentPlayer = self.players[0]
         self.playerIndex = 0
-        self.stoodHands = {} # Dictionary of stood hands as uniqueID:PlayerObject
         self.bustPlayers = 0 # Integer to count how many players went bust
         
     def initialDeal(self):
@@ -219,12 +224,44 @@ class playGame():
         else:
             self.gameState.doubleDownAvailable = False
 
+    def hasActiveHands(self):
+        for player in self.players: # Loop through players
+            if player.isDealer:
+                continue
+            for hand in player.hands:
+                if not hand.busted and not hand.naturalBlackjack:
+                    return True
+        return False
+
     def progressTurn(self):
         if len(self.currentPlayer.hands) - 1 == self.currentPlayer.handIndex: # Player has no more hands to play
             if len(self.players) - 1 != self.playerIndex: # Avoid going out of range
                 self.playerIndex += 1
         else:
             self.currentPlayer.handIndex += 1
+            print(f"Hand index for {self.currentPlayer.name} incremented to {self.currentPlayer.handIndex}")
+
+    def endRound(self):
+        # Game States
+        self.gameState.bettingPhase = True
+        self.gameState.roundStarted = False
+        self.gameState.roundOver = False
+        self.gameState.payedOut = False
+        self.gameState.NPCTurn = False
+        self.gameState.dealerTurn = False
+        self.gameState.doubleDownAvailable = False
+        # Player Actions
+        self.playerAction.hit = False
+        self.playerAction.tand = False
+        self.playerAction.split = False
+        self.playerAction.insurance = False
+        self.playerAction.betMade = False
+        self.playerAction.startNextRound = False
+        self.playerAction.potentialBet = 0
+        self.playerAction.playerWinnings = 0
+        self.playerIndex = 0
+        for player in self.players:
+            player.newRound()
 
     def getPlayerSeats(self):
         # Assigns players their seating positions

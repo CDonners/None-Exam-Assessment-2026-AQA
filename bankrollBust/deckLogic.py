@@ -48,8 +48,6 @@ class cards():
 class deckHandling():
     def __init__(self, noOfDecks: int):
         self.deck = self.generateDeck(noOfDecks)
-        self.cardsInPlay = []
-        self.discardPile = []
 
     def generateDeck(self, noOfDecks: int):
         # Card Values and Suits

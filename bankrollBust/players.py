@@ -25,18 +25,13 @@ class player():
         self.winnings = 0
         
     def bust(self, game):
-        if len(self.hands) > self.handIndex:
-            currentHand = self.hands[self.handIndex]
-            game.bustPlayers += 1
-            currentHand.busted = True
-            self.handIndex += 1
+        currentHand = self.hands[self.handIndex]
+        game.bustPlayers += 1
+        currentHand.busted = True
     
     def stand(self, game):
         if len(self.hands) > self.handIndex:
             currentHand = self.hands[self.handIndex]
-            if not self.isDealer:
-                uniqueHandID = f"{currentHand.handValue},{self.name},{self.handIndex}"
-                game.stoodHands[uniqueHandID] = self # Adding the stood hand to the dictionary
             currentHand.stood = True
             game.progressTurn()
 
@@ -85,7 +80,6 @@ class player():
             self.stand(game)
             if len(self.hands) == 1 and len(currentHand.cards) == 2: # Player has natural blackjack
                 currentHand.naturalBlackjack = True
-                game.progressTurn()
 
     def canSplit(self):
         currentHand = self.hands[self.handIndex].cards
@@ -95,7 +89,7 @@ class player():
         return False
     
     def canDoubleDown(self):
-        if len(self.hands) == 1 and len(self.hands[self.handIndex].cards) == 2: # Player hasn't acted meaning they can double down
+        if len(self.hands) == 1 and len(self.hands[0].cards) == 2 and not self.hands[0].stood: # Player hasn't acted meaning they can double down
             return True
         else:
             return False
