@@ -15,6 +15,8 @@ class player():
     def __init__(self, bustBux: int):
         self.name = "Player"
         self.bustBux = bustBux
+        self.isPlayer = True
+        self.isDealer = False
         # Variables reset every round
         self.hands = [hand()] 
         self.handIndex = 0
@@ -32,7 +34,7 @@ class player():
     def stand(self, game):
         if len(self.hands) > self.handIndex:
             currentHand = self.hands[self.handIndex]
-            if not self.isDealer():
+            if not self.isDealer:
                 uniqueHandID = f"{currentHand.handValue},{self.name},{self.handIndex}"
                 game.stoodHands[uniqueHandID] = self # Adding the stood hand to the dictionary
             currentHand.stood = True
@@ -107,12 +109,6 @@ class player():
             totalSum += value # Add them all together
         currentHand.handValue = totalSum # Making the handValue of the player object be the gathered value
         return cardValues # Useful for finding certain cards
-        
-    def isPlayer(self):
-        return True
-    
-    def isDealer(self):
-        return False
 
     def newRound(self):
         self.hands = [hand()] 
@@ -125,11 +121,13 @@ class dealer(player):
     def __init__(self):
         super().__init__(-1)
         self.name = "Dealer"
-        self.ACTIONS = ["hit, stand"]
+        self.ACTIONS = ["hit", "stand"]
+        self.isPlayer = False
+        self.isDealer = True
 
-    def decideNextMove(self, game):
-        dealerValues = [card.value for card in dealerHand.cards]
+    def decideNextMove(self):
         dealerHand = self.hands[0]
+        dealerValues = [card.value for card in dealerHand.cards]
         action = None
         if dealerHand.handValue < 17:
             action = self.ACTIONS[0]
@@ -140,12 +138,6 @@ class dealer(player):
             action = self.ACTIONS[1]
         return action
 
-    def isPlayer(self):
-        return False
-    
-    def isDealer(self):
-        return True
-
 class NPC(player):
     def __init__(self, name: str, bustBux: int, personality: str,  prosperity: float, confidence: float, judgement: float, experience: float):
         super().__init__(bustBux)
@@ -155,6 +147,7 @@ class NPC(player):
         self.confidence= confidence
         self.judgement = judgement
         self.experience = experience
+        self.isPlayer = False
         self.ACTIONS = ["hit", "stand", "split", "insurance"]
         
     def decideNextMove(self):
@@ -162,6 +155,3 @@ class NPC(player):
 
     def calculateBet(self):
         pass # min bet + (min-bet * prosperity) and current count something or other
-
-    def isPlayer(self):
-        return False

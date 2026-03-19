@@ -137,17 +137,18 @@ class handleGameUI:
                 if i < len(hands) - 1:
                     currentX += handSpacing
 
-    def drawBalance(self, players, playerIndex):
-        playerBalance = players[playerIndex].bustBux
+    def drawBalance(self, players):
+        targetPlayer = next(playerObj for playerObj in players if playerObj.isPlayer)
+        playerBalance = targetPlayer.bustBux
         balanceCentre = (25,25)
         balanceTextSurface = self.mainFont.render(f"Balance:{playerBalance}", True, (0, 0, 0)) # Creates text surface with colour black
         balanceTextRect = balanceTextSurface.get_rect(topleft=balanceCentre)
         self.screen.blit(balanceTextSurface, balanceTextRect)   
         
     def drawStatusText(self, winnings):
-        if winnings == 0: # Player made nothing
-            textSurface = self.mainFont.render(f"Bets returned", True, (0, 0, 0)) # Creates text surface with colour black
-        elif winnings > 0: # Player won BustBux
+        # Assume player made nothing
+        textSurface = textSurface = self.mainFont.render(f"Bets returned", True, (0, 0, 0)) # Creates text surface with colour black 
+        if winnings > 0: # Player won BustBux
             textSurface = self.mainFont.render(f"Won: {winnings}", True, (0, 0, 0)) # Creates text surface with colour black
         elif winnings < 0: # Player lose BustBux
             textSurface = self.mainFont.render(f"Lost: {winnings*-1}", True, (0, 0, 0)) # Creates text surface with colour black
@@ -155,22 +156,22 @@ class handleGameUI:
         textRect = textSurface.get_rect(center=(700,350))
         self.screen.blit(textSurface, textRect)
         
-    def updateImage(self, players, playerIndex):
+    def updateImage(self, players):
         for player in players:
             self.drawHand(player)
         self.drawPlayerTexts(players)
-        self.drawBalance(players, playerIndex)
+        self.drawBalance(players)
         self.drawPlayerBets(players)
 
 class gameStates: # TODO Clean and comment
     # Game States
     bettingPhase = True
     roundStarted = False
+    roundOver = False
+    payedOut = False
     NPCTurn = False
     dealerTurn = False
-    roundOver = False
     doubleDownAvailable = False
-    payedOut = False
 
 class playerActionStates:
     # Player Actions
@@ -197,7 +198,7 @@ class playGame():
         self.gameState = gameStates()
         self.playerAction = playerActionStates()
         # Gameplay Attributes
-        self.currentPlayer = None
+        self.currentPlayer = self.players[0]
         self.playerIndex = 0
         self.stoodHands = {} # Dictionary of stood hands as uniqueID:PlayerObject
         self.bustPlayers = 0 # Integer to count how many players went bust
@@ -205,7 +206,7 @@ class playGame():
     def initialDeal(self):
         for i in range(2): # Deal 2 cards to players from left to right
             for player in self.players:
-                if i == 1 and player.isDealer(): # If the dealer is dealt their second card
+                if i == 1 and player.isDealer: # If the dealer is dealt their second card
                     player.dealCard(self, visible=False) # Deal the card face down
                 else: # Deal the card to the player
                     player.dealCard(self)
@@ -219,10 +220,11 @@ class playGame():
             self.gameState.doubleDownAvailable = False
 
     def progressTurn(self):
-        self.currentPlayer.handIndex += 1
-        if len(self.currentPlayer.hands) == self.currentPlayer.handIndex: # Player has no more hands to play
+        if len(self.currentPlayer.hands) - 1 == self.currentPlayer.handIndex: # Player has no more hands to play
             if len(self.players) - 1 != self.playerIndex: # Avoid going out of range
                 self.playerIndex += 1
+        else:
+            self.currentPlayer.handIndex += 1
 
     def getPlayerSeats(self):
         # Assigns players their seating positions
@@ -243,5 +245,5 @@ class playGame():
         return seatingPosDict
     
     def handleUI(self):
-        self.UI.updateImage(self.players,self.playerIndex)
+        self.UI.updateImage(self.players)
     

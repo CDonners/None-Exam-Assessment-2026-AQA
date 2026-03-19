@@ -5,10 +5,9 @@ from gameLogic import playGame
 # ! SHORT TERM GOALS !
 # TODO Handle deck running out of cards somehow - Probably regenerate deck telling the player you have
 # TODO Handle player running out of bustBux - End game as player lost
-# TODO Add split - Hell
-## TODO Make drawing hands compatible with new system - Diff colours for split hands
-## TODO Finish making main loop campatible
-## TODO TEST EVERYTHING!!!
+# TODO Implement Next round
+# TODO Implement displaying winnings at end of round - game.UI.drawWinnings
+# TODO Display hand status(Bust, stood, push) on the cards - game.UI.drawHands
 ### ! Hand is now a class make it so everywhere ! ###
 
 # Pygame Setup
@@ -38,25 +37,11 @@ doubleDownButton = button(screen, (centreX, centreY), "Double Down")
 nextRoundButton = button(screen, (centreX, centreY), "Next Round")
 
 def playingGame(game):
-    global currentPlayerIndex, showDBButton, playerBet, winnings
     # Creating the bet amount input box
     minBet = round(game.startingBux * 0.01 / 5) * 5 # Rounds the minimum bet to the nearest 5, so the minimum bet will always be 1% of the starting bux to the nearest 5
     betAmountInputBox = inputBox(screen, (centreX, 770), "Bet Amount:", "num", f"{minBet}", interactable=False, minMax=[float(minBet), 1000*float(minBet)])
     # Game State variables
     gamePlayRunning = True
-    nextRound = False
-    showDBButton = False
-    currentPlayerIndex = 0
-    betsGiven = False
-    currentHandIndex = 0
-    # Player state variables
-    betMade = False
-    playerBet = 0
-    winnings = 0
-    hit = False
-    stood = False
-    split = False
-    insurance = False
     # Game action delay (in frames at 60 FPS)
     gameActionDelay = 30  # 1 second at 60 FPS
     gameAct = 0
@@ -64,7 +49,6 @@ def playingGame(game):
     dealer = game.players[len(game.players) -1] # Dealer is always this index
     
     def drawScreen():
-        screen.blit(bg, (0,0)) # Set the screen as my background
         game.handleUI()
         hitButton.draw()
         standButton.draw()
@@ -90,14 +74,14 @@ def playingGame(game):
             confirmBetButton.updateImage(event)
             # State Machine for gameplay
             if game.gameState.bettingPhase: # If betting phase is active
-                if game.currentPlayer.isPlayer(): # Checks if current player is the human player
+                if game.currentPlayer.isPlayer: # Checks if current player is the human player
                     # Make the relevant interactables be interactable
                     betAmountInputBox.setMax(game.currentPlayer.bustBux)
                     game.currentPlayer.totalBet = int(betAmountInputBox.getInput(event))
                     game.playerAction.betMade = confirmBetButton.updateImage(event)
             # Starting action phase
             elif game.gameState.roundStarted:
-                if game.currentPlayer.isPlayer():
+                if game.currentPlayer.isPlayer:
                     playerTurn()
                     game.playerAction.hit = hitButton.updateImage(event)
                     game.playerAction.stand = standButton.updateImage(event)
@@ -109,14 +93,15 @@ def playingGame(game):
                             game.currentPlayer.totalBet *= 2 # Double the bet
                             # Usual card dealing process
                             game.currentPlayer.dealCard(game)
+                            game.currentPlayer.stand(game)
                             endPlayerTurn()
 
                         
-                elif game.currentPlayer.isDealer():
+                elif game.currentPlayer.isDealer:
                     if dealerHand.stood or dealerHand.busted:
                         nextRound = nextRoundButton.updateImage(event)
 
-    def startNewRoun():
+    def startNewRound():
         # Resets game state variables
         gameAct = 0
         game.playerIndex = 0
@@ -124,7 +109,7 @@ def playingGame(game):
         game.gameState.roundStarted = False
         game.gameState.roundOver = False
         game.gameState.bettingPhase = True
-        game.gameState.payedOut
+        game.gameState.payedOut = False
         # Resetting players
         game.playerAction.betMade = False
         for player in game.players:
@@ -144,7 +129,7 @@ def playingGame(game):
         game.isDoubleDownAvailable()
         hitButton.makeInteractable()
         standButton.makeInteractable()
-        currentPlayerHand = game.currentPlayer.hands[game.currentPlayer.handIndex].cards
+        dealerHand = dealer.hands[0]
         # Making actions available
         if game.currentPlayer.checkBlackjack(game):
             game.currentPlayer.bustBux += 2.5*game.currentPlayer.totalBet
@@ -187,24 +172,25 @@ def playingGame(game):
             bustBuxPayOut = 0
             if dealerHand.naturalBlackjack: # No one can win unless they have natural blackjack
                 if player.hands[0].naturalBlackjack: # Player can only have natural blackjack on one hand
-                    bustBuxPayOut += hand.bet * 2.5
+                    bustBuxPayOut += player.hands[0].bet * 2.5
             else:
                 for hand in player.hands:
                     if hand.naturalBlackjack: # Hand has natural blackjack - Does not matter if dealer busted/stood always pays out
                         bustBuxPayOut += hand.bet * 2.5
                     elif dealerHand.busted: # All stood players win
                         if hand.stood:
-                            player.bustBuxPayOut += hand.bet * 2
+                            bustBuxPayOut += hand.bet * 2
                     else: # Compare players hand value with dealer's hand value
                         if hand.handValue > dealerHand.handValue: # Hand won
                             bustBuxPayOut += hand.bet * 2
-                        elif hand.handValue == dealerHand.handvalue: # Possible Push
+                        elif hand.handValue == dealerHand.handValue: # Possible Push
                             multiplier = handlePush(hand.cards, dealerHand.cards)
                             bustBuxPayOut += hand.bet * multiplier
                         else: # Player Lost
                             pass # Nothing needs to be handled
             player.bustBux += bustBuxPayOut
             player.winnings += bustBuxPayOut
+        game.gameState.payedOut = True
 
     # Gameplay loop
     while gamePlayRunning:
@@ -212,25 +198,22 @@ def playingGame(game):
         events = pygame.event.get()
         eventHandler(events)    
         if game.gameState.bettingPhase: # If betting phase is active
-            if game.currentPlayer.isPlayer(): # Checks if current player is the human player
+            if game.currentPlayer.isPlayer: # Checks if current player is the human player
                 playerBettingTurn()
-            elif game.currentPlayer.isDealer(): # Checks if the current player is the dealer - Signals end of betting phase
-                print("END OF BETTING PHASE")
+            elif game.currentPlayer.isDealer: # Checks if the current player is the dealer - Signals end of betting phase
                 game.gameState.bettingPhase = False
                 game.gameState.roundStarted = True
                 game.initialDeal() # Do the initial Deal
+                game.playerIndex = 0
             else: # Current player is an NPC
                 gameAct += 1
                 if gameAct >= gameActionDelay:
-                    playerBet = game.players[currentPlayerIndex].calculateBet()
-                    game.currentPlayer.hands[0].bet = playerBet
-                    game.currentPlayer.totalbet += playerBet
-                    currentPlayerIndex += 1
-                    gameAct = 0
+                    pass
         # Round Started
         elif game.gameState.roundStarted:
             # Player's Turn
-            if game.currentPlayer.isPlayer():             
+            if game.currentPlayer.isPlayer:
+                playerTurn()        
                 # Player Stands
                 if game.playerAction.stand:
                     game.currentPlayer.stand(game) # Make the player stand
@@ -257,7 +240,7 @@ def playingGame(game):
                     game.playerAction.insurance = False # Reset Player Action state  
                     insuranceButton.makeUninteractable()
             # Dealers Turn
-            elif game.currentPlayer.isDealer():
+            elif game.currentPlayer.isDealer:
                 gameAct += 1  # Increment frame counter
                 dealerHand = dealer.hands[0] # Keeping cleaner code
                 dealerHand.cards[1].setVisible() # Show the dealer's down card
@@ -274,7 +257,7 @@ def playingGame(game):
                 elif len(game.players)-1 != game.bustPlayers and len(game.stoodHands) != 0:
                     # Don't hit if everyone is bust or has natural blackjack
                     if gameAct >= gameActionDelay:
-                        dealerAction = dealer.decideNextMove(game)
+                        dealerAction = dealer.decideNextMove()
                         if dealerAction == "hit":
                             dealer.dealCard(game)
                         elif dealerAction == "stand":
@@ -285,8 +268,8 @@ def playingGame(game):
             # NPC's turn
             else:
                 if game.currentPlayer.isStood or game.currentPlayer.isBusted:
-                    currentPlayerIndex += 1
-
+                    pass
+        screen.blit(bg, (0,0)) # Set the screen as my background
         drawScreen()
         pygame.display.update() 
         clock.tick(60) # Limiting clock to 60        
