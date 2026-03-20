@@ -18,7 +18,7 @@ class player():
         self.isPlayer = True
         self.isDealer = False
         # Variables reset every round
-        self.hands = [hand()] 
+        self.hands = [hand()]
         self.handIndex = 0
         self.totalBet = 0
         self.insurance = 0
@@ -79,6 +79,7 @@ class player():
         if currentHand.handValue == 21: # Player has blackjack
             self.stand(game)
             if len(self.hands) == 1 and len(currentHand.cards) == 2: # Player has natural blackjack
+                print("Hand has natural blackjack")
                 currentHand.naturalBlackjack = True
 
     def canSplit(self):
@@ -105,7 +106,7 @@ class player():
         return cardValues # Useful for finding certain cards
 
     def newRound(self):
-        self.hands = [hand()] 
+        self.hands = [hand()]
         self.handIndex = 0
         self.totalBet = 0
         self.insurance = 0

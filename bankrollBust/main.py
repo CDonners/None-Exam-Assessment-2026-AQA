@@ -5,8 +5,8 @@ from gameLogic import playGame
 # ! SHORT TERM GOALS !
 # TODO Handle deck running out of cards somehow - Probably regenerate deck telling the player you have
 # TODO Handle player running out of bustBux - End game as player lost
-# TODO Display hand status(Bust, stood, push) on the cards - game.UI.drawHandStatus
-# TODO Make it obvious which hand is in play when split
+# TODO Natural blackjack seems to not trigger end of game some reason - May have to do with dealer needing to be stood for game to end
+# TODO Insurance not going uninteractable after player action and after insurance interaction
 
 # Pygame Setup
 pygame.init() # Initialise Pygame
@@ -104,7 +104,6 @@ def playingGame(game):
                     game.endRound()
 
     def endPlayerTurn():
-        game.currentPlayer.winnings -= game.currentPlayer.totalBet
         # Make all buttons uninteractable
         hitButton.makeUninteractable()
         standButton.makeUninteractable()
@@ -144,7 +143,8 @@ def playingGame(game):
                 game.playerAction.insurance = False # Reset Player Action state  
                 insuranceButton.makeUninteractable()
             game.isDoubleDownAvailable()
-            if len(game.currentPlayer.hands)-1 == game.currentPlayer.handIndex and (currentHand.stood or currentHand.busted):
+            handInactive = currentHand.stood or currentHand.busted or currentHand.naturalBlackjack # If either of these conditions are true then a hand is inactive
+            if len(game.currentPlayer.hands)-1 == game.currentPlayer.handIndex and handInactive:
                 # Player has no more hands to player so move to the next
                 endPlayerTurn()
    
@@ -196,9 +196,10 @@ def playingGame(game):
                                 bustBuxPayOut += hand.bet * multiplier
                             else: # Player Lost
                                 pass # Nothing needs to be handled
-                player.bustBux += bustBuxPayOut
-                player.winnings += bustBuxPayOut
                 if player.isPlayer:
+                    profit = bustBuxPayOut - player.totalBet  # Only the net profit
+                    player.winnings += profit
+                    player.bustBux += bustBuxPayOut
                     game.playerAction.playerWinnings += player.winnings
         game.gameState.payedOut = True
 
@@ -229,12 +230,13 @@ def playingGame(game):
                 playerTurn()        
             # Dealers Turn
             elif game.currentPlayer.isDealer:
+                print("I am in dealer")
                 gameAct += 1  # Increment frame counter
                 dealerHand = dealer.hands[0]
                 # Dealer moves when delay is over
                 if gameAct >= gameActionDelay:
-                    dealer.checkBlackjack(game) # Check if dealer has blackjack
                     # Show the dealer's down card
+                    print(game.hasActiveHands())
                     if not dealerHand.cards[1].visible:
                         dealerHand.cards[1].setVisible() 
                     # Ends Round as dealer's turn finished

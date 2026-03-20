@@ -83,7 +83,6 @@ class handleGameUI:
         self.cardHeight = 80
         self.cardSpacing = 15
         self.handSpacing = 30  
-
         
     def drawPlayerTexts(self, players):
         for playerObj in players:
@@ -95,51 +94,72 @@ class handleGameUI:
     # !Might not need anymore need to test
     # def updateBet(self, betIndex):
     #     playerObj = self.players[betIndex]
-    #     betTextSurface = self.betFont.render(f"Bet: {playerObj.totalBet}", True, (255, 255, 255)) # Creates text surface with colour black
+    #     betTextSurface = self.betFont.render(f"Bet: {playerObj.totalBet}", True, (255, 255, 255)) # Creates text surface with colour white
     #     self.betTexts[betIndex][0] = betTextSurface
 
     def drawPlayerBets(self, players):
         for playerObj in players:
             if playerObj.name != "Dealer":
                 betCentre = (self.playerSeats[playerObj][0], self.playerSeats[playerObj][1]+25)
-                betTextSurface = self.betFont.render(f"Bet: {playerObj.totalBet}", True, (255, 255, 255)) # Creates text surface with colour black
+                betTextSurface = self.betFont.render(f"Bet: {playerObj.totalBet}", True, (255, 255, 255)) # Creates text surface with colour white
                 betTextRect = betTextSurface.get_rect(center=betCentre)
                 self.screen.blit(betTextSurface, betTextRect)
 
-    def drawHandStatus(self, centre):
-        pass
+    def drawHandStatus(self, hand, centre):
+        statusTextSurface = None
+        if hand.busted:
+            statusTextSurface = self.mainFont.render("Busted", True, "black")
+        elif hand.stood:
+            statusTextSurface = self.mainFont.render("Stood", True, "black")
+        elif hand.push:
+            statusTextSurface = self.mainFont.render("Push", True, "black")
+        if statusTextSurface:  # Only draw if something exists
+            statusTextRect = statusTextSurface.get_rect(center=centre)
+            self.screen.blit(statusTextSurface, statusTextRect)
 
     def drawHand(self, playerObj):
-        hands = playerObj.hands
-        if len(hands) != 0:
-            # Calculate total width
-            totalWidth = 0
-            for i, hand in enumerate(hands):
-                cards = hand.cards
-                if len(cards) > 0:
-                    totalWidth += len(cards) * self.cardWidth # Combined width of cards
-                    totalWidth += (len(cards) - 1) * self.cardSpacing # Include self.cardSpacing of cards
-                # Add self.cardSpacing between hands instead of the card self.cardSpacing
-                if i < len(hands) - 1:
-                    totalWidth += self.handSpacing
-            # Centering start X
-            centerX = self.playerSeats[playerObj][0]
-            startX = centerX - totalWidth // 2
-            # Start drawing hands at the specified positions
-            currentX = startX
-            for i, hand in enumerate(reversed(hands)):
-                cards = hand.cards
-                for j, card in enumerate(cards):
-                    x = currentX + j * (self.cardWidth + self.cardSpacing)
-                    y = self.playerSeats[playerObj][1] - self.cardSpacing - self.cardHeight // 2
-                    card.drawCard(self.screen, (x, y), handIndex=i)
-                # Move forward by this hand's width
-                if len(cards) > 0:
-                    currentX += len(cards) * self.cardWidth
-                    currentX += (len(cards) - 1) * self.cardSpacing
-                # Add gap between hands
-                if i < len(hands) - 1:
-                    currentX += self.handSpacing
+        hands = list(reversed(playerObj.hands))
+        if not hands:
+            return
+        # Calculate widths for each hand and total width
+        handWidths = []
+        totalWidth = 0
+        for hand in hands:
+            numCards = len(hand.cards)
+            width = numCards * self.cardWidth + max(0, (numCards - 1) * self.cardSpacing)
+            handWidths.append(width)
+            totalWidth += width
+        # Add spacing between hands
+        totalWidth += (len(hands) - 1) * self.handSpacing
+
+        # Starting X for centered hands
+        centerX = self.playerSeats[playerObj][0]
+        startX = centerX - totalWidth // 2 + self.cardWidth//2 # Accounts for width of cards
+        currentX = startX
+
+        # Draw each hand
+        for i, hand in enumerate(hands):
+            handWidth = handWidths[i]
+            handCenterX = currentX + handWidth // 2 - self.cardWidth//2 # Acounts for card width
+            handCenterY = self.playerSeats[playerObj][1] # Middle of hand is over seat
+
+            # Determine if this hand is active
+            handActive = (playerObj.handIndex == len(hands)-1-i)
+
+            # Draw cards in the hand
+            for j, card in enumerate(hand.cards):
+                x = currentX + j * (self.cardWidth + self.cardSpacing)
+                y = self.playerSeats[playerObj][1] - 60  # Center of card over the seat
+                colourIndex = len(hands) - 1 - i  # Rightmost hand black
+                card.drawCard(self.screen, (x, y), colourIndex=colourIndex, active=handActive)
+
+            # Draw hand status above cards
+            if hand.cards:
+                statusY = self.playerSeats[playerObj][1] - self.cardHeight - 30
+                self.drawHandStatus(hand, (handCenterX, statusY))
+
+            # Move X to next hand
+            currentX += handWidth + self.handSpacing
 
     def drawBalance(self, players):
         targetPlayer = next(playerObj for playerObj in players if playerObj.isPlayer)
@@ -230,16 +250,17 @@ class playGame():
                 continue
             for hand in player.hands:
                 if not hand.busted and not hand.naturalBlackjack:
-                    return True
-        return False
+                    print("Hand Busted:",hand.busted,"Hand Natural Blackjack",hand.naturalBlackjack)
+                    return False
+        return True
 
     def progressTurn(self):
         if len(self.currentPlayer.hands) - 1 == self.currentPlayer.handIndex: # Player has no more hands to play
             if len(self.players) - 1 != self.playerIndex: # Avoid going out of range
                 self.playerIndex += 1
+                print("Progressing turn")
         else:
             self.currentPlayer.handIndex += 1
-            print(f"Hand index for {self.currentPlayer.name} incremented to {self.currentPlayer.handIndex}")
 
     def endRound(self):
         # Game States
