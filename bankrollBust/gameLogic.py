@@ -171,7 +171,7 @@ class handleGameUI:
         
     def drawWinnings(self, winnings):
         # Assume player made nothing
-        textSurface = self.mainFont.render(f"Bets returned", True, (0, 0, 0)) # Creates text surface with colour black 
+        textSurface = self.mainFont.render(f"Broke Even", True, (0, 0, 0)) # Creates text surface with colour black 
         if winnings > 0: # Player won BustBux
             textSurface = self.mainFont.render(f"Won: {winnings}", True, (0, 0, 0)) # Creates text surface with colour black
         elif winnings < 0: # Player lose BustBux
@@ -196,6 +196,7 @@ class gameStates: # TODO Clean and comment
     NPCTurn = False
     dealerTurn = False
     doubleDownAvailable = False
+    insuranceAvailable = False
 
 class playerActionStates:
     # Player Actions
@@ -209,10 +210,11 @@ class playerActionStates:
     playerWinnings = 0
 
 class playGame():
-    def __init__(self, noOfDecks: int, difficulty: str, noOfNPCs:int, startingBux: int, screen):
+    def __init__(self, screen, noOfDecks: int, difficulty: str, noOfNPCs:int, startingBux: int,  debugMode: bool):
         self.startingBux = startingBux
         # Game setup variables
         self.screen = screen
+        self.debugMode = debugMode
         self.gameSetup = setupGame(startingBux, noOfNPCs)
         self.players = self.gameSetup.players
         self.playerSeats = self.getPlayerSeats()
@@ -227,6 +229,9 @@ class playGame():
         self.currentPlayer = self.players[0]
         self.playerIndex = 0
         self.bustPlayers = 0 # Integer to count how many players went bust
+        
+    def givePresetCards(self):
+        pass
         
     def initialDeal(self):
         for i in range(2): # Deal 2 cards to players from left to right
@@ -243,6 +248,9 @@ class playGame():
             self.gameState.doubleDownAvailable = True
         else:
             self.gameState.doubleDownAvailable = False
+            
+    # def isInsuranceAvailable(self):
+    #     if dealer.
 
     def hasActiveHands(self):
         for player in self.players: # Loop through players
@@ -250,15 +258,13 @@ class playGame():
                 continue
             for hand in player.hands:
                 if not hand.busted and not hand.naturalBlackjack:
-                    print("Hand Busted:",hand.busted,"Hand Natural Blackjack",hand.naturalBlackjack)
-                    return False
-        return True
+                    return True
+        return False
 
     def progressTurn(self):
         if len(self.currentPlayer.hands) - 1 == self.currentPlayer.handIndex: # Player has no more hands to play
             if len(self.players) - 1 != self.playerIndex: # Avoid going out of range
                 self.playerIndex += 1
-                print("Progressing turn")
         else:
             self.currentPlayer.handIndex += 1
 
@@ -273,7 +279,7 @@ class playGame():
         self.gameState.doubleDownAvailable = False
         # Player Actions
         self.playerAction.hit = False
-        self.playerAction.tand = False
+        self.playerAction.stand = False
         self.playerAction.split = False
         self.playerAction.insurance = False
         self.playerAction.betMade = False
