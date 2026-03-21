@@ -219,8 +219,8 @@ def playingGame(game):
             elif game.currentPlayer.isDealer:
                 game.gameState.bettingPhase = False
                 game.gameState.roundStarted = True
-                game.initialDeal() # Do the initial Deal
                 game.playerIndex = 0
+                game.initialDeal() # Do the initial Deal
             # NPC's betting turn
             else:
                 gameAct += 1
@@ -287,12 +287,14 @@ def newGameSettings():
             if event.type == pygame.QUIT: # If the user presses the X button, quit game
                 quit()
             elif event.type == pygame.KEYDOWN:
+                # --- DEBUGGING PURPOSES --- #
                 if event.key == pygame.K_F10:
                     debugMode = True if not debugMode else False # Toggle debug mode
                     if debugMode:
-                        pygame.display.set_caption("Bankroll Bust -- DEBUG")
+                        pygame.display.set_caption("Bankroll Bust -- DEBUGGING")
                     else:
                         pygame.display.set_caption("Bankroll Bust")
+                # -------------------------- #
             screen.blit(miniWindowImage, miniWindowRect) # Draws the mini window onto the screen
             noOfDecks = noOfDecksSlider.getValue(event) # Get the value from the slider -- See buttonUtils.py
             difficulty = difficultySlider.getValue(event) # Get the value from the slider -- See buttonUtils.py

@@ -214,7 +214,6 @@ class playGame():
         self.startingBux = startingBux
         # Game setup variables
         self.screen = screen
-        self.debugMode = debugMode
         self.gameSetup = setupGame(startingBux, noOfNPCs)
         self.players = self.gameSetup.players
         self.playerSeats = self.getPlayerSeats()
@@ -229,10 +228,20 @@ class playGame():
         self.currentPlayer = self.players[0]
         self.playerIndex = 0
         self.bustPlayers = 0 # Integer to count how many players went bust
-        
-    def givePresetCards(self):
-        pass
-        
+        # --- DEBUGGING PRUPOSES --- #
+        self.debugMode = debugMode
+        self.presetCards = self.getPresetCards()
+        # -------------------------- #
+
+    # --- DEBUGGING PURPOSES --- #
+    def getPresetCards(self):
+        # Faces: "A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K" 
+        return {
+                "dealer": [],
+                "player": ["K", "A"]
+                }
+    # -------------------------- #
+            
     def initialDeal(self):
         for i in range(2): # Deal 2 cards to players from left to right
             for player in self.players:
@@ -262,9 +271,13 @@ class playGame():
         return False
 
     def progressTurn(self):
-        if len(self.currentPlayer.hands) - 1 == self.currentPlayer.handIndex: # Player has no more hands to play
-            if len(self.players) - 1 != self.playerIndex: # Avoid going out of range
+        # If the current hand index is the last hand
+        if self.currentPlayer.handIndex == len(self.currentPlayer.hands) - 1:
+            # If the current index is less than the last index, increase it
+            if self.playerIndex < len(self.players) - 1:
                 self.playerIndex += 1
+            self.currentPlayer = self.players[self.playerIndex]  # always update currentPlayer
+        # Move to the next hand
         else:
             self.currentPlayer.handIndex += 1
 

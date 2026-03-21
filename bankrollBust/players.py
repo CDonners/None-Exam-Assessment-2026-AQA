@@ -38,13 +38,47 @@ class player():
     def dealCard(self, game, visible = True):
         deck = game.deckInstance
         if len(self.hands) > self.handIndex:
-            currentHand = self.hands[self.handIndex] 
-            card = deck.getCard()
+            currentHand = self.hands[self.handIndex]
+            if not game.debugMode:
+                card = deck.getCard()
+            # --- DEBUGGING PURPOSES --- #
+            else:
+                card = self.dealPresetCard(deck, game)
+            # -------------------------- #
+            # Set the card to visible if it should be
             if visible:
                 card.setVisible()
             currentHand.addCard(card)
             self.checkBusted(game)
             self.checkBlackjack(game)
+
+    # --- DEBUGGING PURPOSES --- #
+    # Deal card method for debugging - Dealing preset cards
+    def dealPresetCard(self, deck, game):
+        # Get the key of preset cards
+        key = None
+        if self.isDealer:
+            key = "dealer"
+        elif self.isPlayer:
+            key = "player"
+        else:
+            key = game.players.index(self)
+        # Get the face of the card to be dealt
+        if key in game.presetCards and game.presetCards[key]:
+            face = game.presetCards[key].pop(0)
+            # Find the first instance of the preset card in the deck
+            for i, c in enumerate(deck.deck):
+                if c.face == face:
+                    card = deck.deck.pop(i)
+                    break
+            # Incase card isn't in deck
+            else:
+                card = deck.getCard()  
+        # Incase key doesn't exist or list is empty
+        else: 
+            card = deck.getCard()
+        return card
+    # -------------------------- #
 
     def splitHand(self):
         currentHand = self.hands[self.handIndex] # Hand that is being split
@@ -77,10 +111,9 @@ class player():
         self.getHandValue() # Ensure hand value up to date
         currentHand = self.hands[self.handIndex]
         if currentHand.handValue == 21: # Player has blackjack
-            self.stand(game)
             if len(self.hands) == 1 and len(currentHand.cards) == 2: # Player has natural blackjack
-                print("Hand has natural blackjack")
                 currentHand.naturalBlackjack = True
+            self.stand(game)
 
     def canSplit(self):
         currentHand = self.hands[self.handIndex].cards

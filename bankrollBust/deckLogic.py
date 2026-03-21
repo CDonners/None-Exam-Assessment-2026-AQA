@@ -64,7 +64,6 @@ class deckHandling():
             for suit in suits:
                 for value in values:
                     deck.append(cards(value[0], suit, value[1])) # Create object for the individual card
-            #deck = deck*noOfDecks # Combines multiple decks together
         return deck # Returns finalised deck
     
     def shuffle(self):
