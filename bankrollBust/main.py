@@ -6,6 +6,8 @@ from gameLogic import playGame
 # TODO Handle deck running out of cards somehow - Probably regenerate deck telling the player you have
 # TODO Handle player running out of bustBux - End game as player lost
 
+# TODO 
+
 # Pygame Setup
 pygame.init() # Initialise Pygame
 INITX = 1400
@@ -119,7 +121,7 @@ def playingGame(game):
             # Making actions available
             if game.currentPlayer.canSplit(): # If player's cards are equal
                 splitButton.makeInteractable()
-            if game.gameState.insuranceAvailable: # If the dealer has a visible Ace
+            if game.gameState.insuranceAvailable and game.currentPlayer.insurance == 0: # If the dealer has a visible Ace
                 insuranceButton.makeInteractable()
             # Player Stands
             if game.playerAction.stand:
@@ -206,6 +208,7 @@ def playingGame(game):
 
     # Gameplay loop
     while gamePlayRunning:
+        pygame.display.set_caption(str(pygame.mouse.get_pos()))
         events = pygame.event.get()
         eventHandler(events)
         game.currentPlayer = game.players[game.playerIndex]
@@ -221,9 +224,10 @@ def playingGame(game):
                 game.initialDeal() # Do the initial Deal
             # NPC's betting turn
             else:
-                gameAct += 1
-                if gameAct >= gameActionDelay:
-                    pass
+                game.playerIndex += 1
+                # gameAct += 1
+                # if gameAct >= gameActionDelay:
+                #     pass
         # Round Started
         elif game.gameState.roundStarted:
             # Player's Turn
@@ -260,8 +264,16 @@ def playingGame(game):
                     gameAct = 0
             # NPC's turn
             else:
-                if game.currentPlayer.isStood or game.currentPlayer.isBusted:
-                    pass
+                gameAct += 1
+                if gameAct == gameActionDelay:
+                    NPCAction = game.currentPlayer.decideNextMove(game)
+                    if NPCAction == "hit":
+                        game.currentPlayer.dealCard(game)
+                    elif NPCAction == "stand":
+                        game.currentPlayer.stand(game)
+                    elif NPCAction == "split":
+                        game.currentPlayer.splitHand()
+                    gameAct = 0
         drawScreen()
         clock.tick(60) # Limiting clock to 60        
 
@@ -274,7 +286,7 @@ def newGameSettings():
     currentY = miniWindowRect.centery
     noOfDecksSlider = discreteSlider(screen, "Number Of Decks:", (currentX, currentY-150), [4,6,8,10,12,16], scale=1.3)
     difficultySlider = discreteSlider(screen, "Difficulty:", (currentX, currentY-100), ["Full-Assist", "Semi-Assist", "There-When-Needed","No-Help"], scale=1.3)
-    noOfNPCsSlider = discreteSlider(screen, "Number of NPCs:", (currentX, currentY-50), [0,1,2,3,4,5,6], scale=1.3)
+    noOfNPCsSlider = discreteSlider(screen, "Number of NPCs:", (currentX, currentY-50), [0,1,2,3,4], scale=1.3)
     startingBuxInput = inputBox(screen, (currentX, currentY+25), "Starting Bux:", "num", "1000",  scale=0.8, minMax=(1000, 100000))
     startButton = button(screen, (currentX+135, currentY+125), "Start Game", scale=0.7)
     cancelButton = button(screen, (currentX-135, currentY+125), "Cancel", scale=0.7)

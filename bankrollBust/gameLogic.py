@@ -14,7 +14,7 @@ class setupGame():
         # Create NPCs
         self.NPCs = [] # Preparing to make the NPCs
         self.usedNames = []
-        if noOfNPCs != 0: 
+        if noOfNPCs != 0:
             for _ in range(noOfNPCs): # Repeats for how many NPCs there are
                 self.NPCs.append(self.createNPC()) # Create the NPC
         self.players = self.NPCs[:] # A list for all the players, cloning the NPCs list
@@ -44,7 +44,7 @@ class setupGame():
         return pickedName
 
     def generateFloat(self, lowerBound: int, upperBound: int):
-        integerGenerated = genRandInt(8) # Generate an integer
+        integerGenerated = genRandInt(16) # Generate an integer
         while integerGenerated > upperBound or integerGenerated < lowerBound: # While it is between the bounds
             integerGenerated = genRandInt(8) # Regenerate integer
         generatedFloat = integerGenerated/100
@@ -67,7 +67,7 @@ class setupGame():
 
     def generateExperience(self):
         # Must generate a float between 0.5-1.5
-        generatedExperience = self.generateFloat(50, 150)
+        generatedExperience = self.generateFloat(75, 150)
         return generatedExperience
 
 class handleGameUI:
@@ -99,7 +99,7 @@ class handleGameUI:
 
     def drawPlayerBets(self, players):
         for playerObj in players:
-            if playerObj.name != "Dealer":
+            if not playerObj.isDealer:
                 betCentre = (self.playerSeats[playerObj][0], self.playerSeats[playerObj][1]+25)
                 betTextSurface = self.betFont.render(f"Bet: {playerObj.totalBet}", True, (255, 255, 255)) # Creates text surface with colour white
                 betTextRect = betTextSurface.get_rect(center=betCentre)
@@ -212,6 +212,8 @@ class playerActionStates:
 class playGame():
     def __init__(self, screen, noOfDecks: int, difficulty: str, noOfNPCs:int, startingBux: int,  debugMode: bool):
         self.startingBux = startingBux
+        self.noOfDecks = noOfDecks
+        self.noOfNPCs = noOfNPCs
         # Game setup variables
         self.screen = screen
         self.gameSetup = setupGame(startingBux, noOfNPCs)
@@ -225,9 +227,11 @@ class playGame():
         self.gameState = gameStates()
         self.playerAction = playerActionStates()
         # Gameplay Attributes
-        self.cardCount = 0
+        self.runningCount = 0
+        self.trueCount = 0
         self.seenCards = 0
         self.currentPlayer = self.players[0]
+        self.dealer = self.players[len(self.players)-1]
         self.playerIndex = 0
         self.bustPlayers = 0 # Integer to count how many players went bust
         # --- DEBUGGING PRUPOSES --- #
@@ -239,8 +243,9 @@ class playGame():
     def getPresetCards(self):
         # Faces: "A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K" 
         return {
-                "dealer": ["A", "K"],
-                "player": ["2", "2", "2"]
+                "dealer": [],
+                "player": [],
+                0: ["2","2"]
                 }
     # -------------------------- #
             
@@ -261,12 +266,9 @@ class playGame():
             self.gameState.doubleDownAvailable = False
             
     def isInsuranceAvailable(self):
-        dealerHand = self.players[len(self.players)-1].hands[0]
+        dealerHand = self.dealer.hands[0]
         if dealerHand.cards[0].face == "A":
-            if self.currentPlayer.isPlayer and self.currentPlayer.insurance == 0:
-                self.gameState.insuranceAvailable = True
-            else:
-                self.gameState.insuranceAvailable = False
+            self.gameState.insuranceAvailable = True
         else:
             self.gameState.insuranceAvailable = False
 
@@ -280,8 +282,10 @@ class playGame():
         return False
 
     def increaseCount(self, card):
-        self.cardCount += card.cardWeight
+        self.runningCount += card.cardWeight
         self.seenCards += 1
+        decksRemaining = self.noOfDecks - round(self.seenCards // 56)
+        self.trueCount = self.trueCount // decksRemaining
 
     def progressTurn(self):
         # If the current hand index is the last hand
@@ -318,16 +322,16 @@ class playGame():
 
     def getPlayerSeats(self):
         # Assigns players their seating positions
-        seatingPositions = [(), (), (), (700, 650), (), (), ()] # TODO Find good seating positions, will be the position of the text of the player's name
+        seatingPositions = [(300, 250), (300, 550), (700, 650), (1100,550), (1100,250)] # TODO Find good seating positions, will be the position of the text of the player's name
         playerPos = 0 # Position of the player in the list
         seatingPosDict = {}
         # Get the position of the user in the players list
-        for i in self.players:
-            if i.name == "Player":
-                playerPos = self.players.index(i)
+        for player in self.players:
+            if player.isPlayer:
+                playerPos = self.players.index(player)
         # Align the 2 lists so the middles match
-        startingPos = 3 - playerPos # 3 is the middle of the seatingPositions list, player pos should be the middle of the players list
-        for i in range(startingPos, len(self.players) + startingPos):
+        startingPos = 2 - playerPos # 2 is the middle of the seatingPositions list, player pos should be the middle of the players list
+        for i in range(startingPos, len(self.players)-1 + startingPos):
             # self.players[i - startingPos] "i - startingPos" Is the index of the players in the player list
             # seatingPositions[i] is the aligned seating position
             seatingPosDict[self.players[i - startingPos]] = seatingPositions[i]
