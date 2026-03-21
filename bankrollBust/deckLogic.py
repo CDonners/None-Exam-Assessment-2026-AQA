@@ -4,13 +4,16 @@ import pygame
 class cards():
     def __init__(self, face: str, suit: str, cardWeight: int):
         self.faceConversion = {"A":11, "K":10, "Q":10, "J":10}
+        # Card 
         self.face = face
         self.value = int(face) if face.isnumeric() else self.faceConversion[face]
         self.suit = suit
         self.cardWeight = cardWeight
+        # Card Gameplay Attributes
         self.visible = False
-        self.discarded = False
+        # Card Rects
         self.cardRect = pygame.Rect(0, 0, 60, 80)
+        # Text Variables
         self.FONT_VALUE = pygame.font.SysFont("", 36)
         self.FONT_SUIT = pygame.font.SysFont("segoeuiemoji", 18)
         
@@ -43,12 +46,6 @@ class cards():
         
     def setVisible(self):
         self.visible = True
-        
-    def discard(self):
-        self.discarded = True
-        
-    def createCardImage(self):
-        pass
 
 class deckHandling():
     def __init__(self, noOfDecks: int):

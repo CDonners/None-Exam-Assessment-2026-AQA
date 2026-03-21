@@ -221,10 +221,12 @@ class playGame():
         # Handle deck
         self.deckInstance = deckHandling(noOfDecks) # Deck handling instance ready
         self.deckInstance.shuffle() # Shuffle the deck
-        # Game State
+        # Game States
         self.gameState = gameStates()
         self.playerAction = playerActionStates()
         # Gameplay Attributes
+        self.cardCount = 0
+        self.seenCards = 0
         self.currentPlayer = self.players[0]
         self.playerIndex = 0
         self.bustPlayers = 0 # Integer to count how many players went bust
@@ -276,6 +278,10 @@ class playGame():
                 if not hand.busted and not hand.naturalBlackjack:
                     return True
         return False
+
+    def increaseCount(self, card):
+        self.cardCount += card.cardWeight
+        self.seenCards += 1
 
     def progressTurn(self):
         # If the current hand index is the last hand

@@ -238,6 +238,7 @@ def playingGame(game):
                     # Show the dealer's down card
                     if not dealerHand.cards[1].visible:
                         dealerHand.cards[1].setVisible() 
+                        game.increaseCount(dealerHand.cards[1]) # Increase the count now that we can see the card
                     # Ends Round as dealer's turn finished
                     elif dealerHand.stood or dealerHand.busted:
                         # Once dealer has stood if bets haven't been paid

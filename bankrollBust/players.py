@@ -49,6 +49,7 @@ class player():
             # Set the card to visible if it should be
             if visible:
                 card.setVisible()
+                game.increaseCount(card) # As we can see the card, affect the count
             currentHand.addCard(card)
             self.checkBusted(game)
             self.checkBlackjack(game)
