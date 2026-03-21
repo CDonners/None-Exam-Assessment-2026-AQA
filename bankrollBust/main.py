@@ -5,10 +5,6 @@ from gameLogic import playGame
 # ! SHORT TERM GOALS !
 # TODO Handle deck running out of cards somehow - Probably regenerate deck telling the player you have
 # TODO Handle player running out of bustBux - End game as player lost
-# TODO Have a way of setting what hand a player should get for testing
-# ! Bugs !
-# TODO Natural blackjack seems to not trigger end of game some reason - May have to do with dealer needing to be stood for game to end
-# TODO Insurance not going uninteractable after player action and after insurance interaction
 
 # Pygame Setup
 pygame.init() # Initialise Pygame
@@ -123,7 +119,7 @@ def playingGame(game):
             # Making actions available
             if game.currentPlayer.canSplit(): # If player's cards are equal
                 splitButton.makeInteractable()
-            if dealerHand.cards[0].face == "A": # If the dealer has a visible Ace
+            if game.gameState.insuranceAvailable: # If the dealer has a visible Ace
                 insuranceButton.makeInteractable()
             # Player Stands
             if game.playerAction.stand:
@@ -141,11 +137,12 @@ def playingGame(game):
             # Player uses insurance
             if game.playerAction.insurance:
                 game.currentPlayer.insurance = currentHand.bet/2
-                game.currentPlayer.totalBet = currentHand.bet/2
+                game.currentPlayer.totalBet += currentHand.bet/2
                 game.currentPlayer.bustBux -= currentHand.bet/2
                 game.playerAction.insurance = False # Reset Player Action state  
                 insuranceButton.makeUninteractable()
             game.isDoubleDownAvailable()
+            game.isInsuranceAvailable()
             handInactive = currentHand.stood or currentHand.busted or currentHand.naturalBlackjack # If either of these conditions are true then a hand is inactive
             if len(game.currentPlayer.hands)-1 == game.currentPlayer.handIndex and handInactive:
                 # Player has no more hands to player so move to the next
@@ -184,6 +181,7 @@ def playingGame(game):
                 if dealerHand.naturalBlackjack: # No one can win unless they have natural blackjack
                     if player.hands[0].naturalBlackjack: # Player can only have natural blackjack on one hand
                         bustBuxPayOut += player.hands[0].bet * 2.5
+                    bustBuxPayOut += 2 * player.insurance
                 else:
                     for hand in player.hands:
                         if hand.naturalBlackjack: # Hand has natural blackjack - Does not matter if dealer busted/stood always pays out

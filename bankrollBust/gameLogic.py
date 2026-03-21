@@ -237,8 +237,8 @@ class playGame():
     def getPresetCards(self):
         # Faces: "A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K" 
         return {
-                "dealer": [],
-                "player": ["K", "A"]
+                "dealer": ["A", "K"],
+                "player": ["2", "2", "2"]
                 }
     # -------------------------- #
             
@@ -258,8 +258,15 @@ class playGame():
         else:
             self.gameState.doubleDownAvailable = False
             
-    # def isInsuranceAvailable(self):
-    #     if dealer.
+    def isInsuranceAvailable(self):
+        dealerHand = self.players[len(self.players)-1].hands[0]
+        if dealerHand.cards[0].face == "A":
+            if self.currentPlayer.isPlayer and self.currentPlayer.insurance == 0:
+                self.gameState.insuranceAvailable = True
+            else:
+                self.gameState.insuranceAvailable = False
+        else:
+            self.gameState.insuranceAvailable = False
 
     def hasActiveHands(self):
         for player in self.players: # Loop through players

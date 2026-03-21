@@ -17,7 +17,7 @@ class player():
         self.bustBux = bustBux
         self.isPlayer = True
         self.isDealer = False
-        # Variables reset every round
+        # Variables that reset every round
         self.hands = [hand()]
         self.handIndex = 0
         self.totalBet = 0
@@ -33,7 +33,8 @@ class player():
         if len(self.hands) > self.handIndex:
             currentHand = self.hands[self.handIndex]
             currentHand.stood = True
-            game.progressTurn()
+            if not self.isDealer: # Don't need to progress turn if they are the dealer
+                game.progressTurn()
 
     def dealCard(self, game, visible = True):
         deck = game.deckInstance
@@ -105,7 +106,8 @@ class player():
                 currentHand.handValue -= 10 # Correct the player's hand value
             else: # Player has no ace and has bust
                 self.bust(game)
-                game.progressTurn()
+                if not self.isDealer:
+                    game.progressTurn()
         
     def checkBlackjack(self, game):
         self.getHandValue() # Ensure hand value up to date
