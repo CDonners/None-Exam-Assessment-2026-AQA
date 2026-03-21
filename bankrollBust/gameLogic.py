@@ -1,7 +1,7 @@
 from deckLogic import deckHandling
 from players import player, NPC, dealer
 import pygame
-from pygameUtils.rand import genRandInt, genRandFloat
+from pygameUtils.rand import genRandInt
 
 NPCNAMES = ["Paul","Noel","Aniyah","Dalton","Mariah","Zeke","Jolie","Kristian","Brynlee","Dilan","Charlotte","Cory","Camila","Sonny","Martha","Quincy","Elliot","Blaze","Paola","Cain","Anya","Raylan","Emily","Jax","Lucy"]
 NPCPERSONALITIES = []
@@ -43,24 +43,31 @@ class setupGame():
                     self.usedNames.append(pickedName)
         return pickedName
 
+    def generateFloat(self, lowerBound: int, upperBound: int):
+        integerGenerated = genRandInt(16) # Generate an integer
+        while integerGenerated > upperBound or integerGenerated < lowerBound: # While it is between the bounds
+            integerGenerated = genRandInt(8) # Regenerate integer
+        generatedFloat = integerGenerated/100
+        return generatedFloat
+
     def generateProsperity(self):
         # Must generate a float between 0.5-1.5
-        generatedProsperity = genRandFloat(0.5, 1.5)
+        generatedProsperity = self.generateFloat(50, 150)
         return generatedProsperity
     
     def generateConfidence(self):
         # Must generate a float between 0.75-1.25
-        generatedConfidence = genRandFloat(0.75, 1.25)
+        generatedConfidence = self.generateFloat(75, 125)
         return generatedConfidence
 
     def generateJudgement(self):
         # Must generate a float between 0.75-1.25
-        generatedJudgement = genRandFloat(0.75, 1.25)
+        generatedJudgement = self.generateFloat(75, 125)
         return generatedJudgement
 
     def generateExperience(self):
         # Must generate a float between 0.5-1.5
-        generatedExperience = genRandFloat(0.75, 1.50)
+        generatedExperience = self.generateFloat(75, 150)
         return generatedExperience
 
 class handleGameUI:

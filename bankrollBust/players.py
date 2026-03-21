@@ -1,3 +1,5 @@
+from pygameUtils.rand import genRandInt
+
 class hand:
     def __init__(self, cards = None, bet = 0):
         self.cards = cards if cards else [] # If the cards aren't specified make an empty list
@@ -181,8 +183,34 @@ class NPC(player):
         self.isPlayer = False
         self.ACTIONS = ["hit", "stand", "split", "insurance"]
         
-    def decideNextMove(self):
-        pass # Do when I feel like it
-
+    def decideNextMove(self, game):
+        """
+        Judgement - Affects how well the NPC perceives the quality of their hand
+        Good hand vs Bad hand - We can define a good hand as having a high chance of getting close to 21 when we consider the card count
+        A good hand will give a higher chance of hitting while a bad hand will lower the chance of hitting
+        Players would know to stand on 17-20, to always hit on soft 17, players will always hit with a card score of less than 12
+        """
+        # Defining useful variables
+        currentHand = self.hands[self.handIndex]
+        trueCount = game.trueCount
+        action = ""
+        # Decision making
+        if currentHand.handValue < 12: # Always hit when hand value bellow 12
+            action = self.ACTIONS[0]
+        elif 17 <= currentHand.handValue <= 20: # Always stand with hand value between these points
+            action = self.ACTIONS[1]
+        else: # Placeholder to have game move
+            action = self.ACTIONS[0]
+        return action
+    
     def calculateBet(self):
         pass # min bet + (min-bet * prosperity) and current count something or other
+
+    def decideToSplit(self):
+        print(self.experience)
+        defaultChanceToSplit = 0.9
+        decidesToSplit = False
+        chanceToSplit = defaultChanceToSplit * self.experience
+        if chanceToSplit > 0.75:
+            decidesToSplit = True
+        return decidesToSplit
