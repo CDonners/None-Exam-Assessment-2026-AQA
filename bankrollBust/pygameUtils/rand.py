@@ -4,18 +4,21 @@ def genRandInt(numberOfBits: int):
             # Ensure numberOfBits is greater than 0
             if numberOfBits < 0:
                 raise ValueError("Error: Cannot have less than 0 bits")
-            byteStringLen = (numberOfBits+8)//8 # Converts n into bytes rounding up
+            byteStringLen = (numberOfBits+7)//8 # Converts n into bytes rounding up
             byteString = urandom(byteStringLen) # Generates a random string of bytes from within the machine with specified length
             byteStringValue = int.from_bytes(byteString) # Converts byte string back to an integer
             integer = byteStringValue
             return integer
         
-def genRandFloat(upperBound: float, lowerBound: float):
+def genRandFloat(lowerBound: float, upperBound: float):
     upperBound *= 100
     lowerBound *= 100
-    integerGenerated = genRandInt(8) # Generate an integer
-    while integerGenerated > upperBound or integerGenerated < lowerBound: # While it is between the bounds
+    integerGenerated = 0
+    invalidGeneration = True
+    while invalidGeneration: # While it isn't between the bounds
         integerGenerated = genRandInt(8) # Regenerate integer
+        if lowerBound < integerGenerated < upperBound:
+            invalidGeneration = False
     generatedFloat = integerGenerated/100
     return generatedFloat
     

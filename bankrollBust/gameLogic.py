@@ -1,7 +1,7 @@
 from deckLogic import deckHandling
 from players import player, NPC, dealer
 import pygame
-from pygameUtils.rand import genRandInt
+from pygameUtils.rand import genRandInt, genRandFloat
 
 NPCNAMES = ["Paul","Noel","Aniyah","Dalton","Mariah","Zeke","Jolie","Kristian","Brynlee","Dilan","Charlotte","Cory","Camila","Sonny","Martha","Quincy","Elliot","Blaze","Paola","Cain","Anya","Raylan","Emily","Jax","Lucy"]
 NPCPERSONALITIES = []
@@ -43,31 +43,24 @@ class setupGame():
                     self.usedNames.append(pickedName)
         return pickedName
 
-    def generateFloat(self, lowerBound: int, upperBound: int):
-        integerGenerated = genRandInt(16) # Generate an integer
-        while integerGenerated > upperBound or integerGenerated < lowerBound: # While it is between the bounds
-            integerGenerated = genRandInt(8) # Regenerate integer
-        generatedFloat = integerGenerated/100
-        return generatedFloat
-
     def generateProsperity(self):
         # Must generate a float between 0.5-1.5
-        generatedProsperity = self.generateFloat(50, 150)
+        generatedProsperity = genRandFloat(0.5, 1.5)
         return generatedProsperity
     
     def generateConfidence(self):
         # Must generate a float between 0.75-1.25
-        generatedConfidence = self.generateFloat(75, 125)
+        generatedConfidence = genRandFloat(0.75, 1.25)
         return generatedConfidence
 
     def generateJudgement(self):
         # Must generate a float between 0.75-1.25
-        generatedJudgement = self.generateFloat(75, 125)
+        generatedJudgement = genRandFloat(0.75, 1.25)
         return generatedJudgement
 
     def generateExperience(self):
         # Must generate a float between 0.5-1.5
-        generatedExperience = self.generateFloat(75, 150)
+        generatedExperience = genRandFloat(0.75, 1.50)
         return generatedExperience
 
 class handleGameUI:
@@ -90,12 +83,6 @@ class handleGameUI:
             playerTextSurface = self.playerFont.render(f"{playerObj.name}", True, (255, 255, 255)) # Creates text surface with colour black
             playerTextRect = playerTextSurface.get_rect(center=self.playerSeats[playerObj])
             self.screen.blit(playerTextSurface, playerTextRect)
-
-    # !Might not need anymore need to test
-    # def updateBet(self, betIndex):
-    #     playerObj = self.players[betIndex]
-    #     betTextSurface = self.betFont.render(f"Bet: {playerObj.totalBet}", True, (255, 255, 255)) # Creates text surface with colour white
-    #     self.betTexts[betIndex][0] = betTextSurface
 
     def drawPlayerBets(self, players):
         for playerObj in players:
@@ -260,7 +247,7 @@ class playGame():
 
     def isDoubleDownAvailable(self):
         # Makes double down available
-        if self.currentPlayer.canDoubleDown():
+        if self.currentPlayer.canDoubleDown() and self.currentPlayer.isPlayer:
             self.gameState.doubleDownAvailable = True
         else:
             self.gameState.doubleDownAvailable = False

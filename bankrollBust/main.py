@@ -208,7 +208,6 @@ def playingGame(game):
 
     # Gameplay loop
     while gamePlayRunning:
-        pygame.display.set_caption(str(pygame.mouse.get_pos()))
         events = pygame.event.get()
         eventHandler(events)
         game.currentPlayer = game.players[game.playerIndex]
@@ -318,7 +317,7 @@ def newGameSettings():
                         "difficulty":difficulty,
                         "startingBux":startingBux,
                         "noOfNPCs":noOfPlayers,
-                        "debugMode": debugMode} 
+                        "debugMode": True} 
             elif cancelButton.updateImage(event): # Checks if player pressed the cancel button
                 return None # Retuns none passing over the If-Statement checking if the game is started
             pygame.display.flip() # Updates the screen with all the rects 

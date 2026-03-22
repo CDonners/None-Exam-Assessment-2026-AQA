@@ -195,7 +195,13 @@ class NPC(player):
         trueCount = game.trueCount
         action = ""
         # Decision making
-        if currentHand.handValue < 12: # Always hit when hand value bellow 12
+        decidedToSplit = False
+        if self.canSplit():
+            decidedToSplit = self.decideToSplit()
+            
+        if decidedToSplit:
+            action = self.ACTIONS[2]
+        elif currentHand.handValue < 12: # Always hit when hand value bellow 12
             action = self.ACTIONS[0]
         elif 17 <= currentHand.handValue <= 20: # Always stand with hand value between these points
             action = self.ACTIONS[1]
@@ -207,7 +213,7 @@ class NPC(player):
         pass # min bet + (min-bet * prosperity) and current count something or other
 
     def decideToSplit(self):
-        print(self.experience)
+        print("Exper",self.experience)
         defaultChanceToSplit = 0.9
         decidesToSplit = False
         chanceToSplit = defaultChanceToSplit * self.experience
