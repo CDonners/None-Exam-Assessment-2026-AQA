@@ -223,77 +223,62 @@ class NPC(player):
         elif self.decideToHit(game, currentHand):
             print("Hitting")
             action = self.ACTIONS[0]
-        elif 17 <= currentHand.handValue <= 20: # Always stand with hand value between these points
-            action = self.ACTIONS[1]
         else: # Placeholder to have game move
-            action = self.ACTIONS[0]
+            action = self.ACTIONS[1]
         return action
     
     def calculateBet(self):
         pass # min bet + (min-bet * prosperity) and current count something or other
 
-    def decideToHit(self, game, currentHand):
-        # Create a floor for the random float generator based on the quality of the hand, if the hand is good to be hit, the min required to hit is lower and the generator floor is greater leading to high chance of hitting
-        handIsSoft = "11" in currentHand.cards
-        if currentHand.handValue < 12: # Always hit when hand value bellow 12
-            return True
-        elif currentHand.handValue == 17 and handIsSoft: # NPC would know that dealer must beat soft 17
-            return True
+    def getHandQuality(self, game, hand):
+        # Get default hand value
+        value = hand.handValue
+        game.predictNextCard()
+        self.getNextCardNeeded()
+        if value <= 11:
+            quality = 1.0
+        elif value == 12:
+            quality = 0.8
+        elif value == 13:
+            quality = 0.7
+        elif value == 14:
+            quality = 0.6
+        elif value == 15:
+            quality = 0.5
+        elif value == 16:
+            quality = 0.4
+        elif value == 17:
+            quality = 0.2
         else:
-            minToHit = 0.5
-            # If the card needed is high you can hit most of the time
-            # If the card needed is medium you can hit some of the time
-            # If the card needed is low you only want to s
-            self.getNextCardNeeded()
-            game.predictNextCard()
-            if self.nextCardNeeded == "high": 
-                print("high",self.nextCardNeeded, game.predictedNextCard)
-                # If a high card is needed, we can hit on a low card prediction without worry
-                if game.predictedNextCard == "unknown":
-                    print("unknown")
-                    minToHit = 0.3
-                elif game.predictedNextCard == "strongHigh":
-                    # As we are chasing a high card, we still have a chance to bust so the chance to hit will be lower
-                    minToHit = 0.25
-                elif game.predictedNextCard == "weakHigh":
-                    minToHit = 0.2
-                elif game.predictedNextCard == "medium":
-                    minToHit = 0.15
-                else:
-                    minToHit = 0.1
-            elif self.nextCardNeeded == "medium":
-                print("medium",self.nextCardNeeded, game.predictedNextCard)
-                if game.predictedNextCard == "unknown":
-                    print("unknown")
-                    minToHit = 0.6
-                elif game.predictedNextCard == "strongHigh":
-                    minToHit = 0.9
-                elif game.predictedNextCard == "weakHigh":
-                    minToHit = 0.8
-                elif game.predictedNextCard == "medium":
-                    minToHit = 0.15
-                elif game.predictedNextCard == "strongLow":
-                    minToHit = 0.1
-                elif game.predictedNextCard == "weakLow":
-                    minToHit = 0.15
-            elif self.nextCardNeeded == "low":
-                print("low",self.nextCardNeeded, game.predictedNextCard)
-                if game.predictedNextCard == "unknown":
-                    print("unknown")
-                    minToHit = 0.9
-                elif game.predictedNextCard == "strongHigh":
-                    minToHit = 0.95
-                elif game.predictedNextCard == "weakHigh":
-                    minToHit = 0.95
-                elif game.predictedNextCard == "medium":
-                    minToHit = 0.75
-                elif game.predictedNextCard == "strongLow":
-                    minToHit = 0.2
-                elif game.predictedNextCard == "weakLow":
-                    minToHit = 0.4
-            generatedFloat = genRandFloat(0.4, 1.1)
-            chanceToHit = generatedFloat / self.experience
-            return minToHit < chanceToHit
+            quality = 0.0  # 18+ too risky to hit
+        # Have the card needed affect the quality of the hand
+        # If a higher card is needed hitting is riskier, if a low card is needed risk is lesser
+        if self.nextCardNeeded == "low":
+            quality += 0.1 
+        elif self.nextCardNeeded == "high":
+            quality -= 0.1  
+        # Have the predicted card affect the 
+        if game.predictedNextCard in ["strongLow", "weakLow"]:
+            quality += 0.1  # next card likely low → safer to hit
+        elif game.predictedNextCard in ["strongHigh", "weakHigh"]:
+            quality -= 0.1  # next card likely high → riskier
+        elif game.predictedNextCard == "medium":
+            quality -= 0.05  # moderate risk
+        # Keep quality between 1 and 0
+        quality = round(max(0, min(1, quality)), 4)
+        return quality
+
+    def decideToHit(self, game, currentHand):
+        quality = self.getHandQuality(game, currentHand) # Quality of hand
+        # Lower requirement when quality is high
+        minToHit = round(0.7 - (quality * 0.5), 4)
+        # Higher floor when quality is high
+        floatGeneratorFloor = 0.1 + (quality * 0.7)
+        lowerBound = max(0.05, min(1.0, floatGeneratorFloor * self.experience)) # Adjust the floor to be affected by experience and keep it from being stuck at 0
+        # Generate the chance of hitting
+        generatedChance = genRandFloat(lowerBound, 1.0)
+        print(quality, minToHit, generatedChance)
+        return generatedChance > minToHit # Returns true if the generated chance is high enough
 
     def decideToSplit(self):
         chanceToSplit = genRandFloat(0.65,1)

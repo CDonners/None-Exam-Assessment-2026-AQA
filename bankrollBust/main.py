@@ -7,7 +7,9 @@ from gameLogic import playGame
 # TODO Handle player running out of bustBux - End game as player lost
 
 # ! Bugs ! 
-# TODO Player order seems to be a bit wack?
+# TODO Keep an EYE out: Player order seems to be a bit wack?
+# TODO Game stops when player has natural blackjack - It's skipping the first player to play excluding the one who got blackjack
+# TODO When it becomes an NPC's turn they hit if they have natural blackjack
 
 # Pygame Setup
 pygame.init() # Initialise Pygame
