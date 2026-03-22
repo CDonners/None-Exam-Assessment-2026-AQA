@@ -221,6 +221,8 @@ class NPC(player):
                 return self.ACTIONS[3]
         if decidedToSplit:
             action = self.ACTIONS[2]
+        elif self.decideDoubleDown(game, currentHand):
+            action = self.ACTIONS[4]
         elif self.decideToHit(game, currentHand):
             action = self.ACTIONS[0]
         else: # Placeholder to have game move
@@ -231,7 +233,7 @@ class NPC(player):
         pass # min bet + (min-bet * prosperity) and current count something or other
 
     def decideToHit(self, game, currentHand):
-        quality = self.getHandQuality(game, currentHand) # Quality of hand
+        quality = self.getHandQuality(game, currentHand, "hit") # Quality of hand
         # Lower requirement when quality is high
         minToHit = round(0.7 - (quality * 0.5), 4)
         # Higher floor when quality is high
@@ -259,48 +261,71 @@ class NPC(player):
             chanceToInsure = 0.75
         lowerBound = min(1.0, self.experience//2)
         generatedChance = genRandFloat(lowerBound, 1.0)
-        print(lowerBound, generatedChance)
         if generatedChance > chanceToInsure:
             return True
         else:
             return False
         
-    def decideDoubleDown(self):
-        pass
+    def decideDoubleDown(self, game, currentHand):
+        if self.canDoubleDown():
+            quality = self.getHandQuality(game, currentHand, "doubleDown")
+            # Threshold: harder to double than to hit
+            minToDoubleDown = 0.8 - (quality * 0.5)
+            floatGeneratorFloor = 0.1 + (quality * 0.6)  # slightly lower max than hit to reflect risk
+            # Adjust floor by experience
+            lowerBound = min(1.0, floatGeneratorFloor * self.experience)
+            # Generate biased random
+            generatedChance = genRandFloat(lowerBound, 1.0)
+            print(lowerBound, generatedChance)
+            return generatedChance > minToDoubleDown
+        else:
+            return False
 
-    def getHandQuality(self, game, hand):
+    def getHandQuality(self, game, hand, action):
         # Get default hand value
         # Quality is how likely you are to hit and not bust
         value = hand.handValue
-        if value <= 11:
-            quality = 1.0
-        elif value == 12:
-            quality = 0.8
-        elif value == 13:
-            quality = 0.7
-        elif value == 14:
-            quality = 0.6
-        elif value == 15:
-            quality = 0.5
-        elif value == 16:
-            quality = 0.4
-        elif value == 17:
-            quality = 0.2
-        else:
-            quality = 0.0  # 18+ too risky to hit
-        # Have the card needed affect the quality of the hand
-        # If a higher card is needed hitting is riskier, if a low card is needed risk is lesser
-        if self.nextCardNeeded == "low":
-            quality += 0.1 
-        elif self.nextCardNeeded == "high":
-            quality -= 0.1  
+        if action == "hit":
+            if value <= 11:
+                quality = 1.0
+            elif value == 12:
+                quality = 0.8
+            elif value == 13:
+                quality = 0.7
+            elif value == 14:
+                quality = 0.6
+            elif value == 15:
+                quality = 0.5
+            elif value == 16:
+                quality = 0.4
+            elif value == 17:
+                quality = 0.2
+            else:
+                quality = 0.01  # 18+ too risky to hit
+            # Have the card needed affect the quality of the hand
+            # If a higher card is needed hitting is riskier, if a low card is needed risk is lesser
+            if self.nextCardNeeded == "low":
+                quality += 0.1 
+            elif self.nextCardNeeded == "high":
+                quality -= 0.1  
+        elif action == "doubleDown":
+            if value == 11:
+                quality = 0.8
+            elif value == 10:
+                quality = 0.75
+            elif 9 <= value <= 12:
+                quality = 0.7
+            else:
+                quality = 0.01  # other totals too risky
+            # When doubling down, because we double down at 11 or 12, you want a high card so if next card is low, quality decreases
+        
         # Have the predicted card affect the 
         if game.predictedNextCard in ["strongLow", "weakLow"]:
-            quality += 0.1  # next card likely low → safer to hit
+            quality += 0.1  if action == "hit" else -0.1
         elif game.predictedNextCard in ["strongHigh", "weakHigh"]:
-            quality -= 0.1  # next card likely high → riskier
+            quality -= 0.1  if action == "hit" else 0.1
         elif game.predictedNextCard == "medium":
-            quality -= 0.05  # moderate risk
+            quality -= 0.05  if action == "hit" else 0.05
         # Keep quality between 1 and 0
         quality = round(max(0, min(1, quality)), 4)
         return quality

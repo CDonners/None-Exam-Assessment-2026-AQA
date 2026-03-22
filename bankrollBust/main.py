@@ -11,6 +11,7 @@ from gameLogic import playGame
 # TODO Game stops when player has natural blackjack - It's skipping the first player to play excluding the one who got blackjack
 # TODO When it becomes an NPC's turn they hit if they have natural blackjack
 # TODO Sometimes hangs, I suspect it's generateRandFloat but haven't been able to replicate it
+# TODO When I won 2 split hands I "Broke even" which i didn't. Look into it.
 
 # Pygame Setup
 pygame.init() # Initialise Pygame
@@ -283,6 +284,13 @@ def playingGame(game):
                         game.currentPlayer.insurance = currentHand.bet/2
                         game.currentPlayer.totalBet += currentHand.bet/2
                         game.currentPlayer.bustBux -= currentHand.bet/2
+                    elif NPCAction == "doubleDown":
+                        game.currentPlayer.bustBux -= currentHand.bet # Remove the additional bet from their total
+                        game.currentPlayer.totalBet += currentHand.bet
+                        currentHand.bet *= 2
+                        # Usual card dealing process
+                        game.currentPlayer.dealCard(game)
+                        game.currentPlayer.stand(game)
                     gameAct = 0
         drawScreen()
         clock.tick(60) # Limiting clock to 60        
