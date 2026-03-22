@@ -232,9 +232,8 @@ class playGame():
     def getPresetCards(self):
         # Faces: "A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K" 
         return {
-                "dealer": [],
-                "player": [],
-                0: ["K","A"]
+                "dealer": ["A"],
+                "player": []
                 }
     # -------------------------- #
             

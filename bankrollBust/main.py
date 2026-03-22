@@ -10,6 +10,7 @@ from gameLogic import playGame
 # TODO Keep an EYE out: Player order seems to be a bit wack?
 # TODO Game stops when player has natural blackjack - It's skipping the first player to play excluding the one who got blackjack
 # TODO When it becomes an NPC's turn they hit if they have natural blackjack
+# TODO Sometimes hangs, I suspect it's generateRandFloat but haven't been able to replicate it
 
 # Pygame Setup
 pygame.init() # Initialise Pygame
@@ -87,7 +88,7 @@ def playingGame(game):
             # Starting action phase
             elif game.gameState.roundStarted:
                 if game.currentPlayer.isPlayer:
-                    playerTurn()
+                    #playerTurn()
                     game.playerAction.hit = hitButton.updateImage(event)
                     game.playerAction.stand = standButton.updateImage(event)
                     game.playerAction.split = splitButton.updateImage(event)
@@ -146,8 +147,6 @@ def playingGame(game):
                 game.currentPlayer.bustBux -= currentHand.bet/2
                 game.playerAction.insurance = False # Reset Player Action state  
                 insuranceButton.makeUninteractable()
-            game.isDoubleDownAvailable()
-            game.isInsuranceAvailable()
             handInactive = currentHand.stood or currentHand.busted or currentHand.naturalBlackjack # If either of these conditions are true then a hand is inactive
             if len(game.currentPlayer.hands)-1 == game.currentPlayer.handIndex and handInactive:
                 # Player has no more hands to player so move to the next
@@ -222,16 +221,20 @@ def playingGame(game):
             elif game.currentPlayer.isDealer:
                 game.gameState.bettingPhase = False
                 game.gameState.roundStarted = True
-                game.playerIndex = 0
+                # game.playerIndex = 0
                 game.initialDeal() # Do the initial Deal
+                game.playerIndex = 0
             # NPC's betting turn
             else:
+                game.currentPlayer.makeBet(10)
                 game.playerIndex += 1
                 # gameAct += 1
                 # if gameAct >= gameActionDelay//2:
                 #     pass
         # Round Started
         elif game.gameState.roundStarted:
+            game.isDoubleDownAvailable()
+            game.isInsuranceAvailable()
             # Player's Turn
             if game.currentPlayer.isPlayer:
                 playerTurn()        
@@ -267,6 +270,7 @@ def playingGame(game):
             # NPC's turn
             else:
                 gameAct += 1
+                currentHand = game.currentPlayer.hands[game.currentPlayer.handIndex]
                 if gameAct == gameActionDelay:
                     NPCAction = game.currentPlayer.decideNextMove(game)
                     if NPCAction == "hit":
@@ -275,6 +279,10 @@ def playingGame(game):
                         game.currentPlayer.stand(game)
                     elif NPCAction == "split":
                         game.currentPlayer.splitHand()
+                    elif NPCAction == "insurance":
+                        game.currentPlayer.insurance = currentHand.bet/2
+                        game.currentPlayer.totalBet += currentHand.bet/2
+                        game.currentPlayer.bustBux -= currentHand.bet/2
                     gameAct = 0
         drawScreen()
         clock.tick(60) # Limiting clock to 60        

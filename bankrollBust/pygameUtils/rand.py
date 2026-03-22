@@ -11,15 +11,18 @@ def genRandInt(numberOfBits: int):
             return integer
         
 def genRandFloat(lowerBound: float, upperBound: float):
-    upperBound *= 100
-    lowerBound *= 100
+    upperBound = round(upperBound, 3) * 100
+    lowerBound = round(lowerBound, 3) * 100
     integerGenerated = 0
     invalidGeneration = True
-    while invalidGeneration: # While it isn't between the bounds
-        integerGenerated = genRandInt(8) # Regenerate integer
-        if lowerBound < integerGenerated < upperBound:
-            invalidGeneration = False
-    generatedFloat = integerGenerated/100
+    if upperBound == lowerBound:
+         integerGenerated = upperBound
+    else:
+        while invalidGeneration: # While it isn't between the bounds
+            integerGenerated = genRandInt(8) # Regenerate integer
+            if lowerBound < integerGenerated < upperBound:
+                invalidGeneration = False
+    generatedFloat = round(integerGenerated, 3) / 100
     return generatedFloat
     
 def shuffleList(givenList):

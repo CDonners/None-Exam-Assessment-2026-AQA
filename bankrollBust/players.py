@@ -200,28 +200,28 @@ class NPC(player):
         self.judgement = judgement
         self.experience = experience
         self.isPlayer = False
-        self.ACTIONS = ["hit", "stand", "split", "insurance"]
+        self.ACTIONS = ["hit", "stand", "split", "insurance", "doubleDown"]
         
     def decideNextMove(self, game):
-        """
-        Judgement - Affects how well the NPC perceives the quality of their hand
-        Good hand vs Bad hand - We can define a good hand as having a high chance of getting close to 21 when we consider the card count
-        A good hand will give a higher chance of hitting while a bad hand will lower the chance of hitting
-        Players would know to stand on 17-20, to always hit on soft 17, players will always hit with a card score of less than 12
-        """
         # Defining useful variables
         currentHand = self.hands[self.handIndex]
         trueCount = game.trueCount
         action = ""
-        # Decision making
+        # --- Getting values --- #
+        game.predictNextCard()
+        self.getNextCardNeeded()
+        # --- Decision making --- #
+        # If the NPC can split they should make the decision
         decidedToSplit = False
         if self.canSplit():
             decidedToSplit = self.decideToSplit()
-            
+        # Decide and make the move
+        if game.gameState.insuranceAvailable and self.insurance == 0:
+            if self.decideInsurance(game):
+                return self.ACTIONS[3]
         if decidedToSplit:
             action = self.ACTIONS[2]
         elif self.decideToHit(game, currentHand):
-            print("Hitting")
             action = self.ACTIONS[0]
         else: # Placeholder to have game move
             action = self.ACTIONS[1]
@@ -230,11 +230,44 @@ class NPC(player):
     def calculateBet(self):
         pass # min bet + (min-bet * prosperity) and current count something or other
 
+    def decideToHit(self, game, currentHand):
+        quality = self.getHandQuality(game, currentHand) # Quality of hand
+        # Lower requirement when quality is high
+        minToHit = round(0.7 - (quality * 0.5), 4)
+        # Higher floor when quality is high
+        floatGeneratorFloor = 0.1 + (quality * 0.7)
+        lowerBound = max(0.05, min(1.0, floatGeneratorFloor * self.experience)) # Adjust the floor to be affected by experience and keep it from being stuck at 0
+        # Generate the chance of hitting
+        generatedChance = genRandFloat(lowerBound, 1.0)
+        return generatedChance >= minToHit # Returns true if the generated chance is high enough
+
+    def decideToSplit(self):
+        chanceToSplit = genRandFloat(0.65,1)
+        decidesToSplit = False
+        chanceToSplit = chanceToSplit * self.experience
+        if chanceToSplit > 0.75:
+            decidesToSplit = True
+        return decidesToSplit
+    
+    def decideInsurance(self, game):
+        chanceToInsure = 0.95
+        if game.predictedNextCard == "strongHigh":
+            # Highest chance dealer has natural blackjack
+            chanceToInsure = 0.6
+        elif game.predictedNextCard == "weakHigh":
+            # high chance dealer has blackjack
+            chanceToInsure = 0.75
+        lowerBound = min(1.0, self.experience//2)
+        generatedChance = genRandFloat(lowerBound, 1.0)
+        print(lowerBound, generatedChance)
+        if generatedChance > chanceToInsure:
+            return True
+        else:
+            return False
+
     def getHandQuality(self, game, hand):
         # Get default hand value
         value = hand.handValue
-        game.predictNextCard()
-        self.getNextCardNeeded()
         if value <= 11:
             quality = 1.0
         elif value == 12:
@@ -267,23 +300,3 @@ class NPC(player):
         # Keep quality between 1 and 0
         quality = round(max(0, min(1, quality)), 4)
         return quality
-
-    def decideToHit(self, game, currentHand):
-        quality = self.getHandQuality(game, currentHand) # Quality of hand
-        # Lower requirement when quality is high
-        minToHit = round(0.7 - (quality * 0.5), 4)
-        # Higher floor when quality is high
-        floatGeneratorFloor = 0.1 + (quality * 0.7)
-        lowerBound = max(0.05, min(1.0, floatGeneratorFloor * self.experience)) # Adjust the floor to be affected by experience and keep it from being stuck at 0
-        # Generate the chance of hitting
-        generatedChance = genRandFloat(lowerBound, 1.0)
-        print(quality, minToHit, generatedChance)
-        return generatedChance > minToHit # Returns true if the generated chance is high enough
-
-    def decideToSplit(self):
-        chanceToSplit = genRandFloat(0.65,1)
-        decidesToSplit = False
-        chanceToSplit = chanceToSplit * self.experience
-        if chanceToSplit > 0.75:
-            decidesToSplit = True
-        return decidesToSplit
