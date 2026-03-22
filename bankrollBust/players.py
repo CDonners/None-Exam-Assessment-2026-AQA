@@ -1,4 +1,4 @@
-from pygameUtils.rand import genRandInt
+from pygameUtils.rand import genRandFloat
 
 class hand:
     def __init__(self, cards = None, bet = 0):
@@ -25,6 +25,8 @@ class player():
         self.totalBet = 0
         self.insurance = 0
         self.winnings = 0
+        # Card Counting
+        self.nextCardNeeded = None
         
     def bust(self, game):
         currentHand = self.hands[self.handIndex]
@@ -142,6 +144,23 @@ class player():
             totalSum += value # Add them all together
         currentHand.handValue = totalSum # Making the handValue of the player object be the gathered value
         return cardValues # Useful for finding certain cards
+    
+    def getNextCardNeeded(self):
+        currentHand = self.hands[self.handIndex]
+        # ["A", -1],["2", 1],["3", 1],["4", 2],["5", 2],["6", 2],["7", 1],["8", 0],["9", 0],["10", -2],["J", -2],["Q", -2],["K", -2]
+        # High cards have value of -2, low cards have value of 1 or -1, medium cards have value of 2, low-High has value of 0
+        # It will always hit when >10 is needed so you can ignore -2 values
+        # It will always stand with hand value of 17+ so ignore the cards less than 4
+        # Types of card needed is High Medium Low
+        neededCard = None
+        valueNeeded = 21 - currentHand.handValue
+        if 5 <= valueNeeded <= 6:
+            neededCard = "medium"
+        elif 7 <= valueNeeded <= 8:
+            neededCard = "high"
+        else:
+            neededCard = "low"
+        self.nextCardNeeded = neededCard
 
     def newRound(self):
         self.hands = [hand()]
@@ -201,7 +220,8 @@ class NPC(player):
             
         if decidedToSplit:
             action = self.ACTIONS[2]
-        elif currentHand.handValue < 12: # Always hit when hand value bellow 12
+        elif self.decideToHit(game, currentHand):
+            print("Hitting")
             action = self.ACTIONS[0]
         elif 17 <= currentHand.handValue <= 20: # Always stand with hand value between these points
             action = self.ACTIONS[1]
@@ -212,11 +232,73 @@ class NPC(player):
     def calculateBet(self):
         pass # min bet + (min-bet * prosperity) and current count something or other
 
+    def decideToHit(self, game, currentHand):
+        # Create a floor for the random float generator based on the quality of the hand, if the hand is good to be hit, the min required to hit is lower and the generator floor is greater leading to high chance of hitting
+        handIsSoft = "11" in currentHand.cards
+        if currentHand.handValue < 12: # Always hit when hand value bellow 12
+            return True
+        elif currentHand.handValue == 17 and handIsSoft: # NPC would know that dealer must beat soft 17
+            return True
+        else:
+            minToHit = 0.5
+            # If the card needed is high you can hit most of the time
+            # If the card needed is medium you can hit some of the time
+            # If the card needed is low you only want to s
+            self.getNextCardNeeded()
+            game.predictNextCard()
+            if self.nextCardNeeded == "high": 
+                print("high",self.nextCardNeeded, game.predictedNextCard)
+                # If a high card is needed, we can hit on a low card prediction without worry
+                if game.predictedNextCard == "unknown":
+                    print("unknown")
+                    minToHit = 0.3
+                elif game.predictedNextCard == "strongHigh":
+                    # As we are chasing a high card, we still have a chance to bust so the chance to hit will be lower
+                    minToHit = 0.25
+                elif game.predictedNextCard == "weakHigh":
+                    minToHit = 0.2
+                elif game.predictedNextCard == "medium":
+                    minToHit = 0.15
+                else:
+                    minToHit = 0.1
+            elif self.nextCardNeeded == "medium":
+                print("medium",self.nextCardNeeded, game.predictedNextCard)
+                if game.predictedNextCard == "unknown":
+                    print("unknown")
+                    minToHit = 0.6
+                elif game.predictedNextCard == "strongHigh":
+                    minToHit = 0.9
+                elif game.predictedNextCard == "weakHigh":
+                    minToHit = 0.8
+                elif game.predictedNextCard == "medium":
+                    minToHit = 0.15
+                elif game.predictedNextCard == "strongLow":
+                    minToHit = 0.1
+                elif game.predictedNextCard == "weakLow":
+                    minToHit = 0.15
+            elif self.nextCardNeeded == "low":
+                print("low",self.nextCardNeeded, game.predictedNextCard)
+                if game.predictedNextCard == "unknown":
+                    print("unknown")
+                    minToHit = 0.9
+                elif game.predictedNextCard == "strongHigh":
+                    minToHit = 0.95
+                elif game.predictedNextCard == "weakHigh":
+                    minToHit = 0.95
+                elif game.predictedNextCard == "medium":
+                    minToHit = 0.75
+                elif game.predictedNextCard == "strongLow":
+                    minToHit = 0.2
+                elif game.predictedNextCard == "weakLow":
+                    minToHit = 0.4
+            generatedFloat = genRandFloat(0.4, 1.1)
+            chanceToHit = generatedFloat / self.experience
+            return minToHit < chanceToHit
+
     def decideToSplit(self):
-        print("Exper",self.experience)
-        defaultChanceToSplit = 0.9
+        chanceToSplit = genRandFloat(0.65,1)
         decidesToSplit = False
-        chanceToSplit = defaultChanceToSplit * self.experience
+        chanceToSplit = chanceToSplit * self.experience
         if chanceToSplit > 0.75:
             decidesToSplit = True
         return decidesToSplit

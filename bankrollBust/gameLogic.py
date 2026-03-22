@@ -214,13 +214,15 @@ class playGame():
         self.gameState = gameStates()
         self.playerAction = playerActionStates()
         # Gameplay Attributes
-        self.runningCount = 0
-        self.trueCount = 0
-        self.seenCards = 0
         self.currentPlayer = self.players[0]
         self.dealer = self.players[len(self.players)-1]
         self.playerIndex = 0
         self.bustPlayers = 0 # Integer to count how many players went bust
+        # Counting Cards
+        self.runningCount = 0
+        self.trueCount = 0
+        self.seenCards = 0
+        self.predictedNextCard = ""
         # --- DEBUGGING PRUPOSES --- #
         self.debugMode = debugMode
         self.presetCards = self.getPresetCards()
@@ -272,7 +274,8 @@ class playGame():
         self.runningCount += card.cardWeight
         self.seenCards += 1
         decksRemaining = self.noOfDecks - round(self.seenCards // 56)
-        self.trueCount = self.trueCount // decksRemaining
+        self.trueCount = self.runningCount // decksRemaining
+        # self.predictNextCard()
 
     def progressTurn(self):
         # If the current hand index is the last hand
@@ -324,6 +327,29 @@ class playGame():
             seatingPosDict[self.players[i - startingPos]] = seatingPositions[i]
         seatingPosDict[self.players[len(self.players)-1]] = (700, 200) # Adds the dealer's seating position
         return seatingPosDict
+    
+    def predictNextCard(self):
+        if self.seenCards > (56 * self.noOfDecks) * 0.5: # Half of the deck has been seen so predictions are strong
+            if self.trueCount > 4:
+                self.predictedNextCard = "strongHigh"
+            elif self.trueCount > 2:
+                self.predictedNextCard = "weakHigh"
+            elif self.trueCount < -4:
+                self.predictedNextCard = "strongLow"
+            elif self.trueCount < -2:
+                self.predictedNextCard = "weakLow"
+            else:
+                self.predictedNextCard = "medium"
+        elif self.seenCards > (56 * self.noOfDecks) * 0.25: # Seen a quarter of the deck so predictions may be accurate
+            if self.trueCount > 2:
+                self.predictedNextCard = "weakHigh"
+            elif self.trueCount < -2:
+                self.predictedNextCard = "weakLow"
+            else:
+                self.predictedNextCard = "unknown"
+        else: # Not seen enough the deck to accurately predict the next card
+            self.predictedNextCard = "unknown"
+            
     
     def handleUI(self):
         self.UI.updateImage(self.players)

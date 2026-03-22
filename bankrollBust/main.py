@@ -6,7 +6,8 @@ from gameLogic import playGame
 # TODO Handle deck running out of cards somehow - Probably regenerate deck telling the player you have
 # TODO Handle player running out of bustBux - End game as player lost
 
-# TODO 
+# ! Bugs ! 
+# TODO Player order seems to be a bit wack?
 
 # Pygame Setup
 pygame.init() # Initialise Pygame
@@ -225,7 +226,7 @@ def playingGame(game):
             else:
                 game.playerIndex += 1
                 # gameAct += 1
-                # if gameAct >= gameActionDelay:
+                # if gameAct >= gameActionDelay//2:
                 #     pass
         # Round Started
         elif game.gameState.roundStarted:
@@ -317,7 +318,7 @@ def newGameSettings():
                         "difficulty":difficulty,
                         "startingBux":startingBux,
                         "noOfNPCs":noOfPlayers,
-                        "debugMode": True} 
+                        "debugMode": debugMode} 
             elif cancelButton.updateImage(event): # Checks if player pressed the cancel button
                 return None # Retuns none passing over the If-Statement checking if the game is started
             pygame.display.flip() # Updates the screen with all the rects 
