@@ -264,9 +264,13 @@ class NPC(player):
             return True
         else:
             return False
+        
+    def decideDoubleDown(self):
+        pass
 
     def getHandQuality(self, game, hand):
         # Get default hand value
+        # Quality is how likely you are to hit and not bust
         value = hand.handValue
         if value <= 11:
             quality = 1.0
