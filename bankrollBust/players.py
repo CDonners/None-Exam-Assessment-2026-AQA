@@ -62,33 +62,39 @@ class player():
     # Deal card method for debugging - Dealing preset cards
     def dealPresetCard(self, deck, game):
         # Get the key of preset cards
-        key = None
-        if self.isDealer:
-            key = "dealer"
-        elif self.isPlayer:
-            key = "player"
+        card = None
+        game.presetCards["roundStagger"]
+        if game.presetCards["roundStagger"] != None and game.roundNumber < game.presetCards["roundStagger"]:
+            card = None
         else:
-            key = game.players.index(self)
-        # Get the face of the card to be dealt
-        if key in game.presetCards and game.presetCards[key]:
-            face = game.presetCards[key].pop(0)
-            # Find the first instance of the preset card in the deck
-            for i, c in enumerate(deck.deck):
-                if c.face == face:
-                    card = deck.deck.pop(i)
-                    break
-            # Incase card isn't in deck
+            key = None
+            if self.isDealer:
+                key = "dealer"
+            elif self.isPlayer:
+                key = "player"
             else:
-                card = deck.getCard()  
-        # Incase key doesn't exist or list is empty
-        else: 
+                key = game.players.index(self)
+            # Get the face of the card to be dealt
+            if key in game.presetCards and game.presetCards[key]:
+                face = game.presetCards[key].pop(0)
+                # Find the first instance of the preset card in the deck
+                for i, c in enumerate(deck.deck):
+                    if c.face == face:
+                        card = deck.deck.pop(i)
+                        break
+        # If card/player doesn't exist or the stagger isn't met
+        if card == None:
             card = deck.getCard()
+            
         return card
     # -------------------------- #
 
     def splitHand(self):
         currentHand = self.hands[self.handIndex] # Hand that is being split
         cardToSplit = currentHand.cards.pop(1) # Card that is getting seperated
+        # If player was dealt 2 aces, one would be set to 1, as they are no longer busted, return the value to 11
+        if currentHand.cards[0].value == 1:
+            currentHand.cards[0].value = 11
         betOnNewHand = currentHand.bet # The current bet on the hand
         self.bustBux -= betOnNewHand # Adjusting player's balance
         self.totalBet += betOnNewHand # Adjusting player's total bet
@@ -120,7 +126,8 @@ class player():
         if currentHand.handValue == 21: # Player has blackjack
             if len(self.hands) == 1 and len(currentHand.cards) == 2: # Player has natural blackjack
                 currentHand.naturalBlackjack = True
-            self.stand(game)
+            else:
+                self.stand(game)
 
     def canSplit(self):
         currentHand = self.hands[self.handIndex].cards
@@ -130,7 +137,7 @@ class player():
         return False
     
     def canDoubleDown(self):
-        if len(self.hands) == 1 and len(self.hands[0].cards) == 2 and not self.hands[0].stood: # Player hasn't acted meaning they can double down
+        if len(self.hands) == 1 and len(self.hands[0].cards) == 2 and not self.hands[0].naturalBlackjack: # Player hasn't acted meaning they can double down
             return True
         else:
             return False
@@ -229,8 +236,17 @@ class NPC(player):
             action = self.ACTIONS[1]
         return action
     
-    def calculateBet(self):
-        pass # min bet + (min-bet * prosperity) and current count something or other
+    def calculateBet(self, minBet):
+        # Higher floor when quality is high
+        lowerBound = max(0.05, min(1.0, 0.4 * self.confidence)) # Adjust the floor to be affected by experience and keep it from being stuck at 0
+        # Generate the chance of hitting
+        chanceToRaiseBet = genRandFloat(lowerBound, 1.0)
+        if chanceToRaiseBet > 0.75: # If the chance to raise bet is greater than 075
+            betIncreaseMultiplier = genRandFloat(1,self.prosperity*2.5)
+            betToMake = minBet*betIncreaseMultiplier
+            roundedBet = betToMake // 5 * 5 # Round bet to the nearest 5
+            return max(minBet, roundedBet)
+        return(minBet)
 
     def decideToHit(self, game, currentHand):
         quality = self.getHandQuality(game, currentHand, "hit") # Quality of hand
@@ -270,13 +286,12 @@ class NPC(player):
         if self.canDoubleDown():
             quality = self.getHandQuality(game, currentHand, "doubleDown")
             # Threshold: harder to double than to hit
-            minToDoubleDown = 0.8 - (quality * 0.5)
+            minToDoubleDown = 0.9 - (quality * 0.5)
             floatGeneratorFloor = 0.1 + (quality * 0.6)  # slightly lower max than hit to reflect risk
             # Adjust floor by experience
             lowerBound = min(1.0, floatGeneratorFloor * self.experience)
             # Generate biased random
             generatedChance = genRandFloat(lowerBound, 1.0)
-            print(lowerBound, generatedChance)
             return generatedChance > minToDoubleDown
         else:
             return False
@@ -285,6 +300,7 @@ class NPC(player):
         # Get default hand value
         # Quality is how likely you are to hit and not bust
         value = hand.handValue
+        quality = 0
         if action == "hit":
             if value <= 11:
                 quality = 1.0

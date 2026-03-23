@@ -12,12 +12,12 @@ class cards():
         # Card Gameplay Attributes
         self.visible = False
         # Card Rects
-        self.cardRect = pygame.Rect(0, 0, 60, 80)
+        self.cardRect = pygame.Rect(0, 0, 55, 75)
         # Text Variables
         self.FONT_VALUE = pygame.font.SysFont("", 36)
         self.FONT_SUIT = pygame.font.SysFont("segoeuiemoji", 18)
         
-    def drawCard(self, surface, centre: tuple, colourIndex = 0, active=True):
+    def drawCard(self, screen, centre: tuple, colourIndex = 0, active=True):
         handColours = {0:"black", 1: (255, 87, 51), 2: (51, 255, 87), 3: (51, 87, 255), 4: (255, 51, 168), 5: (51, 255, 243), 6: (243, 255, 51), 7: (168, 51, 255), 8: (255, 140, 51), 9: (51, 255, 140)} # Colours for hands to distinguish them
         self.cardRect.center = centre
         # Get the correct font colour
@@ -37,12 +37,12 @@ class cards():
             centreColour = (180, 180, 180)
         # Drawing texts if card is visible
         if self.visible:
-            pygame.draw.rect(surface, centreColour, self.cardRect) # White card Centre
-            surface.blit(text, (self.cardRect.x + 5, self.cardRect.y + 5))
-            surface.blit(center_text, text_rect)
+            pygame.draw.rect(screen, centreColour, self.cardRect) # White card Centre
+            screen.blit(text, (self.cardRect.x + 5, self.cardRect.y + 5))
+            screen.blit(center_text, text_rect)
         else:
-            pygame.draw.rect(surface, (255,69,67), self.cardRect) # White card Centre
-        pygame.draw.rect(surface, handColours[colourIndex], self.cardRect, 4) # Border
+            pygame.draw.rect(screen, (255,69,67), self.cardRect) # White card Centre
+        pygame.draw.rect(screen, handColours[colourIndex], self.cardRect, 4) # Border
         
     def setVisible(self):
         self.visible = True

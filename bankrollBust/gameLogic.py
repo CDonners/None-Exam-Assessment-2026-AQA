@@ -72,10 +72,10 @@ class handleGameUI:
         self.betFont = pygame.font.SysFont("", 28)
         self.playerFont = pygame.font.SysFont("", 32) # Sets the font to pygame default with size 22
         # Card dimensions
-        self.cardWidth = 60
-        self.cardHeight = 80
-        self.cardSpacing = 15
-        self.handSpacing = 30  
+        self.cardWidth = 55
+        self.cardHeight = 75
+        self.cardSpacing = 7
+        self.handSpacing = 15
         
     def drawPlayerTexts(self, players):
         for playerObj in players:
@@ -96,6 +96,8 @@ class handleGameUI:
         statusTextSurface = None
         if hand.busted:
             statusTextSurface = self.mainFont.render("Busted", True, "black")
+        elif hand.naturalBlackjack:
+            statusTextSurface = self.mainFont.render("BLACKJACK", True, "black")
         elif hand.stood:
             statusTextSurface = self.mainFont.render("Stood", True, "black")
         elif hand.push:
@@ -218,6 +220,7 @@ class playGame():
         self.dealer = self.players[len(self.players)-1]
         self.playerIndex = 0
         self.bustPlayers = 0 # Integer to count how many players went bust
+        self.roundNumber = 1
         # Counting Cards
         self.runningCount = 0
         self.trueCount = 0
@@ -232,8 +235,9 @@ class playGame():
     def getPresetCards(self):
         # Faces: "A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K" 
         return {
-                "dealer": ["A"],
-                "player": []
+                "roundStagger": None,
+                "dealer": [],
+                "player": ["A","K"]
                 }
     # -------------------------- #
             
@@ -308,6 +312,7 @@ class playGame():
         self.playerIndex = 0
         for player in self.players:
             player.newRound()
+        self.roundNumber += 1
 
     def getPlayerSeats(self):
         # Assigns players their seating positions

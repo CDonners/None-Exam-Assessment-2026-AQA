@@ -5,13 +5,34 @@ from gameLogic import playGame
 # ! SHORT TERM GOALS !
 # TODO Handle deck running out of cards somehow - Probably regenerate deck telling the player you have
 # TODO Handle player running out of bustBux - End game as player lost
+# TODO Add difficulty
+""" Easiest - Shows all card counting info
+    Next shows all but not predictednextcard and cards seen
+    Next shows True count
+    Next shows none"""
 
 # ! Bugs ! 
 # TODO Keep an EYE out: Player order seems to be a bit wack?
-# TODO Game stops when player has natural blackjack - It's skipping the first player to play excluding the one who got blackjack
-# TODO When it becomes an NPC's turn they hit if they have natural blackjack
-# TODO Sometimes hangs, I suspect it's generateRandFloat but haven't been able to replicate it
-# TODO When I won 2 split hands I "Broke even" which i didn't. Look into it.
+# TODO Game stood for player with this card setup, can't recreate it: 
+"""Met the exact circumstances and still didn't happen
+    {
+    "roundStagger": 1,
+    "dealer": ["3","A","10","4"],
+    "player": ["7","6"],
+    0: ["7", "A"],
+    1: ["5", "Q","9"],
+    3:["10","2","2"],
+    4:["K","8"]
+    }
+    {
+    "roundStagger": 1,
+    "dealer": ["2","Q","Q"],
+    "player": ["7","6"],
+    0: ["5", "Q", "10"],
+    1: ["3", "6","K"],
+    3:["6","9","K"],
+    4:["5","5", "3"]
+    }"""
 
 # Pygame Setup
 pygame.init() # Initialise Pygame
@@ -47,7 +68,7 @@ def playingGame(game):
     # Game State variables
     gamePlayRunning = True
     # Game action delay (in frames at 60 FPS)
-    gameActionDelay = 30  # 1 second at 60 FPS
+    gameActionDelay = 30  # 0.5 seconds at 60 FPS
     gameAct = 0
     # Utility
     dealer = game.players[len(game.players) -1] # Dealer is always this index
@@ -121,7 +142,6 @@ def playingGame(game):
     def playerTurn():
             hitButton.makeInteractable()
             standButton.makeInteractable()
-            dealerHand = dealer.hands[0]
             currentHand = game.currentPlayer.hands[game.currentPlayer.handIndex]
             # Making actions available
             if game.currentPlayer.canSplit(): # If player's cards are equal
@@ -129,7 +149,7 @@ def playingGame(game):
             if game.gameState.insuranceAvailable and game.currentPlayer.insurance == 0: # If the dealer has a visible Ace
                 insuranceButton.makeInteractable()
             # Player Stands
-            if game.playerAction.stand:
+            if game.playerAction.stand or currentHand.naturalBlackjack:
                 game.currentPlayer.stand(game) # Make the player stand
                 game.playerAction.stand = False # Reset Player Action state         
             # Player Hits                    
@@ -205,7 +225,7 @@ def playingGame(game):
                 if player.isPlayer:
                     profit = bustBuxPayOut - player.totalBet  # Only the net profit
                     player.winnings += profit
-                    player.bustBux += bustBuxPayOut
+                    player.bustBux += bustBuxPayOut 
                     game.playerAction.playerWinnings += player.winnings
         game.gameState.payedOut = True
 
@@ -227,11 +247,11 @@ def playingGame(game):
                 game.playerIndex = 0
             # NPC's betting turn
             else:
-                game.currentPlayer.makeBet(10)
-                game.playerIndex += 1
-                # gameAct += 1
-                # if gameAct >= gameActionDelay//2:
-                #     pass
+                gameAct += 1
+                if gameAct >= gameActionDelay//2:
+                    NPCBet = game.currentPlayer.calculateBet(minBet)
+                    game.currentPlayer.makeBet(NPCBet)
+                    game.playerIndex += 1
         # Round Started
         elif game.gameState.roundStarted:
             game.isDoubleDownAvailable()
@@ -274,7 +294,9 @@ def playingGame(game):
                 currentHand = game.currentPlayer.hands[game.currentPlayer.handIndex]
                 if gameAct == gameActionDelay:
                     NPCAction = game.currentPlayer.decideNextMove(game)
-                    if NPCAction == "hit":
+                    if currentHand.naturalBlackjack:
+                        game.currentPlayer.stand(game)
+                    elif NPCAction == "hit":
                         game.currentPlayer.dealCard(game)
                     elif NPCAction == "stand":
                         game.currentPlayer.stand(game)
