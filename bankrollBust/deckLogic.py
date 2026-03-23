@@ -49,15 +49,16 @@ class cards():
 
 class deckHandling():
     def __init__(self, noOfDecks: int):
-        self.deck = self.generateDeck(noOfDecks)
+        self.noOfDecks = noOfDecks
+        self.deck = self.generateDeck()
 
-    def generateDeck(self, noOfDecks: int):
+    def generateDeck(self):
         # Card Values and Suits
         suits = ["♠️", "♥️", "♦️", "♣️"]
         values = [["A", -1],["2", 1],["3", 1],["4", 2],["5", 2],["6", 2],["7", 1],["8", 0],["9", 0],["10", -2],["J", -2],["Q", -2],["K", -2]] 
         deck = [] # Empty list to append generated cards to
         # Create every card in the standard 52 playing card deck
-        for _ in range(noOfDecks):
+        for _ in range(self.noOfDecks):
             for suit in suits:
                 for value in values:
                     deck.append(cards(value[0], suit, value[1])) # Create object for the individual card

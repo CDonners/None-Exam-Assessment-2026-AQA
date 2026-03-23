@@ -5,11 +5,12 @@ CWD = os.getcwd() # Get the current working directory
 BIFD = CWD + "\\bankrollBust\\images\\buttons\\" # Button Images Folder Directory
 
 class button:
-    def __init__(self, surface: pygame.Surface, centre: tuple, name: str, scale = 1.0, interactable = True):
+    def __init__(self, screen: pygame.Surface, centre: tuple, name: str, scale = 1.0, interactable = True):
         # Variables
         self.bid = BIFD + "button" # BID: Button Image Directory
+        self.name = name
         self.centre = centre # Centre of the button
-        self.surface = surface # Defining the surface
+        self.screen = screen # Defining the screen
         self.scale = scale # Defining the scale
         self.interactable = interactable
         # Loading Images
@@ -22,12 +23,12 @@ class button:
         self.interactableObj = self.interactableImage.get_rect(center = centre) # Turn the image into a rect with the specified centre
         # Create text object
         self.font = pygame.font.SysFont("", 36) # Sets the font to pygame default and sets the size
-        self.text_surface = self.font.render(f"{name}", True, (255, 255, 255)) # Creates the text surface, colour black
-        self.text_rect = self.text_surface.get_rect(center=centre) # Draws the text with the same centre as the button so it is over it
+        self.title_surface = self.font.render(f"{name}", True, (255, 255, 255)) # Creates the text screen, colour black
+        self.title_rect = self.title_surface.get_rect(center=centre) # Draws the text with the same centre as the button so it is over it
     
-    def draw(self): # Blits the rect onto the surface
-        self.surface.blit(self.interactableImage, self.interactableObj)
-        self.surface.blit(self.text_surface, self.text_rect)
+    def draw(self): # Blits the rect onto the screen
+        self.screen.blit(self.interactableImage, self.interactableObj)
+        self.screen.blit(self.title_surface, self.title_rect)
         
     def checkHover(self): # Checks if the mouse is hovered over the rect
         mousePos = pygame.mouse.get_pos() # Gets the position of the mouse
@@ -64,14 +65,10 @@ class button:
         return pressed # Returns whether button is pressed
         
 class discreteSlider(button):
-    def __init__(self, surface: pygame.Surface, name: str, centre: tuple, values: list, scale = 1.0, interactable = True):
+    def __init__(self, screen: pygame.Surface, name: str, centre: tuple, values: list, scale = 1.0, interactable = True):
         # Variables
-        self.surface = surface
-        self.name = name
-        self.centre = centre
+        super().__init__(screen, centre, name, scale, interactable)
         self.values = values
-        self.scale = scale
-        self.interactable = interactable
         self.value = values[0] # Sets the default value to be the first one, which will be on the very left
         # Creating Slider Guide
         self.guideImage = pygame.transform.scale_by(pygame.image.load(BIFD + "sliderGuide.png"), self.scale)
@@ -121,17 +118,17 @@ class discreteSlider(button):
                     
     def draw(self):
         # Draw thumb and guide
-        self.surface.blit(self.guideImage, self.guideRect)
-        self.surface.blit(self.interactableImage, self.interactableObj)
+        self.screen.blit(self.guideImage, self.guideRect)
+        self.screen.blit(self.interactableImage, self.interactableObj)
         # Create the text object
         font = pygame.font.SysFont("", 22) # Sets the font to default python font with size 22
-        text_surface = font.render(f"{self.name}: {self.value}", True, (255, 255, 255)) # Creates text surface with colour black
-        text_rect = text_surface.get_rect(center=(self.centre[0], self.centre[1]-15)) # Creates the rect with the offset to appear above the slider
+        title_surface = font.render(f"{self.name}: {self.value}", True, (255, 255, 255)) # Creates text screen with colour black
+        title_rect = title_surface.get_rect(center=(self.centre[0], self.centre[1]-15)) # Creates the rect with the offset to appear above the slider
         # Draw Text
-        self.surface.blit(text_surface, text_rect) # Draws on every iteration to update the value displayed
+        self.screen.blit(title_surface, title_rect) # Draws on every iteration to update the value displayed
         # # For visibility of Nodes during testing
         # for i in list(self.valuePoints.keys()):
-        #     pygame.draw.circle(self.surface, (0,255,0), (i,self.guideRect.centery), 5)
+        #     pygame.draw.circle(self.screen, (0,255,0), (i,self.guideRect.centery), 5)
 
     def moveThumb(self, event):
         mousePos = pygame.mouse.get_pos() # Gets the position of the mouse
@@ -171,28 +168,18 @@ class discreteSlider(button):
                 self.mouseHeld = False # Sets held to false
                 
 class inputBox(button):
-    def __init__(self, surface: pygame.Surface, centre: tuple, name: str, inputType: str , defaultValue:str, scale=1.0, interactable = True, minMax = []):
+    def __init__(self, screen: pygame.Surface, centre: tuple, name: str, inputType: str , defaultValue:str, scale=1.0, interactable = True, minMax = []):
         # Variables
-        self.surface = surface
-        self.centre = centre
-        self.name = name
+        super().__init__(screen, centre, name, scale, interactable)
         self.inputType = inputType # What input the box takes can be any from: ["alpha", "num", "alphanum"]
         self.defaultValue = defaultValue
-        self.scale = scale
-        self.interactable = interactable
         self.selected = False
         self.value = defaultValue # Setting to a default value
         self.minMax = minMax
-        # Load images
-        self.defaultImg = pygame.transform.scale_by(pygame.image.load(BIFD + "button.png"), self.scale)
-        self.inactiveImg = pygame.transform.scale_by(pygame.image.load(BIFD + "button_inactive.png"), self.scale)
-        # Creating the input box
-        self.interactableImage = self.defaultImg
-        self.interactableObj = self.interactableImage.get_rect(center = centre)
         # Creating the text for the inputbox title
         self.title_font = pygame.font.SysFont("", 22) # Sets the font of the text to the default pygame font and the size to 22
-        self.title_text_surface = self.title_font.render(f"{self.name}", True, (255, 255, 255)) # Creates the text surface with black colour
-        self.title_text_rect = self.title_text_surface.get_rect(center=(self.centre[0], self.centre[1]-25*self.scale)) # Creates the rect with an offset to appear above the input box
+        self.title_title_surface = self.title_font.render(f"{self.name}", True, (255, 255, 255)) # Creates the text screen with black colour
+        self.title_title_rect = self.title_title_surface.get_rect(center=(self.centre[0], self.centre[1]-25*self.scale)) # Creates the rect with an offset to appear above the input box
     
     def draw(self):
         # Check if it's interactable
@@ -201,14 +188,14 @@ class inputBox(button):
         else:
             self.interactableImage = self.inactiveImg
         # Button
-        self.surface.blit(self.interactableImage, self.interactableObj)
+        self.screen.blit(self.interactableImage, self.interactableObj)
         # Create the text object for value
         self.input_font = pygame.font.SysFont("", 22) # Sets the font to pygame default with size 22
-        self.input_text_surface = self.title_font.render(f"{self.value}", True, (255, 255, 255)) # Creates text surface with colour black
-        self.input_text_rect = self.title_text_surface.get_rect(center=self.centre) # Creates the rect of the text so the centre is over the box
+        self.input_title_surface = self.title_font.render(f"{self.value}", True, (255, 255, 255)) # Creates text screen with colour black
+        self.input_title_rect = self.title_title_surface.get_rect(center=self.centre) # Creates the rect of the text so the centre is over the box
         # Draw Text
-        self.surface.blit(self.title_text_surface, self.title_text_rect)
-        self.surface.blit(self.input_text_surface, self.input_text_rect)
+        self.screen.blit(self.title_title_surface, self.title_title_rect)
+        self.screen.blit(self.input_title_surface, self.input_title_rect)
     
     def checkSelected(self, event):
         if self.interactable: # Only do something if the box can be used
@@ -257,3 +244,39 @@ class inputBox(button):
             # Returns the value as a integer if it isn't empty
             return float(self.value) if self.value != "" else 0
         return self.value # returns the value string
+    
+class revealableButton(button):
+    def __init__(self, screen: pygame.Surface, centre: tuple, name: str, scale = 1.0, interactable = True, revealed = False):
+        super().__init__(screen, centre,  name, scale, interactable)
+        self.interactableObj = pygame.Rect(0, 0, 170, 35)
+        # Create text object
+        self.font = pygame.font.SysFont("", 30) # Sets the font to pygame default and sets the size
+        self.title_surface = self.font.render(f"{name}", True, (255, 255, 255)) # Creates the text screen, colour black
+        self.title_rect = self.title_surface.get_rect(center=centre) # Draws the text with the same centre as the button so it is over it
+        self.interactableObj.center = centre
+        self.interactableObjColour = (110,49,6)
+        self.revealed = revealed
+        self.revealedText = None
+        
+    def draw(self):
+        if self.checkHover(): # Sets the colour of the rect depending on whether it's hovered over
+            self.interactableObjColour = (179,80,10)
+        else:
+            self.interactableObjColour = (110,49,6)
+        if not self.revealed:
+            # Draw the centre covering the text
+            pygame.draw.rect(self.screen, self.interactableObjColour, self.interactableObj)
+            self.screen.blit(self.title_surface, self.title_rect)
+        else:
+            # Create the text object for the revlealed text
+            revealedTextSurface = self.font.render(f"{self.revealedText}", True, "black")
+            revealedText = revealedTextSurface.get_rect(center=self.centre)
+            # Draw text on screen
+            self.screen.blit(revealedTextSurface, revealedText)
+        # Draw border
+        pygame.draw.rect(self.screen, "black", self.interactableObj, 3)
+        pygame.draw.rect(self.screen, (79,25,4), self.interactableObj, 2)
+        
+    def setRevealedText(self, info):
+        self.revealedText = info
+        

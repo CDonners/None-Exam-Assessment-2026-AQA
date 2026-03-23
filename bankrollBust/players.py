@@ -137,8 +137,9 @@ class player():
         return False
     
     def canDoubleDown(self):
-        if len(self.hands) == 1 and len(self.hands[0].cards) == 2 and not self.hands[0].naturalBlackjack: # Player hasn't acted meaning they can double down
-            return True
+        if len(self.hands) == 1 and len(self.hands[0].cards) == 2: # Player hasn't acted meaning they can double down
+            if not self.hands[0].naturalBlackjack and self.bustBux >= self.hands[0].bet:
+                return True
         else:
             return False
 
@@ -212,10 +213,8 @@ class NPC(player):
     def decideNextMove(self, game):
         # Defining useful variables
         currentHand = self.hands[self.handIndex]
-        trueCount = game.trueCount
         action = ""
         # --- Getting values --- #
-        game.predictNextCard()
         self.getNextCardNeeded()
         # --- Decision making --- #
         # If the NPC can split they should make the decision

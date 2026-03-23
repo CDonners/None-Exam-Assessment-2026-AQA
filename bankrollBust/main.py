@@ -1,18 +1,8 @@
 import pygame
-from pygameUtils.buttonUtils import button, discreteSlider, inputBox
+from pygameUtils.buttonUtils import button, discreteSlider, inputBox, revealableButton
 from gameLogic import playGame
 
-# ! SHORT TERM GOALS !
-# TODO Handle deck running out of cards somehow - Probably regenerate deck telling the player you have
-# TODO Handle player running out of bustBux - End game as player lost
-# TODO Add difficulty
-""" Easiest - Shows all card counting info
-    Next shows all but not predictednextcard and cards seen
-    Next shows True count
-    Next shows none"""
-
 # ! Bugs ! 
-# TODO Keep an EYE out: Player order seems to be a bit wack?
 # TODO Game stood for player with this card setup, can't recreate it: 
 """Met the exact circumstances and still didn't happen
     {
@@ -52,42 +42,71 @@ newGameButton = button(screen, (centreX, 300), "New Game")
 continueButton = button(screen, (centreX,400), "Continue")
 settingsButton = button(screen,(centreX,500), "Settings")
 quitButton = button(screen, (centreX,600), "Quit")
-# Game Button Setup
+# --- Game Button Setup --- #
+# Action Buttons
 hitButton = button(screen, (centreX+375, 770), "Hit", interactable=False)
 standButton = button(screen, (centreX-375, 770), "Stand", interactable=False)
 splitButton = button(screen, (centreX-375, 850), "Split", interactable=False)
 insuranceButton = button(screen, (centreX+375, 850), "Insurance", interactable=False)
-confirmBetButton = button(screen, (centreX, 850), "Confirm Bet", interactable=True)
 doubleDownButton = button(screen, (centreX, centreY), "Double Down")
+# Bet Buttons
+confirmBetButton = button(screen, (centreX, 850), "Confirm Bet", interactable=False)
+# End of round button
 nextRoundButton = button(screen, (centreX, centreY), "Next Round")
+# End of game 
+newDeckButton = button(screen, (700, 350), "New Deck")
+endGameButton = button(screen, (700, 450), "End Game")
 
 def playingGame(game):
+    # Assistance Buttons
+    revealTrueCountButton = revealableButton(screen, (290, 26), "True Count", interactable=True)
+    revealSeenCardsButton = revealableButton(screen, (105, 70), "Seen Cards", interactable=True)
+    revealPredictedCardButton = revealableButton(screen, (290, 70), "Predicted Card", interactable=True)
     # Creating the bet amount input box
     minBet = round(game.startingBux * 0.01 / 5) * 5 # Rounds the minimum bet to the nearest 5, so the minimum bet will always be 1% of the starting bux to the nearest 5
     betAmountInputBox = inputBox(screen, (centreX, 770), "Bet Amount:", "num", f"{minBet}", interactable=False, minMax=[float(minBet), 1000*float(minBet)])
-    # Game State variables
-    gamePlayRunning = True
     # Game action delay (in frames at 60 FPS)
     gameActionDelay = 30  # 0.5 seconds at 60 FPS
     gameAct = 0
     # Utility
     dealer = game.players[len(game.players) -1] # Dealer is always this index
     
-    def drawScreen():
+    def drawAssistanceButtons():
+        if game.difficulty == "Full-Assist":
+            revealTrueCountButton.draw()
+            revealSeenCardsButton.draw()
+            revealPredictedCardButton.draw()
+        elif game.difficulty == "Semi-Assist":
+            revealTrueCountButton.draw()
+            revealSeenCardsButton.draw()
+        elif game.difficulty == "There-When-Needed":
+            revealTrueCountButton.draw()
+    
+    def drawScreen(): # TODO Comment and clean
         screen.blit(bg, (0,0)) # Set the screen as my background
-        game.handleUI()
-        hitButton.draw()
-        standButton.draw()
-        splitButton.draw()
-        insuranceButton.draw()
-        confirmBetButton.draw()
-        betAmountInputBox.draw()
-        # Keep conditional buttons on screen when applicable
-        if game.gameState.roundOver:
-            nextRoundButton.draw()
-            game.UI.drawWinnings(game.playerAction.playerWinnings)
-        if game.gameState.doubleDownAvailable:
-            doubleDownButton.draw()
+        if game.gameState.gameOver: 
+            game.UI.drawGameOverText()
+            endGameButton.draw()
+        elif game.gameState.deckOutOfCards:
+            game.UI.drawOutOfCardsText()
+            endGameButton.draw()
+            newDeckButton.draw()
+        # Do Not draw if game over
+        else:
+            drawAssistanceButtons()
+            game.handleUI()
+            hitButton.draw()
+            standButton.draw()
+            splitButton.draw()
+            insuranceButton.draw()
+            confirmBetButton.draw()
+            betAmountInputBox.draw()
+            # Keep conditional buttons on screen when applicable
+            if game.gameState.roundOver:
+                nextRoundButton.draw()
+                game.UI.drawWinnings(game.playerAction.playerWinnings)
+            if game.gameState.doubleDownAvailable:
+                doubleDownButton.draw()
         pygame.display.update() 
         
     def eventHandler(events):
@@ -100,8 +119,29 @@ def playingGame(game):
             splitButton.updateImage(event)
             insuranceButton.updateImage(event)
             confirmBetButton.updateImage(event)
+            # --- Assistance Button Interactions --- #
+            # Swaps the boolean if the button is interacted with
+            if revealPredictedCardButton.updateImage(event):
+                revealPredictedCardButton.revealed = True if not revealPredictedCardButton.revealed else False
+            if revealSeenCardsButton.updateImage(event):
+                revealSeenCardsButton.revealed = True if not revealSeenCardsButton.revealed else False
+            if revealTrueCountButton.updateImage(event):
+                revealTrueCountButton.revealed = True if not revealTrueCountButton.revealed else False
+            # Game Over
+            if game.gameState.gameOver:
+                if endGameButton.updateImage(event):
+                    game.gameState.gamePlayRunning = False
+            # Deck out of cards
+            elif game.gameState.deckOutOfCards:
+                if endGameButton.updateImage(event):
+                    game.gameState.gamePlayRunning = False
+                if newDeckButton.updateImage(event):
+                    game.deckInstance.generateDeck()
+                    game.deckInstance.shuffle()
+                    game.gameState.deckOutOfCards = False
+                    game.endRound()
             # Betting Phase
-            if game.gameState.bettingPhase:
+            elif game.gameState.bettingPhase:
                 if game.currentPlayer.isPlayer: # Checks if current player is the human player
                     # Make the relevant interactables be interactable
                     betAmountInputBox.setMax(game.currentPlayer.bustBux)
@@ -110,7 +150,6 @@ def playingGame(game):
             # Starting action phase
             elif game.gameState.roundStarted:
                 if game.currentPlayer.isPlayer:
-                    #playerTurn()
                     game.playerAction.hit = hitButton.updateImage(event)
                     game.playerAction.stand = standButton.updateImage(event)
                     game.playerAction.split = splitButton.updateImage(event)
@@ -129,7 +168,7 @@ def playingGame(game):
             elif game.gameState.roundOver:
                 if nextRoundButton.updateImage(event):
                     game.endRound()
-
+                
     def endPlayerTurn():
         # Make all buttons uninteractable
         hitButton.makeUninteractable()
@@ -227,13 +266,16 @@ def playingGame(game):
                     player.winnings += profit
                     player.bustBux += bustBuxPayOut 
                     game.playerAction.playerWinnings += player.winnings
+                    if player.bustBux <= 0:
+                        game.gameState.gameOver = True
         game.gameState.payedOut = True
 
     # Gameplay loop
-    while gamePlayRunning:
+    while game.gameState.gamePlayRunning:
         events = pygame.event.get()
         eventHandler(events)
         game.currentPlayer = game.players[game.playerIndex]
+        # Game ends if user has no money
         if game.gameState.bettingPhase: # If betting phase is active
             # Player's betting turn
             if game.currentPlayer.isPlayer:
@@ -254,6 +296,10 @@ def playingGame(game):
                     game.playerIndex += 1
         # Round Started
         elif game.gameState.roundStarted:
+            game.predictNextCard()
+            revealPredictedCardButton.setRevealedText(game.predictedNextCard)
+            revealSeenCardsButton.setRevealedText(game.seenCards)
+            revealTrueCountButton.setRevealedText(game.trueCount)
             game.isDoubleDownAvailable()
             game.isInsuranceAvailable()
             # Player's Turn
@@ -274,8 +320,11 @@ def playingGame(game):
                         # Once dealer has stood if bets haven't been paid
                         if not game.gameState.payedOut: 
                             payOut()
-                        game.gameState.roundOver = True
-                        game.gameState.roundStarted = False
+                        if game.deckHasEnoughCards():
+                            game.gameState.roundOver = True
+                            game.gameState.roundStarted = False
+                        else:
+                            game.gameState.deckOutOfCards = True
                     # Dealer turn to decide
                     elif game.hasActiveHands():
                         # Don't hit if there are no active hands

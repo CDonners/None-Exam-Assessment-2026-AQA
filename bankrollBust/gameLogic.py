@@ -71,11 +71,24 @@ class handleGameUI:
         self.mainFont = pygame.font.SysFont("", 32)
         self.betFont = pygame.font.SysFont("", 28)
         self.playerFont = pygame.font.SysFont("", 32) # Sets the font to pygame default with size 22
+        self.largeFont = pygame.font.SysFont("", 48)
+        # Game Over Text
+        self.gameOverTextSurface = self.largeFont.render(f"GAME OVER", True, (255, 0, 0)) # Creates text surface with colour black
+        self.gameOverTextRect = self.gameOverTextSurface.get_rect(center=(700,300))
+        # Out of Cards Text
+        self.outOfCardsSurface = self.largeFont.render(f"DECK OUT OF CARDS", True, (255, 0, 0)) # Creates text surface with colour black
+        self.outOfCardsTextRect = self.gameOverTextSurface.get_rect(center=(630,250))
         # Card dimensions
         self.cardWidth = 55
         self.cardHeight = 75
         self.cardSpacing = 7
         self.handSpacing = 15
+        
+    def drawGameOverText(self):
+        self.screen.blit(self.gameOverTextSurface, self.gameOverTextRect)
+        
+    def drawOutOfCardsText(self):
+        self.screen.blit(self.outOfCardsSurface, self.outOfCardsTextRect)
         
     def drawPlayerTexts(self, players):
         for playerObj in players:
@@ -153,9 +166,9 @@ class handleGameUI:
     def drawBalance(self, players):
         targetPlayer = next(playerObj for playerObj in players if playerObj.isPlayer)
         playerBalance = targetPlayer.bustBux
-        balanceCentre = (25,25)
+        balanceTopLeft = (25,15)
         balanceTextSurface = self.mainFont.render(f"Balance:{playerBalance}", True, (0, 0, 0)) # Creates text surface with colour black
-        balanceTextRect = balanceTextSurface.get_rect(topleft=balanceCentre)
+        balanceTextRect = balanceTextSurface.get_rect(topleft=balanceTopLeft)
         self.screen.blit(balanceTextSurface, balanceTextRect)   
         
     def drawWinnings(self, winnings):
@@ -178,6 +191,9 @@ class handleGameUI:
 
 class gameStates: # TODO Clean and comment
     # Game States
+    gamePlayRunning = True
+    gameOver = False
+    deckOutOfCards = False
     bettingPhase = True
     roundStarted = False
     roundOver = False
@@ -203,6 +219,7 @@ class playGame():
         self.startingBux = startingBux
         self.noOfDecks = noOfDecks
         self.noOfNPCs = noOfNPCs
+        self.difficulty = difficulty
         # Game setup variables
         self.screen = screen
         self.gameSetup = setupGame(startingBux, noOfNPCs)
@@ -220,7 +237,7 @@ class playGame():
         self.dealer = self.players[len(self.players)-1]
         self.playerIndex = 0
         self.bustPlayers = 0 # Integer to count how many players went bust
-        self.roundNumber = 1
+        self.minCardsPerPlayer = len(self.players) * 5 # Assume each player will require 5 cards per turn on average
         # Counting Cards
         self.runningCount = 0
         self.trueCount = 0
@@ -229,6 +246,7 @@ class playGame():
         # --- DEBUGGING PRUPOSES --- #
         self.debugMode = debugMode
         self.presetCards = self.getPresetCards()
+        self.roundNumber = 1
         # -------------------------- #
 
     # --- DEBUGGING PURPOSES --- #
@@ -237,7 +255,7 @@ class playGame():
         return {
                 "roundStagger": None,
                 "dealer": [],
-                "player": ["A","K"]
+                "player": ["5","K", "6"]
                 }
     # -------------------------- #
             
@@ -272,6 +290,13 @@ class playGame():
                 if not hand.busted and not hand.naturalBlackjack:
                     return True
         return False
+    
+    def deckHasEnoughCards(self):
+        # Returns true if the deck has enough cards to play
+        if len(self.deckInstance.deck) > self.minCardsPerPlayer:
+            return True
+        else:
+            return False
 
     def increaseCount(self, card):
         self.runningCount += card.cardWeight
@@ -312,7 +337,9 @@ class playGame():
         self.playerIndex = 0
         for player in self.players:
             player.newRound()
+        # --- Debugging Purposes --- #
         self.roundNumber += 1
+        #print(self.roundNumber)
 
     def getPlayerSeats(self):
         # Assigns players their seating positions
@@ -334,20 +361,20 @@ class playGame():
     
     def predictNextCard(self):
         if self.seenCards > (56 * self.noOfDecks) * 0.5: # Half of the deck has been seen so predictions are strong
-            if self.trueCount > 4:
+            if self.trueCount > 6:
                 self.predictedNextCard = "strongHigh"
-            elif self.trueCount > 2:
+            elif self.trueCount > 4:
                 self.predictedNextCard = "weakHigh"
-            elif self.trueCount < -4:
+            elif self.trueCount < -6:
                 self.predictedNextCard = "strongLow"
-            elif self.trueCount < -2:
+            elif self.trueCount < -4:
                 self.predictedNextCard = "weakLow"
             else:
                 self.predictedNextCard = "medium"
         elif self.seenCards > (56 * self.noOfDecks) * 0.25: # Seen a quarter of the deck so predictions may be accurate
-            if self.trueCount > 2:
+            if self.trueCount > 4:
                 self.predictedNextCard = "weakHigh"
-            elif self.trueCount < -2:
+            elif self.trueCount < -4:
                 self.predictedNextCard = "weakLow"
             else:
                 self.predictedNextCard = "unknown"
