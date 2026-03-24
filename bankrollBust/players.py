@@ -199,13 +199,11 @@ class dealer(player):
         return action
 
 class NPC(player):
-    def __init__(self, name: str, bustBux: int, personality: str,  prosperity: float, confidence: float, judgement: float, experience: float):
+    def __init__(self, name: str, bustBux: int, prosperity: float, confidence: float, experience: float):
         super().__init__(bustBux)
         self.name = name
-        self.personality = personality
         self.prosperity = prosperity
         self.confidence= confidence
-        self.judgement = judgement
         self.experience = experience
         self.isPlayer = False
         self.ACTIONS = ["hit", "stand", "split", "insurance", "doubleDown"]

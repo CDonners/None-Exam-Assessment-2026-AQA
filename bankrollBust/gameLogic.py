@@ -26,9 +26,8 @@ class setupGame():
         name = self.pickName()
         prosperity = self.generateProsperity()
         confidence = self.generateConfidence()
-        judgement = self.generateJudgement()
         experience = self.generateExperience()
-        return NPC(name, self.startingBux, "personality", prosperity, confidence, judgement, experience)
+        return NPC(name, self.startingBux, prosperity, confidence, experience)
     
     def pickName(self):
         # Picks am unused name from the NPC Names list
@@ -52,11 +51,6 @@ class setupGame():
         # Must generate a float between 0.75-1.25
         generatedConfidence = genRandFloat(0.75, 1.25)
         return generatedConfidence
-
-    def generateJudgement(self):
-        # Must generate a float between 0.75-1.25
-        generatedJudgement = genRandFloat(0.75, 1.25)
-        return generatedJudgement
 
     def generateExperience(self):
         # Must generate a float between 0.5-1.5
