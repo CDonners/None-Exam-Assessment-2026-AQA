@@ -249,20 +249,11 @@ class playGame():
         # Faces: "A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K" 
         return {
                 "roundStagger": None,
-                "dealer": ["A", "K"],
-                "player": [],
+                "dealer": [],
+                "player": ["2","2"],
                 0: ["A","K"]
                 }
     # -------------------------- #
-            
-    def initialDeal(self):
-        for i in range(2): # Deal 2 cards to players from left to right
-            for player in self.players:
-                if i == 1 and player.isDealer: # If the dealer is dealt their second card
-                    player.dealCard(self, visible=False) # Deal the card face down
-                else: # Deal the card to the player
-                    player.dealCard(self)
-        self.roundStarted = True # Start the round
 
     def isDoubleDownAvailable(self):
         # Makes double down available

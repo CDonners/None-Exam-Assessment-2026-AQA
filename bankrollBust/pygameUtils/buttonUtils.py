@@ -23,27 +23,28 @@ class button:
         self.interactableObj = self.interactableImage.get_rect(center = centre) # Turn the image into a rect with the specified centre
         # Create text object
         self.font = pygame.font.SysFont("", 36) # Sets the font to pygame default and sets the size
-        self.title_surface = self.font.render(f"{name}", True, (255, 255, 255)) # Creates the text screen, colour black
-        self.title_rect = self.title_surface.get_rect(center=centre) # Draws the text with the same centre as the button so it is over it
+        self.titleSurface = self.font.render(f"{name}", True, (255, 255, 255)) # Creates the text screen, colour black
+        self.titleRect = self.titleSurface.get_rect(center=centre) # Draws the text with the same centre as the button so it is over it
     
     def draw(self): # Blits the rect onto the screen
         self.updateImage() # Ensure image is updated
         self.screen.blit(self.interactableImage, self.interactableObj)
-        self.screen.blit(self.title_surface, self.title_rect)
+        self.screen.blit(self.titleSurface, self.titleRect)
         
     def checkHover(self): # Checks if the mouse is hovered over the rect
         mousePos = pygame.mouse.get_pos() # Gets the position of the mouse
         return self.interactableObj.collidepoint(mousePos) # Returns a boolean if the mouse pos overlaps the rect
 
     def pressed(self, event): # Checks if the mouse is pressed while it hovers over the button
-        if self.checkHover() and event.type == pygame.MOUSEBUTTONDOWN: # Checking if the button press is a mouse press
-            if event.button == 1: # Checks if the button pressed is the left mouse button
-                self.interactableImage = self.pressedImg
-                return True
-            else:
-                self.interactable = self.defaultImg
+        if self.interactable: # Don't allow button to be pressed if it isn't interactable
+            if self.checkHover() and event.type == pygame.MOUSEBUTTONDOWN: # Checking if the button press is a mouse press
+                if event.button == 1: # Checks if the button pressed is the left mouse button
+                    self.interactableImage = self.pressedImg
+                    return True
+                else:
+                    self.interactable = self.defaultImg
         return False
-            
+                
     def makeInteractable(self):
         self.interactable = True
     
@@ -116,10 +117,10 @@ class discreteSlider(button):
         self.screen.blit(self.interactableImage, self.interactableObj)
         # Create the text object
         font = pygame.font.SysFont("", 22) # Sets the font to default python font with size 22
-        title_surface = font.render(f"{self.name}: {self.value}", True, (255, 255, 255)) # Creates text screen with colour black
-        title_rect = title_surface.get_rect(center=(self.centre[0], self.centre[1]-15)) # Creates the rect with the offset to appear above the slider
+        titleSurface = font.render(f"{self.name}: {self.value}", True, (255, 255, 255)) # Creates text screen with colour black
+        titleRect = titleSurface.get_rect(center=(self.centre[0], self.centre[1]-15)) # Creates the rect with the offset to appear above the slider
         # Draw Text
-        self.screen.blit(title_surface, title_rect) # Draws on every iteration to update the value displayed
+        self.screen.blit(titleSurface, titleRect) # Draws on every iteration to update the value displayed
         # # For visibility of Nodes during testing
         # for i in list(self.valuePoints.keys()):
         #     pygame.draw.circle(self.screen, (0,255,0), (i,self.guideRect.centery), 5)
@@ -171,8 +172,8 @@ class inputBox(button):
         self.minMax = minMax
         # Creating the text for the inputbox title
         self.title_font = pygame.font.SysFont("", 22) # Sets the font of the text to the default pygame font and the size to 22
-        self.title_title_surface = self.title_font.render(f"{self.name}", True, (255, 255, 255)) # Creates the text screen with black colour
-        self.title_title_rect = self.title_title_surface.get_rect(center=(self.centre[0], self.centre[1]-25*self.scale)) # Creates the rect with an offset to appear above the input box
+        self.title_titleSurface = self.title_font.render(f"{self.name}", True, (255, 255, 255)) # Creates the text screen with black colour
+        self.title_titleRect = self.title_titleSurface.get_rect(center=(self.centre[0], self.centre[1]-25*self.scale)) # Creates the rect with an offset to appear above the input box
     
     def draw(self):
         # Check if it's interactable
@@ -184,11 +185,11 @@ class inputBox(button):
         self.screen.blit(self.interactableImage, self.interactableObj)
         # Create the text object for value
         self.input_font = pygame.font.SysFont("", 22) # Sets the font to pygame default with size 22
-        self.input_title_surface = self.title_font.render(f"{self.value}", True, (255, 255, 255)) # Creates text screen with colour black
-        self.input_title_rect = self.title_title_surface.get_rect(center=self.centre) # Creates the rect of the text so the centre is over the box
+        self.input_titleSurface = self.title_font.render(f"{self.value}", True, (255, 255, 255)) # Creates text screen with colour black
+        self.input_titleRect = self.title_titleSurface.get_rect(center=self.centre) # Creates the rect of the text so the centre is over the box
         # Draw Text
-        self.screen.blit(self.title_title_surface, self.title_title_rect)
-        self.screen.blit(self.input_title_surface, self.input_title_rect)
+        self.screen.blit(self.title_titleSurface, self.title_titleRect)
+        self.screen.blit(self.input_titleSurface, self.input_titleRect)
     
     def checkSelected(self, event):
         if self.interactable: # Only do something if the box can be used
@@ -243,8 +244,8 @@ class revealableButton(button):
         self.interactableObj = pygame.Rect(0, 0, 170, 35)
         # Create text object
         self.font = pygame.font.SysFont("", 30) # Sets the font to pygame default and sets the size
-        self.title_surface = self.font.render(f"{name}", True, (255, 255, 255)) # Creates the text screen, colour black
-        self.title_rect = self.title_surface.get_rect(center=centre) # Draws the text with the same centre as the button so it is over it
+        self.titleSurface = self.font.render(f"{name}", True, (255, 255, 255)) # Creates the text screen, colour black
+        self.titleRect = self.titleSurface.get_rect(center=centre) # Draws the text with the same centre as the button so it is over it
         self.interactableObj.center = centre
         self.interactableObjColour = (110,49,6)
         self.revealed = revealed
@@ -258,7 +259,7 @@ class revealableButton(button):
         if not self.revealed:
             # Draw the centre covering the text
             pygame.draw.rect(self.screen, self.interactableObjColour, self.interactableObj)
-            self.screen.blit(self.title_surface, self.title_rect)
+            self.screen.blit(self.titleSurface, self.titleRect)
         else:
             # Create the text object for the revlealed text
             revealedTextSurface = self.font.render(f"{self.revealedText}", True, "black")

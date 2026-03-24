@@ -166,6 +166,19 @@ def playingGame(game):
                 if nextRoundButton.pressed(event):
                     game.endRound()
                 
+    def initialDeal():
+        for i in range(2): # Deal 2 cards to players from left to right
+            for player in game.players:
+                if i == 1 and player.isDealer: # If the dealer is dealt their second card
+                    player.dealCard(game, visible=False) # Deal the card face down
+                else: # Deal the card to the player
+                    player.dealCard(game)
+                # Stagger the dealt cards 
+                pygame.time.wait(400)
+                drawScreen() # Draw a the new hands when they are dealt
+        pygame.time.wait(1000) # Stagger time before round start
+        game.roundStarted = True # Start the round
+
     def endPlayerTurn():
         # Make all buttons uninteractable
         hitButton.makeUninteractable()
@@ -282,7 +295,7 @@ def playingGame(game):
                 game.gameState.bettingPhase = False
                 game.gameState.roundStarted = True
                 # game.playerIndex = 0
-                game.initialDeal() # Do the initial Deal
+                initialDeal() # Do the initial Deal
                 game.playerIndex = 0
             # NPC's betting turn
             else:

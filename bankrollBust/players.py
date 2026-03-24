@@ -131,7 +131,7 @@ class player():
 
     def canSplit(self):
         currentHand = self.hands[self.handIndex].cards
-        if len(currentHand) == 2:
+        if len(currentHand) == 2 and self.bustBux >= self.hands[0].bet: # Don't allow player to split if they don't have enough money
              if currentHand[0].face == currentHand[1].face:
                  return True
         return False
