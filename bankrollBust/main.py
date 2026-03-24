@@ -113,32 +113,29 @@ def playingGame(game):
         for event in events: # Checking for events
             if event.type == pygame.QUIT: # If the user presses the X button, quit game
                 quit()
-            # Update buttons
-            hitButton.updateImage(event)
-            standButton.updateImage(event)
-            splitButton.updateImage(event)
-            insuranceButton.updateImage(event)
-            confirmBetButton.updateImage(event)
             # --- Assistance Button Interactions --- #
             # Swaps the boolean if the button is interacted with
-            if revealPredictedCardButton.updateImage(event):
+            if revealPredictedCardButton.pressed(event):
                 revealPredictedCardButton.revealed = True if not revealPredictedCardButton.revealed else False
-            if revealSeenCardsButton.updateImage(event):
+            if revealSeenCardsButton.pressed(event):
                 revealSeenCardsButton.revealed = True if not revealSeenCardsButton.revealed else False
-            if revealTrueCountButton.updateImage(event):
+            if revealTrueCountButton.pressed(event):
                 revealTrueCountButton.revealed = True if not revealTrueCountButton.revealed else False
             # Game Over
             if game.gameState.gameOver:
-                if endGameButton.updateImage(event):
+                if endGameButton.pressed(event):
                     game.gameState.gamePlayRunning = False
             # Deck out of cards
             elif game.gameState.deckOutOfCards:
-                if endGameButton.updateImage(event):
+                if endGameButton.pressed(event):
                     game.gameState.gamePlayRunning = False
-                if newDeckButton.updateImage(event):
+                if newDeckButton.pressed(event):
                     game.deckInstance.generateDeck()
                     game.deckInstance.shuffle()
                     game.gameState.deckOutOfCards = False
+                    game.runningCount = 0
+                    game.trueCount = 0
+                    game.seenCards = 0
                     game.endRound()
             # Betting Phase
             elif game.gameState.bettingPhase:
@@ -146,16 +143,16 @@ def playingGame(game):
                     # Make the relevant interactables be interactable
                     betAmountInputBox.setMax(game.currentPlayer.bustBux)
                     game.playerAction.potentialBet = int(betAmountInputBox.getInput(event))
-                    game.playerAction.betMade = confirmBetButton.updateImage(event)
+                    game.playerAction.betMade = confirmBetButton.pressed(event)
             # Starting action phase
             elif game.gameState.roundStarted:
                 if game.currentPlayer.isPlayer:
-                    game.playerAction.hit = hitButton.updateImage(event)
-                    game.playerAction.stand = standButton.updateImage(event)
-                    game.playerAction.split = splitButton.updateImage(event)
-                    game.playerAction.insurance = insuranceButton.updateImage(event)
+                    game.playerAction.hit = hitButton.pressed(event)
+                    game.playerAction.stand = standButton.pressed(event)
+                    game.playerAction.split = splitButton.pressed(event)
+                    game.playerAction.insurance = insuranceButton.pressed(event)
                     if game.gameState.doubleDownAvailable:
-                        if doubleDownButton.updateImage(event): # If the player hasn't acted they can double down
+                        if doubleDownButton.pressed(event): # If the player hasn't acted they can double down
                             currentHand = game.currentPlayer.hands[0]
                             game.currentPlayer.bustBux -= currentHand.bet # Remove the additional bet from their total
                             game.currentPlayer.totalBet += currentHand.bet
@@ -166,7 +163,7 @@ def playingGame(game):
                             endPlayerTurn()
                             game.gameState.doubleDownAvailable = False
             elif game.gameState.roundOver:
-                if nextRoundButton.updateImage(event):
+                if nextRoundButton.pressed(event):
                     game.endRound()
                 
     def endPlayerTurn():
@@ -338,30 +335,31 @@ def playingGame(game):
                     # Reset action timer
                     gameAct = 0
             # NPC's turn
-            else:
+            elif not game.currentPlayer.isPlayer and not game.currentPlayer.isDealer:
                 gameAct += 1
                 currentHand = game.currentPlayer.hands[game.currentPlayer.handIndex]
                 if gameAct == gameActionDelay:
-                    NPCAction = game.currentPlayer.decideNextMove(game)
-                    if currentHand.naturalBlackjack:
-                        game.currentPlayer.stand(game)
-                    elif NPCAction == "hit":
-                        game.currentPlayer.dealCard(game)
-                    elif NPCAction == "stand":
-                        game.currentPlayer.stand(game)
-                    elif NPCAction == "split":
-                        game.currentPlayer.splitHand()
-                    elif NPCAction == "insurance":
-                        game.currentPlayer.insurance = currentHand.bet/2
-                        game.currentPlayer.totalBet += currentHand.bet/2
-                        game.currentPlayer.bustBux -= currentHand.bet/2
-                    elif NPCAction == "doubleDown":
-                        game.currentPlayer.bustBux -= currentHand.bet # Remove the additional bet from their total
-                        game.currentPlayer.totalBet += currentHand.bet
-                        currentHand.bet *= 2
-                        # Usual card dealing process
-                        game.currentPlayer.dealCard(game)
-                        game.currentPlayer.stand(game)
+                    if not currentHand.busted:
+                        NPCAction = game.currentPlayer.decideNextMove(game)
+                        if currentHand.naturalBlackjack:
+                            game.currentPlayer.stand(game)
+                        elif NPCAction == "hit":
+                            game.currentPlayer.dealCard(game)
+                        elif NPCAction == "stand":
+                            game.currentPlayer.stand(game)
+                        elif NPCAction == "split":
+                            game.currentPlayer.splitHand()
+                        elif NPCAction == "insurance":
+                            game.currentPlayer.insurance = currentHand.bet/2
+                            game.currentPlayer.totalBet += currentHand.bet/2
+                            game.currentPlayer.bustBux -= currentHand.bet/2
+                        elif NPCAction == "doubleDown":
+                            game.currentPlayer.bustBux -= currentHand.bet # Remove the additional bet from their total
+                            game.currentPlayer.totalBet += currentHand.bet
+                            currentHand.bet *= 2
+                            # Usual card dealing process
+                            game.currentPlayer.dealCard(game)
+                            game.currentPlayer.stand(game)
                     gameAct = 0
         drawScreen()
         clock.tick(60) # Limiting clock to 60        
@@ -373,16 +371,29 @@ def newGameSettings():
     # Interaction Setup
     currentX = miniWindowRect.centerx # Making my function calls shorter - Neater code :)
     currentY = miniWindowRect.centery
+    # --- Defining Interactable Objects --- #
     noOfDecksSlider = discreteSlider(screen, "Number Of Decks:", (currentX, currentY-150), [4,6,8,10,12,16], scale=1.3)
     difficultySlider = discreteSlider(screen, "Difficulty:", (currentX, currentY-100), ["Full-Assist", "Semi-Assist", "There-When-Needed","No-Help"], scale=1.3)
     noOfNPCsSlider = discreteSlider(screen, "Number of NPCs:", (currentX, currentY-50), [0,1,2,3,4], scale=1.3)
     startingBuxInput = inputBox(screen, (currentX, currentY+25), "Starting Bux:", "num", "1000",  scale=0.8, minMax=(1000, 100000))
     startButton = button(screen, (currentX+135, currentY+125), "Start Game", scale=0.7)
     cancelButton = button(screen, (currentX-135, currentY+125), "Cancel", scale=0.7)
+    # Debugging Purposes
     debugMode = False
     # Keeping Window Open
     started = False
     while not started:
+        # --- Drawing Mini Window --- #
+        screen.blit(bg, (0,0)) # Set the screen as my background
+        screen.blit(miniWindowImage, miniWindowRect) # Draws the mini window onto the screen
+        noOfDecksSlider.draw()
+        difficultySlider.draw()
+        noOfNPCsSlider.draw()
+        startingBuxInput.draw()
+        startButton.draw()
+        cancelButton.draw()
+        pygame.display.update()
+        # --- Event Handler --- #
         for event in pygame.event.get(): #Checking for events
             if event.type == pygame.QUIT: # If the user presses the X button, quit game
                 quit()
@@ -395,12 +406,11 @@ def newGameSettings():
                     else:
                         pygame.display.set_caption("Bankroll Bust")
                 # -------------------------- #
-            screen.blit(miniWindowImage, miniWindowRect) # Draws the mini window onto the screen
-            noOfDecks = noOfDecksSlider.getValue(event) # Get the value from the slider -- See buttonUtils.py
-            difficulty = difficultySlider.getValue(event) # Get the value from the slider -- See buttonUtils.py
-            noOfPlayers = noOfNPCsSlider.getValue(event) # Get the value from the slider -- See buttonUtils.py
-            startingBux = startingBuxInput.getInput(event) # Get the value of the input box -- See buttonUtils.py
-            if startButton.updateImage(event): # Checking if User has pressed the start button
+            noOfDecks = noOfDecksSlider.getValue(event) # Get the value from the slider
+            difficulty = difficultySlider.getValue(event) # Get the value from the slider
+            noOfPlayers = noOfNPCsSlider.getValue(event) # Get the value from the slider
+            startingBux = startingBuxInput.getInput(event) # Get the value of the input box
+            if startButton.pressed(event): # Checking if User has pressed the start button
                 started = True # Sets started to true breaking the loop
                 # Returns list of all selected settings
                 return {"noOfDecks":noOfDecks,
@@ -408,9 +418,8 @@ def newGameSettings():
                         "startingBux":startingBux,
                         "noOfNPCs":noOfPlayers,
                         "debugMode": debugMode} 
-            elif cancelButton.updateImage(event): # Checks if player pressed the cancel button
+            elif cancelButton.pressed(event): # Checks if player pressed the cancel button
                 return None # Retuns none passing over the If-Statement checking if the game is started
-            pygame.display.flip() # Updates the screen with all the rects 
 
 def newGame(noOfDecks, difficulty, noOfNPCs, startingBux, debugMode):
     # Button setup that requires vairables: Bet Amount
@@ -421,21 +430,26 @@ def newGame(noOfDecks, difficulty, noOfNPCs, startingBux, debugMode):
 gameRunning = True
 while gameRunning: # Main Menu Loop
     screen.blit(bg, (0,0)) # Set the screen as my background
+    newGameButton.draw()
+    continueButton.draw()
+    settingsButton.draw()
+    quitButton.draw()
+    pygame.display.update() # Update the screen
+    # Draw the Buttons
     for event in pygame.event.get(): #Checking for events
         if event.type == pygame.QUIT: # If the user presses the X button, quit game
             gameRunning = False
         # By updating the image on an event I can limit the amount of checks my code makes, additionally I can make it so you only press one button at a time
-        if newGameButton.updateImage(event):
+        if newGameButton.pressed(event):
             gameSettings = newGameSettings() # Opens teh new game mini window
             if gameSettings is not None: # If it is none they cancelled new game
                 newGame(**gameSettings) # Creating the game with the selected settings
-        elif continueButton.updateImage(event):
+        elif continueButton.pressed(event):
             pass
-        elif settingsButton.updateImage(event):
+        elif settingsButton.pressed(event):
             pass
-        elif quitButton.updateImage(event):
+        elif quitButton.pressed(event):
             gameRunning = False
-        pygame.display.flip() # Update the screen
     clock.tick(60) # Limiting clock to 60
     
     

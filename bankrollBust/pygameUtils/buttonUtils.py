@@ -27,6 +27,7 @@ class button:
         self.title_rect = self.title_surface.get_rect(center=centre) # Draws the text with the same centre as the button so it is over it
     
     def draw(self): # Blits the rect onto the screen
+        self.updateImage() # Ensure image is updated
         self.screen.blit(self.interactableImage, self.interactableObj)
         self.screen.blit(self.title_surface, self.title_rect)
         
@@ -35,9 +36,13 @@ class button:
         return self.interactableObj.collidepoint(mousePos) # Returns a boolean if the mouse pos overlaps the rect
 
     def pressed(self, event): # Checks if the mouse is pressed while it hovers over the button
-        if event.type == pygame.MOUSEBUTTONDOWN: # Checking if the button press is a mouse press
+        if self.checkHover() and event.type == pygame.MOUSEBUTTONDOWN: # Checking if the button press is a mouse press
             if event.button == 1: # Checks if the button pressed is the left mouse button
+                self.interactableImage = self.pressedImg
                 return True
+            else:
+                self.interactable = self.defaultImg
+        return False
             
     def makeInteractable(self):
         self.interactable = True
@@ -45,24 +50,13 @@ class button:
     def makeUninteractable(self):
         self.interactable = False
         
-    def updateImage(self, event): # Updates the image depending on how the button is being interacted with
-        pressed = False # Button isn't pressed by default
-        if self.interactable: # Button can be interacted with
-            if self.checkHover(): # Check if the mouse is over the button
-                if self.pressed(event): # Button is Pressed
-                    # Set the button to the pressed image
-                    self.interactableImage = self.pressedImg
-                    pressed = True # Telling us the button is pressed
-                else: # Buttons isn't pressed6
-                    # Set button to the hovered image
-                    self.interactableImage = self.hoveredImg
-            else: # Button isn't being interacted with
-                # Set the button image to the regular image as it's not being interacted with
-                self.interactableImage = self.defaultImg
+    def updateImage(self): # Updates the image depending on how the button is being interacted with
+        if self.interactable:
+            self.interactableImage = self.defaultImg
+            if self.checkHover():
+                self.interactableImage = self.hoveredImg
         else:
             self.interactableImage = self.inactiveImg
-        self.draw() # Draw the updated image
-        return pressed # Returns whether button is pressed
         
 class discreteSlider(button):
     def __init__(self, screen: pygame.Surface, name: str, centre: tuple, values: list, scale = 1.0, interactable = True):
@@ -137,14 +131,14 @@ class discreteSlider(button):
             if self.checkHover(): # Check if the mouse is hovering
                 # If it is set the image of the thumb to the hovered image
                 self.interactableImage = self.hoveredImg
-                self.pressed(event) # Checking if the mouse is pressed
+                self.getHeld(event) # Checking if the mouse is pressed
                 if self.mouseHeld: # If the mouse is held down
                     offsetX = mousePos[0] - self.interactableObj.centerx # Set the offset so the thumb doesn't snap to the mouse
             else:
                 # Is the mouse isn't hovering, change the image to the default
                 self.interactableImage = self.defaultImg
         if self.mouseHeld == True: # If the mouse is held down
-            self.pressed(event) # Check if the mouse is pressed
+            self.getHeld(event) # Check if the mouse is pressed
             if mousePos[0] > self.thumbLBound and mousePos[0] < self.thumbUBound: # Keep the sun within the bounds
                 self.interactableObj.centerx = mousePos[0]-offsetX # Set the centre of the thumb to be the mouse position accounting for the offset
             if not self.mouseHeld: # If the mouse isn't held down
@@ -153,12 +147,11 @@ class discreteSlider(button):
         
     def getValue(self, event):
         self.moveThumb(event) # Call the move thumb method
-        self.draw() # Draw the images
         closestValue = self.snapThumb() # get where the thumb is
         self.value = self.valuePoints[closestValue] # Set the current value to the value the thumb is over
         return self.value # Return the value
     
-    def pressed(self, event):
+    def getHeld(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN: # Checks if mouse button is pressed down
             if event.button == 1: # Checks if it's the left mouse button that is pressed
                 self.mouseHeld = True # Sets to held 
@@ -228,7 +221,6 @@ class inputBox(button):
         self.minMax[1] = maxBet
 
     def getInput(self, event):
-        self.draw() # Draws the rects
         self.checkSelected(event) # Checks if the box was selected
         if self.selected: # if it was selected
             if event.type == pygame.KEYDOWN: # Checks for keyboard presses

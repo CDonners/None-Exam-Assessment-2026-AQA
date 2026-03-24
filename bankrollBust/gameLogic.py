@@ -104,7 +104,8 @@ class handleGameUI:
         if hand.busted:
             statusTextSurface = self.mainFont.render("Busted", True, "black")
         elif hand.naturalBlackjack:
-            statusTextSurface = self.mainFont.render("BLACKJACK", True, "black")
+            if hand.cards[1].visible: # Avoids telling the user the dealer has natural blackjack before the down card is revealed
+                statusTextSurface = self.mainFont.render("BLACKJACK", True, "black")
         elif hand.stood:
             statusTextSurface = self.mainFont.render("Stood", True, "black")
         elif hand.push:
@@ -248,8 +249,9 @@ class playGame():
         # Faces: "A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K" 
         return {
                 "roundStagger": None,
-                "dealer": [],
-                "player": ["5","K", "6"]
+                "dealer": ["A", "K"],
+                "player": [],
+                0: ["A","K"]
                 }
     # -------------------------- #
             
