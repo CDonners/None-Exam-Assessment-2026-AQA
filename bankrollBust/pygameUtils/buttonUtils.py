@@ -13,6 +13,7 @@ class button:
         self.screen = screen # Defining the screen
         self.scale = scale # Defining the scale
         self.interactable = interactable
+        self.isPressed = False
         # Loading Images
         self.defaultImg = pygame.transform.scale_by(pygame.image.load(self.bid+".png"), self.scale)
         self.hoveredImg = pygame.transform.scale_by(pygame.image.load(self.bid+"_hovered"+".png"), self.scale)
@@ -39,10 +40,9 @@ class button:
         if self.interactable: # Don't allow button to be pressed if it isn't interactable
             if self.checkHover() and event.type == pygame.MOUSEBUTTONDOWN: # Checking if the button press is a mouse press
                 if event.button == 1: # Checks if the button pressed is the left mouse button
-                    self.interactableImage = self.pressedImg
+                    self.isPressed = True
                     return True
-                else:
-                    self.interactable = self.defaultImg
+        self.isPressed = False
         return False
                 
     def makeInteractable(self):
@@ -58,6 +58,9 @@ class button:
                 self.interactableImage = self.hoveredImg
         else:
             self.interactableImage = self.inactiveImg
+            self.isPressed = False
+        if self.isPressed:
+            self.interactableImage = self.pressedImg
         
 class discreteSlider(button):
     def __init__(self, screen: pygame.Surface, name: str, centre: tuple, values: list, scale = 1.0, interactable = True):
@@ -218,8 +221,8 @@ class inputBox(button):
         elif self.inputType == "alphanum":
             return strToCheck.isalnum()
 
-    def setMax(self, maxBet):
-        self.minMax[1] = maxBet
+    def setMax(self, newMax):
+        self.minMax[1] = newMax
 
     def getInput(self, event):
         self.checkSelected(event) # Checks if the box was selected
