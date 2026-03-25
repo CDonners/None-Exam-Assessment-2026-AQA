@@ -1,11 +1,11 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36" version="29.6.6">
   <diagram name="Page-1" id="xph4d0XMxElyHO7BBicY">
-    <mxGraphModel dx="1630" dy="899" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="1918" dy="1058" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="UJFNjGe_3dIbAzMlUfGL-1" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#cce5ff;strokeColor=#36393d;" value="&lt;span style=&quot;font-size: 15px; font-weight: 400;&quot;&gt;Player&lt;/span&gt;" vertex="1">
-          <mxGeometry height="400" width="200" x="240" y="40" as="geometry" />
+          <mxGeometry height="400" width="200" x="290" y="70" as="geometry" />
         </mxCell>
         <mxCell id="UJFNjGe_3dIbAzMlUfGL-2" parent="UJFNjGe_3dIbAzMlUfGL-1" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;fillColor=#1ba1e2;strokeColor=#006EAF;fontColor=#ffffff;" value="name: str&lt;div&gt;bustBux: float&lt;/div&gt;&lt;div&gt;isPlayer: boolean&lt;/div&gt;&lt;div&gt;isDealer: boolean&lt;/div&gt;&lt;div&gt;hands: list&lt;/div&gt;&lt;div&gt;handIndex: int&lt;/div&gt;&lt;div&gt;totalBet: float&lt;/div&gt;&lt;div&gt;insurance: float&lt;/div&gt;&lt;div&gt;winnings: float&lt;/div&gt;&lt;div&gt;nexcardNeeded: str&lt;/div&gt;" vertex="1">
           <mxGeometry height="160" width="200" y="30" as="geometry" />
@@ -17,7 +17,7 @@
           <mxGeometry height="202" width="200" y="198" as="geometry" />
         </mxCell>
         <mxCell id="UJFNjGe_3dIbAzMlUfGL-9" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#cce5ff;strokeColor=#36393d;" value="&lt;span style=&quot;font-size: 15px; font-weight: 400;&quot;&gt;Dealer&lt;/span&gt;" vertex="1">
-          <mxGeometry height="270" width="200" x="80" y="500" as="geometry" />
+          <mxGeometry height="270" width="200" x="20" y="450" as="geometry" />
         </mxCell>
         <mxCell id="UJFNjGe_3dIbAzMlUfGL-10" parent="UJFNjGe_3dIbAzMlUfGL-9" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;fillColor=#1ba1e2;strokeColor=#006EAF;fontColor=#ffffff;" value="name: str&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(255, 255, 255), rgb(18, 18, 18));&quot;&gt;isPlayer: boolean&lt;/span&gt;&lt;/div&gt;&lt;div&gt;isDealer: boolean&lt;/div&gt;&lt;div&gt;hands: list&lt;/div&gt;&lt;div&gt;ACTIONS: list&lt;/div&gt;" vertex="1">
           <mxGeometry height="90" width="200" y="30" as="geometry" />
@@ -28,8 +28,19 @@
         <mxCell id="UJFNjGe_3dIbAzMlUfGL-12" parent="UJFNjGe_3dIbAzMlUfGL-9" style="text;strokeColor=#001DBC;fillColor=#0050ef;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;fontColor=#ffffff;" value="bust&lt;div&gt;stand&lt;/div&gt;&lt;div&gt;dealCard&lt;/div&gt;&lt;div&gt;dealPresetCard&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(255, 255, 255), rgb(18, 18, 18));&quot;&gt;checkBusted&lt;/span&gt;&lt;/div&gt;&lt;div&gt;checkBlackjack&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(255, 255, 255), rgb(18, 18, 18));&quot;&gt;getHandValue&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(255, 255, 255), rgb(18, 18, 18));&quot;&gt;newRound&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(255, 255, 255), rgb(18, 18, 18));&quot;&gt;decideNextMove&lt;/span&gt;&lt;/div&gt;" vertex="1">
           <mxGeometry height="142" width="200" y="128" as="geometry" />
         </mxCell>
+        <mxCell id="hGylSlWFZgrHcyzGdp0D-1" edge="1" parent="1" source="UJFNjGe_3dIbAzMlUfGL-13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=1.008;entryY=0.753;entryDx=0;entryDy=0;entryPerimeter=0;" target="UJFNjGe_3dIbAzMlUfGL-4">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="700" y="50" />
+              <mxPoint x="540" y="50" />
+              <mxPoint x="540" y="420" />
+            </Array>
+            <mxPoint x="650" y="50" as="sourcePoint" />
+            <mxPoint x="499.99999999999955" y="420" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
         <mxCell id="UJFNjGe_3dIbAzMlUfGL-13" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#cce5ff;strokeColor=#36393d;" value="&lt;span style=&quot;font-size: 15px; font-weight: 400;&quot;&gt;Player&lt;/span&gt;" vertex="1">
-          <mxGeometry height="560" width="200" x="400" y="500" as="geometry" />
+          <mxGeometry height="560" width="200" x="600" y="120" as="geometry" />
         </mxCell>
         <mxCell id="UJFNjGe_3dIbAzMlUfGL-14" parent="UJFNjGe_3dIbAzMlUfGL-13" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;fillColor=#1ba1e2;strokeColor=#006EAF;fontColor=#ffffff;" value="name: str&lt;div&gt;prosperity: float&lt;/div&gt;&lt;div&gt;confidence: float&lt;/div&gt;&lt;div&gt;experience: float&lt;br&gt;&lt;div&gt;bustBux: float&lt;/div&gt;&lt;div&gt;isPlayer: boolean&lt;/div&gt;&lt;div&gt;isDealer: boolean&lt;/div&gt;&lt;div&gt;hands: list&lt;/div&gt;&lt;div&gt;handIndex: int&lt;/div&gt;&lt;div&gt;totalBet: float&lt;/div&gt;&lt;div&gt;insurance: float&lt;/div&gt;&lt;div&gt;winnings: float&lt;/div&gt;&lt;div&gt;nexcardNeeded: str&lt;/div&gt;&lt;/div&gt;&lt;div&gt;ACTIONS: list&lt;/div&gt;" vertex="1">
           <mxGeometry height="220" width="200" y="30" as="geometry" />
@@ -40,10 +51,7 @@
         <mxCell id="UJFNjGe_3dIbAzMlUfGL-16" parent="UJFNjGe_3dIbAzMlUfGL-13" style="text;strokeColor=#001DBC;fillColor=#0050ef;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;fontColor=#ffffff;" value="bust&lt;div&gt;stand&lt;/div&gt;&lt;div&gt;dealCard&lt;/div&gt;&lt;div&gt;dealPresetCard&lt;/div&gt;&lt;div&gt;splitHand&lt;/div&gt;&lt;div&gt;makeBet&lt;/div&gt;&lt;div&gt;checkBusted&lt;/div&gt;&lt;div&gt;checkBlackjack&lt;/div&gt;&lt;div&gt;canSplit&lt;/div&gt;&lt;div&gt;canDoubleDown&lt;/div&gt;&lt;div&gt;getHandValue&lt;/div&gt;&lt;div&gt;getNextCardNeeded&lt;/div&gt;&lt;div&gt;newRound&lt;/div&gt;&lt;div&gt;decideNextMove&lt;/div&gt;&lt;div&gt;calculateBet&lt;/div&gt;&lt;div&gt;decideToHit&lt;/div&gt;&lt;div&gt;decideToSplit&lt;/div&gt;&lt;div&gt;decideInsurance&lt;/div&gt;&lt;div&gt;decideDoubleDown&lt;/div&gt;&lt;div&gt;getHandQuality&lt;/div&gt;" vertex="1">
           <mxGeometry height="302" width="200" y="258" as="geometry" />
         </mxCell>
-        <mxCell id="UJFNjGe_3dIbAzMlUfGL-17" edge="1" parent="1" source="UJFNjGe_3dIbAzMlUfGL-13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1.023;entryY=0.798;entryDx=0;entryDy=0;entryPerimeter=0;" target="UJFNjGe_3dIbAzMlUfGL-4">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="UJFNjGe_3dIbAzMlUfGL-18" edge="1" parent="1" source="UJFNjGe_3dIbAzMlUfGL-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.802;entryDx=0;entryDy=0;entryPerimeter=0;" target="UJFNjGe_3dIbAzMlUfGL-4">
+        <mxCell id="UJFNjGe_3dIbAzMlUfGL-18" edge="1" parent="1" source="UJFNjGe_3dIbAzMlUfGL-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.802;entryDx=0;entryDy=0;entryPerimeter=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" target="UJFNjGe_3dIbAzMlUfGL-4">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
       </root>
