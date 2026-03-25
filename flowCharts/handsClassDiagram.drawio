@@ -13,7 +13,7 @@
         <mxCell id="fAg1cSLMkWBW6cQtUt_K-3" parent="fAg1cSLMkWBW6cQtUt_K-1" style="line;strokeWidth=1;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;fillColor=#1ba1e2;fontColor=#ffffff;strokeColor=#006EAF;" value="" vertex="1">
           <mxGeometry height="8" width="260" y="170" as="geometry" />
         </mxCell>
-        <mxCell id="fAg1cSLMkWBW6cQtUt_K-4" parent="fAg1cSLMkWBW6cQtUt_K-1" style="text;strokeColor=#001DBC;fillColor=#0050ef;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;fontColor=#ffffff;" value="&lt;span style=&quot;font-size: 15px;&quot;&gt;&lt;b&gt;addCard&lt;/b&gt;&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;&lt;b&gt;setVisible&lt;/b&gt;&lt;/span&gt;&lt;/div&gt;" vertex="1">
+        <mxCell id="fAg1cSLMkWBW6cQtUt_K-4" parent="fAg1cSLMkWBW6cQtUt_K-1" style="text;strokeColor=#001DBC;fillColor=#0050ef;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;fontColor=#ffffff;" value="&lt;span style=&quot;font-size: 15px;&quot;&gt;&lt;b&gt;addCard&lt;/b&gt;&lt;/span&gt;" vertex="1">
           <mxGeometry height="52" width="260" y="178" as="geometry" />
         </mxCell>
       </root>
