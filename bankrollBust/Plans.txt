@@ -1,6 +1,0 @@
-Make the player class in players.py
-Make the game work
- - Deal Cards
- - Then Hit and Stand
- - Then split and insurance
- - Work in NPCs

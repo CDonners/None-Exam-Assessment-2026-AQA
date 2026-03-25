@@ -1,7 +1,10 @@
 import pygame
 from pygameUtils.buttonUtils import button, discreteSlider, inputBox, revealableButton
 from gameLogic import playGame
+import json
+from os import getcwd
 
+# TODO Add caps support to input boxes for alpha
 # ! Bugs ! 
 # TODO Game stood for player with this card setup, can't recreate it: 
 """Met the exact circumstances and still didn't happen
@@ -439,6 +442,34 @@ def newGame(noOfDecks, difficulty, noOfNPCs, startingBux, debugMode):
     game = playGame(screen, noOfDecks, difficulty, noOfNPCs, startingBux, debugMode)
     playingGame(game)
 
+def settings():
+    # Load Json Data
+    settingsJsonDir = str(getcwd() + '\\savedFiles\\settings.json')
+    with open(settingsJsonDir, 'r') as file:
+        currentSettings = json.load(file)
+    # --- Setup --- #
+    settingsOpen = True
+    playerNameInputBox = inputBox(screen, (700, 300), "Name:", "alpha", currentSettings["playerName"])
+    saveSettingsButton = button(screen, (700, 400), "Save Settings")
+    while settingsOpen:
+        # --- Draw Screen Elements --- #
+        screen.blit(bg, (0,0))
+        playerNameInputBox.draw()
+        saveSettingsButton.draw()
+        pygame.display.update()
+        # --- Event Handler --- #
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT: # If the user presses the X button, quit game
+                quit()
+            playerName = playerNameInputBox.getInput(event)
+            if saveSettingsButton.pressed(event):
+                with open(settingsJsonDir, "w") as file:
+                    newSettings = {
+                                    "playerName": playerName
+                    }
+                    json.dump(newSettings, file)
+                settingsOpen = False
+                
 # Main Game Loop
 gameRunning = True
 while gameRunning: # Main Menu Loop
@@ -460,11 +491,9 @@ while gameRunning: # Main Menu Loop
         elif continueButton.pressed(event):
             pass
         elif settingsButton.pressed(event):
-            pass
+            settings()
         elif quitButton.pressed(event):
             gameRunning = False
     clock.tick(60) # Limiting clock to 60
-    
-    
     
 pygame.quit() # Exit out of Pygame

@@ -1,7 +1,7 @@
 import pygame
-import os
+from os import getcwd
 
-CWD = os.getcwd() # Get the current working directory
+CWD = getcwd() # Get the current working directory
 BIFD = CWD + "\\bankrollBust\\images\\buttons\\" # Button Images Folder Directory
 
 class button:

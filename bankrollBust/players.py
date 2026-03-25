@@ -1,4 +1,6 @@
 from pygameUtils.rand import genRandFloat
+from os import getcwd
+import json
 
 class hand:
     def __init__(self, cards = None, bet = 0):
@@ -15,7 +17,10 @@ class hand:
 
 class player():
     def __init__(self, bustBux: int):
-        self.name = "Player"
+        settingsJsonDir = str(getcwd()  + '/savedFiles/settings.json')
+        with open(settingsJsonDir, "r") as file:
+            currentSettings = json.load(file)
+        self.name = currentSettings["playerName"]
         self.bustBux = bustBux
         self.isPlayer = True
         self.isDealer = False
