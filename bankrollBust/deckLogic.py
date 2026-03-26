@@ -18,7 +18,10 @@ class cards():
         self.FONT_SUIT = pygame.font.SysFont("segoeuiemoji", 18)
         
     def drawCard(self, screen, centre: tuple, colourIndex = 0, active=True):
-        handColours = {0:"black", 1: (255, 87, 51), 2: (51, 255, 87), 3: (51, 87, 255), 4: (255, 51, 168), 5: (51, 255, 243), 6: (243, 255, 51), 7: (168, 51, 255), 8: (255, 140, 51), 9: (51, 255, 140)} # Colours for hands to distinguish them
+        handColours = {0:"black", 1: (255, 87, 51), 2: (51, 255, 87), 
+                       3: (51, 87, 255), 4: (255, 51, 168), 5: (51, 255, 243), 
+                       6: (243, 255, 51), 7: (168, 51, 255), 8: (255, 140, 51), 
+                       9: (51, 255, 140)} # Colours for hands to distinguish them
         self.cardRect.center = centre
         # Get the correct font colour
         if self.suit in ["♥️", "♦️"]:
@@ -41,7 +44,7 @@ class cards():
             screen.blit(text, (self.cardRect.x + 5, self.cardRect.y + 5))
             screen.blit(center_text, text_rect)
         else:
-            pygame.draw.rect(screen, (255,69,67), self.cardRect) # White card Centre
+            pygame.draw.rect(screen, (255,69,67), self.cardRect) # Red card Centre
         pygame.draw.rect(screen, handColours[colourIndex], self.cardRect, 4) # Border
         
     def setVisible(self):
@@ -55,7 +58,9 @@ class deckHandling():
     def generateDeck(self):
         # Card Values and Suits
         suits = ["♠️", "♥️", "♦️", "♣️"]
-        values = [["A", -1],["2", 1],["3", 1],["4", 2],["5", 2],["6", 2],["7", 1],["8", 0],["9", 0],["10", -2],["J", -2],["Q", -2],["K", -2]] 
+        values = [["A", -1],["2", 1],["3", 1],["4", 2],["5", 2],
+                  ["6", 2],["7", 1],["8", 0],["9", 0],["10", -2],
+                  ["J", -2],["Q", -2],["K", -2]] 
         deck = [] # Empty list to append generated cards to
         # Create every card in the standard 52 playing card deck
         for _ in range(self.noOfDecks):
