@@ -203,18 +203,14 @@ class inputBox(button):
     def checkSelected(self, event):
         if self.interactable: # Only do something if the box can be used
             if self.pressed(event): # Checks if the mouse was pressed
-                print("Pressed")
                 if self.checkHover(): # Checks if the mouse was hovering over the box when it was pressed
                     self.selected = True # If it was then selected is true
                     self.value = "" # Value is blank
-                    print("Pressed while hovered")
                 else: 
                     self.selected = False # Selected is now false
-                    print("Not selected")
                     if self.value == "": # If no value was set when it was pressed then the default value is set bac
-                        print("Setting to default")
                         self.value = self.defaultValue
-                    elif self.minMax != (): # There is a minimum and maximum value meaning value is an int or float
+                    elif self.minMax != []: # There is a minimum and maximum value meaning value is an int or float
                         if float(self.value) < self.minMax[0]:
                             self.value = str(self.minMax[0]) # If it's smaller than allowed set to min value
                         elif float(self.value) > self.minMax[1]:

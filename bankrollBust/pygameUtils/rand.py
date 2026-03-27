@@ -14,7 +14,7 @@ def genRandInt(numberOfBits: int):
 def genRandFloat(lowerBound: float, upperBound: float, decimalPlaces = 2):
     # --- Converting Floats to Int --- #
     tenthPower = 10**decimalPlaces
-    upperBound = int(round(lowerBound*tenthPower, 0))
+    upperBound = int(round(upperBound*tenthPower, 0))
     lowerBound = int(round(lowerBound*tenthPower, 0))
     # --- Generate an Integer --- #
     integerGenerated = 0

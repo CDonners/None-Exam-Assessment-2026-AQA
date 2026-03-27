@@ -235,7 +235,7 @@ class NPC(player):
     def calculateBet(self, minBet):
         # Higher floor when quality is high
         # Adjust the floor to be affected by experience and keep it from being stuck at 0
-        lowerBound = max(0.05, min(1.0, 0.4 * self.confidence)) 
+        lowerBound = max(0.05, min(1.0, 0.6 * self.confidence)) 
         # Generate the chance of hitting
         chanceToRaiseBet = genRandFloat(lowerBound, 1.0)
         if chanceToRaiseBet > 0.75: # If the chance to raise bet is greater than 075

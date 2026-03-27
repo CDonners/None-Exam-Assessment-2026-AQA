@@ -199,8 +199,12 @@ def playingGame(game):
             # Making actions available
             if game.currentPlayer.canSplit(): # If player's cards are equal
                 splitButton.makeInteractable()
-            if game.gameState.insuranceAvailable and game.currentPlayer.insurance == 0: # If the dealer has a visible Ace
+            else:
+                splitButton.makeUninteractable()
+            if game.gameState.insuranceAvailable and game.currentPlayer.insurance == 0 and len(game.currentPlayer.hands[0].cards) == 2: # If the dealer has a visible Ace
                 insuranceButton.makeInteractable()
+            else:
+                insuranceButton.makeUninteractable()
             # Player Stands
             if game.playerAction.stand or currentHand.naturalBlackjack:
                 game.currentPlayer.stand(game) # Make the player stand

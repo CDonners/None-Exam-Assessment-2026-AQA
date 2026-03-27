@@ -252,9 +252,8 @@ class playGame():
         # Faces: "A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K" 
         return {
                 "roundStagger": None,
-                "dealer": [],
-                "player": ["2","2"],
-                0: ["A","K"]
+                "dealer": ["A"],
+                "player": []
                 }
     # -------------------------- #
 
@@ -267,7 +266,7 @@ class playGame():
             
     def isInsuranceAvailable(self):
         dealerHand = self.dealer.hands[0]
-        if dealerHand.cards[0].face == "A":
+        if dealerHand.cards[0].face == "A" and self.currentPlayer.bustBux > self.currentPlayer.totalBet//2:
             self.gameState.insuranceAvailable = True
         else:
             self.gameState.insuranceAvailable = False
