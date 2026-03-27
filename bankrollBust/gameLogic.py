@@ -3,8 +3,11 @@ from players import player, NPC, dealer
 import pygame
 from pygameUtils.rand import genRandInt, genRandFloat
 
-NPCNAMES = ["Paul","Noel","Aniyah","Dalton","Mariah","Zeke","Jolie","Kristian","Brynlee","Dilan","Charlotte","Cory","Camila","Sonny","Martha","Quincy","Elliot","Blaze","Paola","Cain","Anya","Raylan","Emily","Jax","Lucy"]
-NPCPERSONALITIES = []
+NPCNAMES = ["Paul","Noel","Aniyah","Dalton",
+            "Mariah","Zeke","Jolie","Kristian",
+            "Brynlee","Dilan","Charlotte","Cory",
+            "Camila","Sonny","Martha","Quincy","Elliot",
+            "Blaze","Paola","Cain","Anya","Raylan","Emily","Jax","Lucy"]
 
 class setupGame():
     def __init__(self, startingBux: int, noOfNPCs):
@@ -35,7 +38,8 @@ class setupGame():
         indexCorrect = False 
         while not indexCorrect: # Looping until a correct index is generated
             generatedIndex = genRandInt(8) # Generate an integer for the index
-            if generatedIndex < len(NPCNAMES): # If the index is greater or equal to length of the names list, regenerate it.
+            # If the index is greater or equal to the length of the names list, regenerate it.
+            if generatedIndex < len(NPCNAMES): 
                 pickedName = NPCNAMES[generatedIndex] # Get the item at the index
                 if pickedName not in self.usedNames:
                     indexCorrect = True
@@ -64,13 +68,13 @@ class handleGameUI:
         # Fonts
         self.mainFont = pygame.font.SysFont("", 32)
         self.betFont = pygame.font.SysFont("", 28)
-        self.playerFont = pygame.font.SysFont("", 32) # Sets the font to pygame default with size 22
+        self.playerFont = pygame.font.SysFont("", 32)
         self.largeFont = pygame.font.SysFont("", 48)
         # Game Over Text
-        self.gameOverTextSurface = self.largeFont.render(f"GAME OVER", True, (255, 0, 0)) # Creates text surface with colour black
+        self.gameOverTextSurface = self.largeFont.render(f"GAME OVER", True, "black")
         self.gameOverTextRect = self.gameOverTextSurface.get_rect(center=(700,300))
         # Out of Cards Text
-        self.outOfCardsSurface = self.largeFont.render(f"DECK OUT OF CARDS", True, (255, 0, 0)) # Creates text surface with colour black
+        self.outOfCardsSurface = self.largeFont.render(f"DECK OUT OF CARDS", True, "black")
         self.outOfCardsTextRect = self.gameOverTextSurface.get_rect(center=(630,250))
         # Card dimensions
         self.cardWidth = 55
@@ -87,7 +91,7 @@ class handleGameUI:
     def drawPlayerTexts(self, players):
         for playerObj in players:
             # Creating the text for the player
-            playerTextSurface = self.playerFont.render(f"{playerObj.name}", True, (255, 255, 255)) # Creates text surface with colour black
+            playerTextSurface = self.playerFont.render(f"{playerObj.name}", True, "black")
             playerTextRect = playerTextSurface.get_rect(center=self.playerSeats[playerObj])
             self.screen.blit(playerTextSurface, playerTextRect)
 
@@ -95,7 +99,7 @@ class handleGameUI:
         for playerObj in players:
             if not playerObj.isDealer:
                 betCentre = (self.playerSeats[playerObj][0], self.playerSeats[playerObj][1]+25)
-                betTextSurface = self.betFont.render(f"Bet: {playerObj.totalBet}", True, (255, 255, 255)) # Creates text surface with colour white
+                betTextSurface = self.betFont.render(f"Bet: {playerObj.totalBet}", True, "white")
                 betTextRect = betTextSurface.get_rect(center=betCentre)
                 self.screen.blit(betTextSurface, betTextRect)
 
@@ -104,7 +108,8 @@ class handleGameUI:
         if hand.busted:
             statusTextSurface = self.mainFont.render("Busted", True, "black")
         elif hand.naturalBlackjack:
-            if hand.cards[1].visible: # Avoids telling the user the dealer has natural blackjack before the down card is revealed
+            # Avoids telling the user the dealer has natural blackjack before the down card is revealed
+            if hand.cards[1].visible: 
                 statusTextSurface = self.mainFont.render("BLACKJACK", True, "black")
         elif hand.stood:
             statusTextSurface = self.mainFont.render("Stood", True, "black")
@@ -128,33 +133,26 @@ class handleGameUI:
             totalWidth += width
         # Add spacing between hands
         totalWidth += (len(hands) - 1) * self.handSpacing
-
         # Starting X for centered hands
         centerX = self.playerSeats[playerObj][0]
         startX = centerX - totalWidth // 2 + self.cardWidth//2 # Accounts for width of cards
         currentX = startX
-
         # Draw each hand
         for i, hand in enumerate(hands):
             handWidth = handWidths[i]
             handCenterX = currentX + handWidth // 2 - self.cardWidth//2 # Acounts for card width
             handCenterY = self.playerSeats[playerObj][1] # Middle of hand is over seat
-
             # Determine if this hand is active
             handActive = (playerObj.handIndex == len(hands)-1-i)
-
             # Draw cards in the hand
             for j, card in enumerate(hand.cards):
                 x = currentX + j * (self.cardWidth + self.cardSpacing)
                 y = self.playerSeats[playerObj][1] - 60  # Center of card over the seat
                 colourIndex = len(hands) - 1 - i  # Rightmost hand black
                 card.drawCard(self.screen, (x, y), colourIndex=colourIndex, active=handActive)
-
             # Draw hand status above cards
-            if hand.cards:
-                statusY = self.playerSeats[playerObj][1] - self.cardHeight - 30
-                self.drawHandStatus(hand, (handCenterX, statusY))
-
+            statusY = self.playerSeats[playerObj][1] - self.cardHeight - 30
+            self.drawHandStatus(hand, (handCenterX, statusY))
             # Move X to next hand
             currentX += handWidth + self.handSpacing
 
@@ -162,7 +160,7 @@ class handleGameUI:
         targetPlayer = next(playerObj for playerObj in players if playerObj.isPlayer)
         playerBalance = targetPlayer.bustBux
         balanceTopLeft = (25,15)
-        balanceTextSurface = self.mainFont.render(f"Balance:{playerBalance}", True, (0, 0, 0)) # Creates text surface with colour black
+        balanceTextSurface = self.mainFont.render(f"Balance:{playerBalance}", True, "black")
         balanceTextRect = balanceTextSurface.get_rect(topleft=balanceTopLeft)
         self.screen.blit(balanceTextSurface, balanceTextRect)   
         
@@ -184,17 +182,21 @@ class handleGameUI:
         self.drawBalance(players)
         self.drawPlayerBets(players)
 
-class gameStates: # TODO Clean and comment
-    # Game States
+class gameStates:
+    # Game States #
+    # Gameplay states
     gamePlayRunning = True
     gameOver = False
     deckOutOfCards = False
+    # Phases
     bettingPhase = True
     roundStarted = False
     roundOver = False
     payedOut = False
+    # Turns
     NPCTurn = False
     dealerTurn = False
+    # Availability
     doubleDownAvailable = False
     insuranceAvailable = False
 
@@ -206,6 +208,7 @@ class playerActionStates:
     insurance = False
     betMade = False
     startNextRound = False
+    # Bet Attributes
     potentialBet = 0
     playerWinnings = 0
 
@@ -290,7 +293,6 @@ class playGame():
         self.seenCards += 1
         decksRemaining = self.noOfDecks - round(self.seenCards // 56)
         self.trueCount = self.runningCount // decksRemaining
-        # self.predictNextCard()
 
     def progressTurn(self):
         # If the current hand index is the last hand
@@ -330,15 +332,15 @@ class playGame():
 
     def getPlayerSeats(self):
         # Assigns players their seating positions
-        seatingPositions = [(300, 250), (300, 550), (700, 650), (1100,550), (1100,250)] # TODO Find good seating positions, will be the position of the text of the player's name
-        playerPos = 0 # Position of the player in the list
+        seatingPositions = [(300, 250), (300, 550), (700, 650), (1100,550), (1100,250)]
         seatingPosDict = {}
         # Get the position of the user in the players list
         for player in self.players:
             if player.isPlayer:
                 playerPos = self.players.index(player)
         # Align the 2 lists so the middles match
-        startingPos = 2 - playerPos # 2 is the middle of the seatingPositions list, player pos should be the middle of the players list
+        # 2 is the middle of the seatingPositions list, player pos should be the middle of the players list
+        startingPos = 2 - playerPos 
         for i in range(startingPos, len(self.players)-1 + startingPos):
             # self.players[i - startingPos] "i - startingPos" Is the index of the players in the player list
             # seatingPositions[i] is the aligned seating position
@@ -368,7 +370,6 @@ class playGame():
         else: # Not seen enough the deck to accurately predict the next card
             self.predictedNextCard = "unknown"
             
-    
     def handleUI(self):
         self.UI.updateImage(self.players)
     

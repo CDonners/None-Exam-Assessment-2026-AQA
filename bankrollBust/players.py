@@ -107,7 +107,7 @@ class player():
         self.hands.insert(self.handIndex+1, newHand) # Adding the new hand next to the current one
 
     def makeBet(self, bet):
-        self.hands[self.handIndex].bet = bet
+        self.hands[self.handIndex].bet += bet
         self.totalBet += bet
         self.bustBux -= bet
 
@@ -160,11 +160,10 @@ class player():
     
     def getNextCardNeeded(self):
         currentHand = self.hands[self.handIndex]
-        # ["A", -1],["2", 1],["3", 1],["4", 2],["5", 2],["6", 2],["7", 1],["8", 0],["9", 0],["10", -2],["J", -2],["Q", -2],["K", -2]
-        # High cards have value of -2, low cards have value of 1 or -1, medium cards have value of 2, low-High has value of 0
-        # It will always hit when >10 is needed so you can ignore -2 values
-        # It will always stand with hand value of 17+ so ignore the cards less than 4
-        # Types of card needed is High Medium Low
+        # ["A", -1],["2", 1],["3", 1],["4", 2],["5", 2],["6", 2],["7", 1],
+        # ["8", 0],["9", 0],["10", -2],["J", -2],["Q", -2],["K", -2]
+        # High cards have value of -2, low cards have value of 1 or -1, 
+        # medium cards have value of 2, low-High has value of 0
         neededCard = None
         valueNeeded = 21 - currentHand.handValue
         if 5 <= valueNeeded <= 6:
@@ -220,27 +219,23 @@ class NPC(player):
         # --- Getting values --- #
         self.getNextCardNeeded()
         # --- Decision making --- #
-        # If the NPC can split they should make the decision
-        decidedToSplit = False
-        if self.canSplit():
-            decidedToSplit = self.decideToSplit()
         # Decide and make the move
-        if game.gameState.insuranceAvailable and self.insurance == 0:
-            if self.decideInsurance(game):
-                return self.ACTIONS[3]
-        if decidedToSplit:
+        if self.decideInsurance(game):
+            return self.ACTIONS[3]
+        elif self.decideToSplit():
             action = self.ACTIONS[2]
         elif self.decideDoubleDown(game, currentHand):
             action = self.ACTIONS[4]
         elif self.decideToHit(game, currentHand):
             action = self.ACTIONS[0]
-        else: # Placeholder to have game move
+        else: # If NPC doesn't decide to do anything then stand
             action = self.ACTIONS[1]
         return action
     
     def calculateBet(self, minBet):
         # Higher floor when quality is high
-        lowerBound = max(0.05, min(1.0, 0.4 * self.confidence)) # Adjust the floor to be affected by experience and keep it from being stuck at 0
+        # Adjust the floor to be affected by experience and keep it from being stuck at 0
+        lowerBound = max(0.05, min(1.0, 0.4 * self.confidence)) 
         # Generate the chance of hitting
         chanceToRaiseBet = genRandFloat(lowerBound, 1.0)
         if chanceToRaiseBet > 0.75: # If the chance to raise bet is greater than 075
@@ -248,7 +243,7 @@ class NPC(player):
             betToMake = minBet*betIncreaseMultiplier
             roundedBet = betToMake // 5 * 5 # Round bet to the nearest 5
             return max(minBet, roundedBet)
-        return(minBet)
+        return minBet
 
     def decideToHit(self, game, currentHand):
         quality = self.getHandQuality(game, currentHand, "hit") # Quality of hand
@@ -256,33 +251,38 @@ class NPC(player):
         minToHit = round(0.7 - (quality * 0.5), 4)
         # Higher floor when quality is high
         floatGeneratorFloor = 0.1 + (quality * 0.7)
-        lowerBound = max(0.05, min(1.0, floatGeneratorFloor * self.experience)) # Adjust the floor to be affected by experience and keep it from being stuck at 0
+        # Adjust the floor to be affected by experience and keep it from being stuck at 0
+        lowerBound = max(0.05, min(1.0, floatGeneratorFloor * self.experience))
         # Generate the chance of hitting
         generatedChance = genRandFloat(lowerBound, 1.0)
         return generatedChance >= minToHit # Returns true if the generated chance is high enough
 
     def decideToSplit(self):
-        chanceToSplit = genRandFloat(0.65,1)
-        decidesToSplit = False
-        chanceToSplit = chanceToSplit * self.experience
-        if chanceToSplit > 0.75:
-            decidesToSplit = True
-        return decidesToSplit
+        if self.canSplit():
+            chanceToSplit = genRandFloat(0.65,1)
+            decidesToSplit = False
+            chanceToSplit = chanceToSplit * self.experience
+            if chanceToSplit > 0.75:
+                decidesToSplit = True
+            return decidesToSplit
+        return False
     
     def decideInsurance(self, game):
-        chanceToInsure = 0.95
-        if game.predictedNextCard == "strongHigh":
-            # Highest chance dealer has natural blackjack
-            chanceToInsure = 0.6
-        elif game.predictedNextCard == "weakHigh":
-            # high chance dealer has blackjack
-            chanceToInsure = 0.75
-        lowerBound = min(1.0, self.experience//2)
-        generatedChance = genRandFloat(lowerBound, 1.0)
-        if generatedChance > chanceToInsure:
-            return True
-        else:
-            return False
+        if game.gameState.insuranceAvailable and self.insurance == 0:
+            minChanceToInsure = 0.7
+            if game.predictedNextCard == "strongHigh":
+                # Highest chance dealer has natural blackjack
+                minChanceToInsure = 0.5
+            elif game.predictedNextCard == "weakHigh":
+                # high chance dealer has blackjack
+                minChanceToInsure = 0.6
+            lowerBound = min(1.0, self.experience/2)
+            generatedChance = genRandFloat(lowerBound, 1.0)
+            if generatedChance > minChanceToInsure:
+                return True
+            else:
+                return False
+        return False
         
     def decideDoubleDown(self, game, currentHand):
         if self.canDoubleDown():
@@ -335,7 +335,8 @@ class NPC(player):
                 quality = 0.7
             else:
                 quality = 0.01  # other totals too risky
-            # When doubling down, because we double down at 11 or 12, you want a high card so if next card is low, quality decreases
+            # When doubling down, because we double down at 11 or 12, 
+            # you want a high card so if next card is low, quality decreases
         
         # Have the predicted card affect the 
         if game.predictedNextCard in ["strongLow", "weakLow"]:

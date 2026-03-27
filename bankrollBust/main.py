@@ -4,7 +4,6 @@ from gameLogic import playGame
 import json
 from os import getcwd
 
-# TODO Add caps support to input boxes for alpha
 # ! Bugs ! 
 # TODO Game stood for player with this card setup, can't recreate it: 
 """Met the exact circumstances and still didn't happen
@@ -66,8 +65,11 @@ def playingGame(game):
     revealSeenCardsButton = revealableButton(screen, (105, 70), "Seen Cards", interactable=True)
     revealPredictedCardButton = revealableButton(screen, (290, 70), "Predicted Card", interactable=True)
     # Creating the bet amount input box
-    minBet = round(game.startingBux * 0.01 / 5) * 5 # Rounds the minimum bet to the nearest 5, so the minimum bet will always be 1% of the starting bux to the nearest 5
-    betAmountInputBox = inputBox(screen, (centreX, 770), "Bet Amount:", "num", f"{minBet}", interactable=False, minMax=[float(minBet), 1000*float(minBet)])
+    # Rounds the minimum bet to the nearest 5,
+    #  so the minimum bet will always be 1% of the starting bux to the nearest 5
+    minBet = round(game.startingBux * 0.01 / 5) * 5
+    betAmountInputBox = inputBox(screen, (centreX, 770), "Bet Amount:", 
+                                 "num", f"{minBet}", interactable=False, minMax=[float(minBet), 1000*float(minBet)])
     # Game action delay (in frames at 60 FPS)
     gameActionDelay = 30  # 0.5 seconds at 60 FPS
     gameAct = 0
@@ -85,12 +87,14 @@ def playingGame(game):
         elif game.difficulty == "There-When-Needed":
             revealTrueCountButton.draw()
     
-    def drawScreen(): # TODO Comment and clean
+    def drawScreen(): 
         screen.blit(bg, (0,0)) # Set the screen as my background
+        # Draws game over Text and button if game is over
         if game.gameState.gameOver: 
             game.UI.drawGameOverText()
             endGameButton.draw()
-        elif game.gameState.deckOutOfCards:
+        # Checks if deck is out of cards and draws the texts and buttons if it is
+        elif game.gameState.deckOutOfCards: 
             game.UI.drawOutOfCardsText()
             endGameButton.draw()
             newDeckButton.draw()
@@ -157,9 +161,7 @@ def playingGame(game):
                     if game.gameState.doubleDownAvailable:
                         if doubleDownButton.pressed(event): # If the player hasn't acted they can double down
                             currentHand = game.currentPlayer.hands[0]
-                            game.currentPlayer.bustBux -= currentHand.bet # Remove the additional bet from their total
-                            game.currentPlayer.totalBet += currentHand.bet
-                            currentHand.bet *= 2
+                            game.currentPlayer.makeBet(currentHand.bet)
                             # Usual card dealing process
                             game.currentPlayer.dealCard(game)
                             game.currentPlayer.stand(game)
@@ -179,8 +181,7 @@ def playingGame(game):
                 # Stagger the dealt cards 
                 pygame.time.wait(400)
                 drawScreen() # Draw a the new hands when they are dealt
-        pygame.time.wait(1000) # Stagger time before round start
-        game.roundStarted = True # Start the round
+        game.gameState.roundStarted = True # Start the round
 
     def endPlayerTurn():
         # Make all buttons uninteractable
@@ -274,10 +275,11 @@ def playingGame(game):
                                 bustBuxPayOut += hand.bet * multiplier
                             else: # Player Lost
                                 pass # Nothing needs to be handled
+                
+                profit = bustBuxPayOut - player.totalBet  # Only the net profit
+                player.winnings += profit
+                player.bustBux += bustBuxPayOut
                 if player.isPlayer:
-                    profit = bustBuxPayOut - player.totalBet  # Only the net profit
-                    player.winnings += profit
-                    player.bustBux += bustBuxPayOut 
                     game.playerAction.playerWinnings += player.winnings
                     if player.bustBux <= 0:
                         game.gameState.gameOver = True
@@ -288,7 +290,6 @@ def playingGame(game):
         events = pygame.event.get()
         eventHandler(events)
         game.currentPlayer = game.players[game.playerIndex]
-        # Game ends if user has no money
         if game.gameState.bettingPhase: # If betting phase is active
             # Player's betting turn
             if game.currentPlayer.isPlayer:
@@ -307,6 +308,7 @@ def playingGame(game):
                     NPCBet = game.currentPlayer.calculateBet(minBet)
                     game.currentPlayer.makeBet(NPCBet)
                     game.playerIndex += 1
+                    gameAct = 0
         # Round Started
         elif game.gameState.roundStarted:
             game.predictNextCard()
@@ -370,9 +372,7 @@ def playingGame(game):
                             game.currentPlayer.totalBet += currentHand.bet/2
                             game.currentPlayer.bustBux -= currentHand.bet/2
                         elif NPCAction == "doubleDown":
-                            game.currentPlayer.bustBux -= currentHand.bet # Remove the additional bet from their total
-                            game.currentPlayer.totalBet += currentHand.bet
-                            currentHand.bet *= 2
+                            game.currentPlayer.makeBet(currentHand.bet)
                             # Usual card dealing process
                             game.currentPlayer.dealCard(game)
                             game.currentPlayer.stand(game)
@@ -473,17 +473,19 @@ def settings():
 # Main Game Loop
 gameRunning = True
 while gameRunning: # Main Menu Loop
+    # --- Draw Screen --- #
     screen.blit(bg, (0,0)) # Set the screen as my background
     newGameButton.draw()
     continueButton.draw()
     settingsButton.draw()
     quitButton.draw()
     pygame.display.update() # Update the screen
-    # Draw the Buttons
-    for event in pygame.event.get(): #Checking for events
+    # --- Event Handler --- #
+    for event in pygame.event.get():
         if event.type == pygame.QUIT: # If the user presses the X button, quit game
             gameRunning = False
-        # By updating the image on an event I can limit the amount of checks my code makes, additionally I can make it so you only press one button at a time
+        # By updating the image on an event I can limit the amount of checks my code makes, 
+        # additionally I can make it so you only press one button at a time
         if newGameButton.pressed(event):
             gameSettings = newGameSettings() # Opens teh new game mini window
             if gameSettings is not None: # If it is none they cancelled new game
