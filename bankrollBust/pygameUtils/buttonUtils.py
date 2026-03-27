@@ -194,15 +194,25 @@ class inputBox(button):
         self.screen.blit(self.title_titleSurface, self.title_titleRect)
         self.screen.blit(self.input_titleSurface, self.input_titleRect)
     
+    def pressed(self, event): # Checks if the mouse is pressed while it hovers over the button
+        if event.type == pygame.MOUSEBUTTONDOWN: # Checking if the button press is a mouse press
+            if event.button == 1: # Checks if the button pressed is the left mouse button
+                return True
+        return False
+
     def checkSelected(self, event):
         if self.interactable: # Only do something if the box can be used
             if self.pressed(event): # Checks if the mouse was pressed
+                print("Pressed")
                 if self.checkHover(): # Checks if the mouse was hovering over the box when it was pressed
                     self.selected = True # If it was then selected is true
                     self.value = "" # Value is blank
+                    print("Pressed while hovered")
                 else: 
                     self.selected = False # Selected is now false
+                    print("Not selected")
                     if self.value == "": # If no value was set when it was pressed then the default value is set bac
+                        print("Setting to default")
                         self.value = self.defaultValue
                     elif self.minMax != (): # There is a minimum and maximum value meaning value is an int or float
                         if float(self.value) < self.minMax[0]:
